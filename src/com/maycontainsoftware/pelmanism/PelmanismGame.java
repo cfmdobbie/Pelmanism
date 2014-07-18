@@ -7,10 +7,13 @@ import java.util.Random;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -31,10 +34,17 @@ public class PelmanismGame implements ApplicationListener {
 	// Drawing engine
 	private SpriteBatch mBatch;
 
+	// Assets
+	private AssetManager mAssetManager;
+	private static final String BACKGROUND_TEXTURE = "background.png";
+	private static final String TILESET_TEXTURE = "test_card_4.png";
+	private static final String UI_TEXTURE = "ui_elements_1.png";
 	private Texture mTilesetTexture;
+	private Texture mBackgroundTexture;
+	private Texture mUiTexture;
+	private TextureRegion mLogo;
 	private TextureRegion[] mCardTextures;
 
-	private float mTime = 0.0f;
 	private final Random mRandom = new Random();
 
 	private static final int BOARD_WIDTH = 4;
@@ -48,70 +58,84 @@ public class PelmanismGame implements ApplicationListener {
 
 	private int mFirstCell;
 	private int mSecondCell;
-	
+
+	// Game State Engine
 	private enum GameState {
 		AwaitingFirstSelection, AnimFirstSelection, AwaitingSecondSelection, AnimSecondSelection, ShowingPair, Complete,
 	}
+
 	private GameState mGameState = GameState.AwaitingFirstSelection;
-	
+
+	// User Interface State Engine
+	private enum UiState {
+		Loading, LoadingToGame, Game, GameToOptions_Game, GameToOptions_Options, Options, OptionsToGame_Options, OptionsToGame_Game
+	}
+
+	private UiState mUiState = UiState.Loading;
+
 	private float animFirstAlpha;
 	private float animSecondAlpha;
 	private float showTimer;
+	private float mUiAlpha;
+
+	private final void startAssetLoad() {
+
+		TextureParameter linearFilter = new TextureParameter();
+		linearFilter.minFilter = TextureFilter.Linear;
+		linearFilter.magFilter = TextureFilter.Linear;
+
+		TextureParameter wrapTexture = new TextureParameter();
+		wrapTexture.wrapU = TextureWrap.Repeat;
+		wrapTexture.wrapV = TextureWrap.Repeat;
+
+		mAssetManager.load(BACKGROUND_TEXTURE, Texture.class, wrapTexture);
+		mAssetManager.load(TILESET_TEXTURE, Texture.class, linearFilter);
+		mAssetManager.load(UI_TEXTURE, Texture.class, linearFilter);
+	}
 
 	@Override
-	public void create() {
+	public final void create() {
 		Gdx.app.log(TAG, "create()");
 
 		mCamera = new OrthographicCamera();
 		mBatch = new SpriteBatch();
+		mAssetManager = new AssetManager();
+
+		startAssetLoad();
 
 		// Load all required texture data
-		mTilesetTexture = new Texture(Gdx.files.internal("test_card_3.png"));
-		mTilesetTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
+		// mTilesetTexture = new Texture(Gdx.files.internal("test_card_3.png"));
+		// mTilesetTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		// All board cells are covered at start of game
 		/*
 		 * for (int i = 0; i < mCellUncovered.length; i++) { mCellUncovered[i] = false; }
 		 */
 
-		// Randomly generate board
-		// Chose a set of (paired, shuffled) cards
-		List<Integer> chosenCards = generateCardSet();
-		// Position cards on board
-		for (int i = 0; i < chosenCards.size(); i++) {
-			mCellContents[i] = chosenCards.get(i);
-		}
 	}
 
 	@Override
-	public void dispose() {
+	public final void dispose() {
 		Gdx.app.log(TAG, "dispose()");
 
 		mBatch.dispose();
 		mTilesetTexture.dispose();
 	}
 
-	@Override
-	public void render() {
-		float delta = Gdx.graphics.getDeltaTime();
-		mTime += delta;
-
-		// Handle input
+	private final void doInput(float delta) {
 		if (Gdx.input.justTouched()) {
 			// Get touch location
 			Vector2 touch = getTouchLocation();
 
 			// Determine whether a cell was touched
 			int cell = getTouchedCell(touch);
-			
-			Gdx.app.log(TAG, "mGameState = " + mGameState);
-			Gdx.app.log(TAG, "touched cell = " + cell);
-			Gdx.app.log(TAG, "mFirstCell = " + mFirstCell);
-			Gdx.app.log(TAG, "animFirstAlpha = " + animFirstAlpha);
-			Gdx.app.log(TAG, "mSecondCell = " + mSecondCell);
-			Gdx.app.log(TAG, "animSecondAlpha = " + animSecondAlpha);
-			
+
+			// Gdx.app.log(TAG, "mGameState = " + mGameState);
+			// Gdx.app.log(TAG, "touched cell = " + cell);
+			// Gdx.app.log(TAG, "mFirstCell = " + mFirstCell);
+			// Gdx.app.log(TAG, "animFirstAlpha = " + animFirstAlpha);
+			// Gdx.app.log(TAG, "mSecondCell = " + mSecondCell);
+			// Gdx.app.log(TAG, "animSecondAlpha = " + animSecondAlpha);
 
 			// Was a valid cell touched?
 			if (cell != -1) {
@@ -139,7 +163,7 @@ public class PelmanismGame implements ApplicationListener {
 					break;
 				case AnimSecondSelection:
 				case ShowingPair:
-					if(cell != mFirstCell && cell != mSecondCell && !mCellUncovered[cell]) {
+					if (cell != mFirstCell && cell != mSecondCell && !mCellUncovered[cell]) {
 						// Clear the previously-selected cells
 						// TODO: Pair was a match?
 						mCellAnimating[mFirstCell] = false;
@@ -167,112 +191,144 @@ public class PelmanismGame implements ApplicationListener {
 				// TODO: Other touch-sensitive components
 			}
 		}
+	}
 
-		// Update model
-		switch(mGameState) {
-		case AnimFirstSelection:
-			// Update animation alpha
-			animFirstAlpha += delta * 2;
-			if (animFirstAlpha >= 1.0f) {
-				animFirstAlpha = 1.0f;
-				// Mark cell as uncovered
-				mCellUncovered[mFirstCell] = true;
-				// And no longer animating
-				mCellAnimating[mFirstCell] = false;
-				// Wait for second click
-				if(mGameState == GameState.AnimFirstSelection) {
-					mGameState = GameState.AwaitingSecondSelection;
+	private final void doUpdate(float delta) {
+
+		switch (mUiState) {
+		case Loading:
+			// Continue asset loading
+			boolean finished = mAssetManager.update();
+			if (finished) {
+				// Textures loaded!
+				// Get Texture references, perform any required post-processing
+				mTilesetTexture = mAssetManager.get(TILESET_TEXTURE);
+				mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
+
+				mBackgroundTexture = mAssetManager.get(BACKGROUND_TEXTURE);
+				mUiTexture = mAssetManager.get(UI_TEXTURE);
+				
+				// XXX: Use texture atlas here?
+				mLogo = new TextureRegion(mUiTexture, 0, 0, 231, 66);
+
+				// XXX: Move game setup code to better location!
+				// Randomly generate board
+				// Chose a set of (paired, shuffled) cards
+				List<Integer> chosenCards = generateCardSet();
+				// Position cards on board
+				for (int i = 0; i < chosenCards.size(); i++) {
+					mCellContents[i] = chosenCards.get(i);
 				}
+
+				// Fade in game interface
+				mUiState = UiState.LoadingToGame;
+				mUiAlpha = 0.0f;
 			}
 			break;
-		case AnimSecondSelection:
-			// TODO: Anim first as well!
-			// Update animation alpha
-			animFirstAlpha += delta * 2;
-			if (animFirstAlpha >= 1.0f) {
-				animFirstAlpha = 1.0f;
-				// Mark cell as uncovered
-				mCellUncovered[mFirstCell] = true;
-				// And no longer animating
-				mCellAnimating[mFirstCell] = false;
-				// Wait for second click
-				if(mGameState == GameState.AnimFirstSelection) {
-					mGameState = GameState.AwaitingSecondSelection;
-				}
-			}
-			// Second
-			// Update animation alpha
-			animSecondAlpha += delta * 2;
-			if (animSecondAlpha >= 1.0f) {
-				animSecondAlpha = 1.0f;
-				// Mark cell as uncovered
-				mCellUncovered[mSecondCell] = true;
-				// And no longer animating
-				mCellAnimating[mSecondCell] = false;
-				// Two cards turned, show the pair
-				mGameState = GameState.ShowingPair;
-				showTimer = 1.0f;
+		case LoadingToGame:
+			mUiAlpha += delta * 100;
+			if (mUiAlpha >= 1.0f) {
+				mUiState = UiState.Game;
 			}
 			break;
-		case ShowingPair:
-			showTimer -= delta;
-			if(showTimer <= 0.0f) {
-				// TODO: Pair was a match?
-				mCellUncovered[mFirstCell] = false;
-				mCellUncovered[mSecondCell] = false;
-				mFirstCell = -1;
-				mSecondCell = -1;
-				mGameState = GameState.AwaitingFirstSelection;
+		case Game:
+
+			switch (mGameState) {
+			case AnimFirstSelection:
+				// Update animation alpha
+				animFirstAlpha += delta * 2;
+				if (animFirstAlpha >= 1.0f) {
+					animFirstAlpha = 1.0f;
+					// Mark cell as uncovered
+					mCellUncovered[mFirstCell] = true;
+					// And no longer animating
+					mCellAnimating[mFirstCell] = false;
+					// Wait for second click
+					if (mGameState == GameState.AnimFirstSelection) {
+						mGameState = GameState.AwaitingSecondSelection;
+					}
+				}
+				break;
+			case AnimSecondSelection:
+				// TODO: Anim first as well!
+				// Update animation alpha
+				animFirstAlpha += delta * 2;
+				if (animFirstAlpha >= 1.0f) {
+					animFirstAlpha = 1.0f;
+					// Mark cell as uncovered
+					mCellUncovered[mFirstCell] = true;
+					// And no longer animating
+					mCellAnimating[mFirstCell] = false;
+					// Wait for second click
+					if (mGameState == GameState.AnimFirstSelection) {
+						mGameState = GameState.AwaitingSecondSelection;
+					}
+				}
+				// Second
+				// Update animation alpha
+				animSecondAlpha += delta * 2;
+				if (animSecondAlpha >= 1.0f) {
+					animSecondAlpha = 1.0f;
+					// Mark cell as uncovered
+					mCellUncovered[mSecondCell] = true;
+					// And no longer animating
+					mCellAnimating[mSecondCell] = false;
+					// Two cards turned, show the pair
+					mGameState = GameState.ShowingPair;
+					showTimer = 1.0f;
+				}
+				break;
+			case ShowingPair:
+				showTimer -= delta;
+				if (showTimer <= 0.0f) {
+					// TODO: Pair was a match?
+					mCellUncovered[mFirstCell] = false;
+					mCellUncovered[mSecondCell] = false;
+					mFirstCell = -1;
+					mSecondCell = -1;
+					mGameState = GameState.AwaitingFirstSelection;
+				}
+				break;
+			}
+
+			break;
+		case GameToOptions_Game:
+			mUiAlpha -= delta * 100;
+			if (mUiAlpha <= 0.0f) {
+				mUiState = UiState.GameToOptions_Options;
+				mUiAlpha = 0.0f;
+			}
+			break;
+		case GameToOptions_Options:
+			mUiAlpha += delta * 100;
+			if (mUiAlpha >= 1.0f) {
+				mUiState = UiState.Options;
+			}
+			break;
+		case Options:
+			// No-op
+			break;
+		case OptionsToGame_Options:
+			mUiAlpha -= delta * 100;
+			if (mUiAlpha <= 0.0f) {
+				mUiState = UiState.OptionsToGame_Game;
+				mUiAlpha = 0.0f;
+			}
+			break;
+		case OptionsToGame_Game:
+			mUiAlpha += delta * 100;
+			if (mUiAlpha >= 1.0f) {
+				mUiState = UiState.Game;
 			}
 			break;
 		}
-		/*
-		// Process first cell animation
-		if (mCellAnimating[mFirstCell]) {
-			// Update animation alpha
-			animFirstAlpha += delta * 2;
-			if (animFirstAlpha >= 1.0f) {
-				animFirstAlpha = 1.0f;
-				// Mark cell as uncovered
-				mCellUncovered[mFirstCell] = true;
-				// And no longer animating
-				mCellAnimating[mFirstCell] = false;
-				// Wait for second click
-				if(mGameState == GameState.AnimFirstSelection) {
-					mGameState = GameState.AwaitingSecondSelection;
-				}
-			}
-		}
-		// Process second cell animation
-		if (mCellAnimating[mSecondCell]) {
-			// Update animation alpha
-			animSecondAlpha += delta * 2;
-			if (animSecondAlpha >= 1.0f) {
-				animSecondAlpha = 1.0f;
-				// Mark cell as uncovered
-				mCellUncovered[mSecondCell] = true;
-				// And no longer animating
-				mCellAnimating[mSecondCell] = false;
-				// Two cards turned, show the pair
-				mGameState = GameState.ShowingPair;
-				showTimer = 1.0f;
-			}
-		}
-		if(mGameState == GameState.ShowingPair) {
-			showTimer -= delta;
-			if(showTimer <= 0.0f) {
-				// TODO: Pair was a match?
-				mCellUncovered[mFirstCell] = false;
-				mCellUncovered[mSecondCell] = false;
-				mFirstCell = -1;
-				mSecondCell = -1;
-				mGameState = GameState.AwaitingFirstSelection;
-			}
-		}
-		*/
+	}
+
+	private final void doRender(float delta) {
 
 		// Render screen
 
+		// Clear background
 		Gdx.gl.glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 		// Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -285,13 +341,101 @@ public class PelmanismGame implements ApplicationListener {
 		// Start batch
 		mBatch.begin();
 
+		switch (mUiState) {
+		case Loading:
+			// Assets not loaded, nothing more to do
+			break;
+		case LoadingToGame:
+			drawBackground();
+			drawLogo(mUiAlpha);
+			drawNewGame(mUiAlpha);
+			drawOptions(mUiAlpha);
+			drawBoard(mUiAlpha);
+			break;
+		case Game:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(1.0f);
+			drawOptions(1.0f);
+			drawBoard(1.0f);
+			break;
+		case GameToOptions_Game:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(mUiAlpha);
+			drawOptions(mUiAlpha);
+			drawBoard(mUiAlpha);
+			break;
+		case GameToOptions_Options:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(mUiAlpha);
+			drawBack(mUiAlpha);
+			// TODO: Draw options screen
+			break;
+		case Options:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(1.0f);
+			drawBack(1.0f);
+			// TODO: Draw options screen
+			break;
+		case OptionsToGame_Options:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(mUiAlpha);
+			drawBack(mUiAlpha);
+			// TODO: Draw options screen
+			break;
+		case OptionsToGame_Game:
+			drawBackground();
+			drawLogo(1.0f);
+			drawNewGame(mUiAlpha);
+			drawOptions(mUiAlpha);
+			drawBoard(mUiAlpha);
+			break;
+		}
+
+		// End batch
+		mBatch.end();
+
+	}
+
+	private final void drawBackground() {
+		float screenWidth = mCamera.viewportWidth;
+		float screenHeight = mCamera.viewportHeight;
+		int textureWidth = mBackgroundTexture.getWidth();
+		int textureHeight = mBackgroundTexture.getHeight();
+		mBatch.draw(mBackgroundTexture, 0, 0, screenWidth, screenHeight, 0.0f, screenHeight / (float) textureHeight, screenWidth
+				/ (float) textureWidth, 0.0f);
+	}
+
+	private final void drawLogo(float alpha) {
+		// TODO: Draw logo using alpha
+		mBatch.draw(mLogo, 10, 10);
+	}
+
+	private final void drawOptions(float alpha) {
+		// TODO: Draw options button using alpha
+	}
+
+	private final void drawBack(float alpha) {
+		// TODO: Draw back button using alpha
+	}
+
+	private final void drawNewGame(float alpha) {
+		// TODO: Draw new game button using alpha
+	}
+
+	private final void drawBoard(float alpha) {
+		// TODO: Draw board using alpha
 		// Draw cells
 		for (int i = 0; i < mBoardCells.length; i++) {
 			final Rectangle r = mBoardCells[i];
 			if (mCellAnimating[i]) {
-				float alpha = (i == mFirstCell) ? animFirstAlpha : animSecondAlpha;
+				float cellAlpha = (i == mFirstCell) ? animFirstAlpha : animSecondAlpha;
 				mBatch.draw(mCardTextures[mCellContents[i]], r.x, r.y, r.width, r.height);
-				mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f - alpha);
+				mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f - cellAlpha);
 				mBatch.draw(mCardTextures[mCardTextures.length - 1], r.x, r.y, r.width, r.height);
 				mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 			} else if (mCellUncovered[i]) {
@@ -300,9 +444,27 @@ public class PelmanismGame implements ApplicationListener {
 				mBatch.draw(mCardTextures[mCardTextures.length - 1], r.x, r.y, r.width, r.height);
 			}
 		}
+	}
 
-		// End batch
-		mBatch.end();
+	@Override
+	public void render() {
+		float delta = Gdx.graphics.getDeltaTime();
+
+		doInput(delta);
+		doUpdate(delta);
+		doRender(delta);
+
+		/*
+		 * // Process first cell animation if (mCellAnimating[mFirstCell]) { // Update animation alpha animFirstAlpha += delta * 2; if
+		 * (animFirstAlpha >= 1.0f) { animFirstAlpha = 1.0f; // Mark cell as uncovered mCellUncovered[mFirstCell] = true; // And no longer
+		 * animating mCellAnimating[mFirstCell] = false; // Wait for second click if(mGameState == GameState.AnimFirstSelection) {
+		 * mGameState = GameState.AwaitingSecondSelection; } } } // Process second cell animation if (mCellAnimating[mSecondCell]) { //
+		 * Update animation alpha animSecondAlpha += delta * 2; if (animSecondAlpha >= 1.0f) { animSecondAlpha = 1.0f; // Mark cell as
+		 * uncovered mCellUncovered[mSecondCell] = true; // And no longer animating mCellAnimating[mSecondCell] = false; // Two cards
+		 * turned, show the pair mGameState = GameState.ShowingPair; showTimer = 1.0f; } } if(mGameState == GameState.ShowingPair) {
+		 * showTimer -= delta; if(showTimer <= 0.0f) { // TODO: Pair was a match? mCellUncovered[mFirstCell] = false;
+		 * mCellUncovered[mSecondCell] = false; mFirstCell = -1; mSecondCell = -1; mGameState = GameState.AwaitingFirstSelection; } }
+		 */
 	}
 
 	@Override
