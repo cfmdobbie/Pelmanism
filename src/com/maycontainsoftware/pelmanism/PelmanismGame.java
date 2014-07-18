@@ -41,8 +41,16 @@ public class PelmanismGame implements ApplicationListener {
 	private static final String UI_TEXTURE = "ui_elements_1.png";
 	private Texture mTilesetTexture;
 	private Texture mBackgroundTexture;
+	private int mBackgroundWidth, mBackgroundHeight;
 	private Texture mUiTexture;
 	private TextureRegion mLogo;
+	Rectangle mLogoRect = new Rectangle();
+	private TextureRegion mOptionsButton;
+	Rectangle mOptionsButtonRect = new Rectangle();
+	private TextureRegion mCancelButton;
+	Rectangle mCancelButtonRect = new Rectangle();
+	private TextureRegion mNewGameButton;
+	Rectangle mNewGameButtonRect = new Rectangle();
 	private TextureRegion[] mCardTextures;
 
 	private final Random mRandom = new Random();
@@ -58,6 +66,8 @@ public class PelmanismGame implements ApplicationListener {
 
 	private int mFirstCell;
 	private int mSecondCell;
+
+	private int mDisplayWidth, mDisplayHeight;
 
 	// Game State Engine
 	private enum GameState {
@@ -123,73 +133,90 @@ public class PelmanismGame implements ApplicationListener {
 	}
 
 	private final void doInput(float delta) {
-		if (Gdx.input.justTouched()) {
-			// Get touch location
-			Vector2 touch = getTouchLocation();
 
-			// Determine whether a cell was touched
-			int cell = getTouchedCell(touch);
+		switch (mUiState) {
+		case Loading:
+		case LoadingToGame:
+		case GameToOptions_Game:
+		case GameToOptions_Options:
+		case OptionsToGame_Options:
+		case OptionsToGame_Game:
+			// Input ignored
+			break;
+		case Game:
+			// TODO: Clean up game screen input handling
+			if (Gdx.input.justTouched()) {
+				// Get touch location
+				Vector2 touch = getTouchLocation();
 
-			// Gdx.app.log(TAG, "mGameState = " + mGameState);
-			// Gdx.app.log(TAG, "touched cell = " + cell);
-			// Gdx.app.log(TAG, "mFirstCell = " + mFirstCell);
-			// Gdx.app.log(TAG, "animFirstAlpha = " + animFirstAlpha);
-			// Gdx.app.log(TAG, "mSecondCell = " + mSecondCell);
-			// Gdx.app.log(TAG, "animSecondAlpha = " + animSecondAlpha);
+				// Determine whether a cell was touched
+				int cell = getTouchedCell(touch);
 
-			// Was a valid cell touched?
-			if (cell != -1) {
-				switch (mGameState) {
-				case AwaitingFirstSelection:
-					if (!mCellUncovered[cell]) {
-						// Remember this cell
-						mFirstCell = cell;
-						// Set it to start animating in
-						mGameState = GameState.AnimFirstSelection;
-						animFirstAlpha = 0.0f;
-						mCellAnimating[cell] = true;
+				// Gdx.app.log(TAG, "mGameState = " + mGameState);
+				// Gdx.app.log(TAG, "touched cell = " + cell);
+				// Gdx.app.log(TAG, "mFirstCell = " + mFirstCell);
+				// Gdx.app.log(TAG, "animFirstAlpha = " + animFirstAlpha);
+				// Gdx.app.log(TAG, "mSecondCell = " + mSecondCell);
+				// Gdx.app.log(TAG, "animSecondAlpha = " + animSecondAlpha);
+
+				// Was a valid cell touched?
+				if (cell != -1) {
+					switch (mGameState) {
+					case AwaitingFirstSelection:
+						if (!mCellUncovered[cell]) {
+							// Remember this cell
+							mFirstCell = cell;
+							// Set it to start animating in
+							mGameState = GameState.AnimFirstSelection;
+							animFirstAlpha = 0.0f;
+							mCellAnimating[cell] = true;
+						}
+						break;
+					case AnimFirstSelection:
+					case AwaitingSecondSelection:
+						if (!mCellUncovered[cell] && !mCellAnimating[cell]) {
+							// Remember this cell
+							mSecondCell = cell;
+							// Start animating in
+							mGameState = GameState.AnimSecondSelection;
+							animSecondAlpha = 0.0f;
+							mCellAnimating[cell] = true;
+						}
+						break;
+					case AnimSecondSelection:
+					case ShowingPair:
+						if (cell != mFirstCell && cell != mSecondCell && !mCellUncovered[cell]) {
+							// Clear the previously-selected cells
+							// TODO: Pair was a match?
+							mCellAnimating[mFirstCell] = false;
+							mCellAnimating[mSecondCell] = false;
+							mCellUncovered[mFirstCell] = false;
+							mCellUncovered[mSecondCell] = false;
+							mFirstCell = -1;
+							mSecondCell = -1;
+							// Remember this cell
+							mFirstCell = cell;
+							// Set it to start animating in
+							mGameState = GameState.AnimFirstSelection;
+							animFirstAlpha = 0.0f;
+							mCellAnimating[cell] = true;
+						}
+						break;
+					case Complete:
+						// Board is complete, ignore touch
+						break;
+					default:
+						Gdx.app.log(TAG, "Invalid game state! [" + mGameState + "]");
+						break;
 					}
-					break;
-				case AnimFirstSelection:
-				case AwaitingSecondSelection:
-					if (!mCellUncovered[cell] && !mCellAnimating[cell]) {
-						// Remember this cell
-						mSecondCell = cell;
-						// Start animating in
-						mGameState = GameState.AnimSecondSelection;
-						animSecondAlpha = 0.0f;
-						mCellAnimating[cell] = true;
-					}
-					break;
-				case AnimSecondSelection:
-				case ShowingPair:
-					if (cell != mFirstCell && cell != mSecondCell && !mCellUncovered[cell]) {
-						// Clear the previously-selected cells
-						// TODO: Pair was a match?
-						mCellAnimating[mFirstCell] = false;
-						mCellAnimating[mSecondCell] = false;
-						mCellUncovered[mFirstCell] = false;
-						mCellUncovered[mSecondCell] = false;
-						mFirstCell = -1;
-						mSecondCell = -1;
-						// Remember this cell
-						mFirstCell = cell;
-						// Set it to start animating in
-						mGameState = GameState.AnimFirstSelection;
-						animFirstAlpha = 0.0f;
-						mCellAnimating[cell] = true;
-					}
-					break;
-				case Complete:
-					// Board is complete, ignore touch
-					break;
-				default:
-					Gdx.app.log(TAG, "Invalid game state! [" + mGameState + "]");
-					break;
+				} else {
+					// TODO: Other touch-sensitive components
 				}
-			} else {
-				// TODO: Other touch-sensitive components
 			}
+			break;
+		case Options:
+			// TODO: Input handling in Options menu
+			break;
 		}
 	}
 
@@ -200,16 +227,36 @@ public class PelmanismGame implements ApplicationListener {
 			// Continue asset loading
 			boolean finished = mAssetManager.update();
 			if (finished) {
-				// Textures loaded!
-				// Get Texture references, perform any required post-processing
+				// Textures loaded! Acquire Texture references and perform any required post-processing
+
+				// Tileset
 				mTilesetTexture = mAssetManager.get(TILESET_TEXTURE);
 				mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
 
+				// Tiled background
 				mBackgroundTexture = mAssetManager.get(BACKGROUND_TEXTURE);
+				mBackgroundWidth = mBackgroundTexture.getWidth();
+				mBackgroundHeight = mBackgroundTexture.getHeight();
+
+				// UI elements
+				// XXX: Use texture atlas for UI elements?
 				mUiTexture = mAssetManager.get(UI_TEXTURE);
-				
-				// XXX: Use texture atlas here?
+
+				// Logo
 				mLogo = new TextureRegion(mUiTexture, 0, 0, 231, 66);
+				mLogoRect.setSize(mLogo.getRegionWidth(), mLogo.getRegionHeight());
+
+				// Options button
+				mOptionsButton = new TextureRegion(mUiTexture, 233, 66, 102, 44);
+				mOptionsButtonRect.setSize(mOptionsButton.getRegionWidth(), mOptionsButton.getRegionHeight());
+
+				// Cancel button
+				mCancelButton = new TextureRegion(mUiTexture, 124, 66, 109, 44);
+				mCancelButtonRect.setSize(mCancelButton.getRegionWidth(), mCancelButton.getRegionHeight());
+
+				// New game button
+				mNewGameButton = new TextureRegion(mUiTexture, 0, 66, 124, 44);
+				mNewGameButtonRect.setSize(mNewGameButton.getRegionWidth(), mNewGameButton.getRegionHeight());
 
 				// XXX: Move game setup code to better location!
 				// Randomly generate board
@@ -226,7 +273,7 @@ public class PelmanismGame implements ApplicationListener {
 			}
 			break;
 		case LoadingToGame:
-			mUiAlpha += delta * 100;
+			mUiAlpha += delta * 2;
 			if (mUiAlpha >= 1.0f) {
 				mUiState = UiState.Game;
 			}
@@ -293,14 +340,14 @@ public class PelmanismGame implements ApplicationListener {
 
 			break;
 		case GameToOptions_Game:
-			mUiAlpha -= delta * 100;
+			mUiAlpha -= delta * 2;
 			if (mUiAlpha <= 0.0f) {
 				mUiState = UiState.GameToOptions_Options;
 				mUiAlpha = 0.0f;
 			}
 			break;
 		case GameToOptions_Options:
-			mUiAlpha += delta * 100;
+			mUiAlpha += delta * 2;
 			if (mUiAlpha >= 1.0f) {
 				mUiState = UiState.Options;
 			}
@@ -309,14 +356,14 @@ public class PelmanismGame implements ApplicationListener {
 			// No-op
 			break;
 		case OptionsToGame_Options:
-			mUiAlpha -= delta * 100;
+			mUiAlpha -= delta * 2;
 			if (mUiAlpha <= 0.0f) {
 				mUiState = UiState.OptionsToGame_Game;
 				mUiAlpha = 0.0f;
 			}
 			break;
 		case OptionsToGame_Game:
-			mUiAlpha += delta * 100;
+			mUiAlpha += delta * 2;
 			if (mUiAlpha >= 1.0f) {
 				mUiState = UiState.Game;
 			}
@@ -348,87 +395,99 @@ public class PelmanismGame implements ApplicationListener {
 		case LoadingToGame:
 			drawBackground();
 			drawLogo(mUiAlpha);
-			drawNewGame(mUiAlpha);
-			drawOptions(mUiAlpha);
+			drawNewGameButton(mUiAlpha);
+			drawOptionsButton(mUiAlpha);
 			drawBoard(mUiAlpha);
 			break;
 		case Game:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(1.0f);
-			drawOptions(1.0f);
+			drawNewGameButton(1.0f);
+			drawOptionsButton(1.0f);
 			drawBoard(1.0f);
 			break;
 		case GameToOptions_Game:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(mUiAlpha);
-			drawOptions(mUiAlpha);
+			drawNewGameButton(mUiAlpha);
+			drawOptionsButton(mUiAlpha);
 			drawBoard(mUiAlpha);
 			break;
 		case GameToOptions_Options:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(mUiAlpha);
-			drawBack(mUiAlpha);
+			drawNewGameButton(mUiAlpha);
+			drawCancelButton(mUiAlpha);
 			// TODO: Draw options screen
 			break;
 		case Options:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(1.0f);
-			drawBack(1.0f);
+			drawNewGameButton(1.0f);
+			drawCancelButton(1.0f);
 			// TODO: Draw options screen
 			break;
 		case OptionsToGame_Options:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(mUiAlpha);
-			drawBack(mUiAlpha);
+			drawNewGameButton(mUiAlpha);
+			drawCancelButton(mUiAlpha);
 			// TODO: Draw options screen
 			break;
 		case OptionsToGame_Game:
 			drawBackground();
 			drawLogo(1.0f);
-			drawNewGame(mUiAlpha);
-			drawOptions(mUiAlpha);
+			drawNewGameButton(mUiAlpha);
+			drawOptionsButton(mUiAlpha);
 			drawBoard(mUiAlpha);
 			break;
 		}
 
 		// End batch
 		mBatch.end();
-
 	}
 
 	private final void drawBackground() {
-		float screenWidth = mCamera.viewportWidth;
-		float screenHeight = mCamera.viewportHeight;
-		int textureWidth = mBackgroundTexture.getWidth();
-		int textureHeight = mBackgroundTexture.getHeight();
-		mBatch.draw(mBackgroundTexture, 0, 0, screenWidth, screenHeight, 0.0f, screenHeight / (float) textureHeight, screenWidth
-				/ (float) textureWidth, 0.0f);
+		mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		mBatch.draw(mBackgroundTexture, 0, 0, mDisplayWidth, mDisplayHeight, 0.0f, mDisplayHeight / (float) mBackgroundHeight,
+				mDisplayWidth / (float) mBackgroundWidth, 0.0f);
+	}
+	
+	private void drawTextureByRect(TextureRegion textureRegion, Rectangle rect) {
+		mBatch.draw(textureRegion, rect.x, rect.y, rect.width, rect.height);
 	}
 
 	private final void drawLogo(float alpha) {
 		// TODO: Draw logo using alpha
-		mBatch.draw(mLogo, 10, 10);
+		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
+		drawTextureByRect(mLogo, mLogoRect);
+		mBatch.draw(mLogo, (mDisplayWidth - mLogoWidth) / 2, mDisplayHeight - 10 - mLogoHeight);
 	}
 
-	private final void drawOptions(float alpha) {
+	private final void drawOptionsButton(float alpha) {
 		// TODO: Draw options button using alpha
+		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
+		drawTextureByRect(mOptionsButton, mOptionsButtonRect);
+		mBatch.draw(mOptionsButton, 10, 10);
 	}
 
-	private final void drawBack(float alpha) {
-		// TODO: Draw back button using alpha
+	private final void drawCancelButton(float alpha) {
+		// TODO: Draw cancel button using alpha
+		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
+		drawTextureByRect(mCancelButton, mCancelButtonRect);
+		mBatch.draw(mCancelButton, 10, 10);
 	}
 
-	private final void drawNewGame(float alpha) {
+	private final void drawNewGameButton(float alpha) {
 		// TODO: Draw new game button using alpha
+		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
+		drawTextureByRect(mNewGameButton, mNewGameButtonRect);
+		mBatch.draw(mNewGameButton, mDisplayWidth - 10 - mNewGameButtonWidth, 10);
 	}
 
 	private final void drawBoard(float alpha) {
 		// TODO: Draw board using alpha
+		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
 		// Draw cells
 		for (int i = 0; i < mBoardCells.length; i++) {
 			final Rectangle r = mBoardCells[i];
@@ -437,7 +496,7 @@ public class PelmanismGame implements ApplicationListener {
 				mBatch.draw(mCardTextures[mCellContents[i]], r.x, r.y, r.width, r.height);
 				mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f - cellAlpha);
 				mBatch.draw(mCardTextures[mCardTextures.length - 1], r.x, r.y, r.width, r.height);
-				mBatch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+				mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
 			} else if (mCellUncovered[i]) {
 				mBatch.draw(mCardTextures[mCellContents[i]], r.x, r.y, r.width, r.height);
 			} else {
@@ -473,6 +532,18 @@ public class PelmanismGame implements ApplicationListener {
 
 		// Update camera wrt new screen dimensions
 		mCamera.setToOrtho(false, width, height);
+
+		// Save screen dimensions
+		mDisplayWidth = width;
+		mDisplayHeight = height;
+		
+		// Position logo
+		// XXX: ERROR!  Cannot sent button etc positions in resize() as textures not yet
+		// loaded when app starts up.  Only after UI state leaves "Loading".
+		// So need to guard these lines, and need to replicate in onUpdate()
+		// to fire when UI state changes?
+		mLogoRect.setPosition(x, y);
+		
 
 		// Position board cells on screen
 		Rectangle availableArea = calculateAvailableArea(width, height);
