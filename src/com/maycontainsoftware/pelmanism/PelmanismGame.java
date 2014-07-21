@@ -22,129 +22,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class PelmanismGame implements ApplicationListener {
-	
-	static abstract class Component {
-		protected final PelmanismGame game;
-		protected final Rectangle rect; 
-		protected Component(PelmanismGame game) {
-			this.game = game;
-			this.rect = new Rectangle();
-		}
-		abstract protected void resize(int screenWidth, int screenHeight);
-		abstract protected void render(SpriteBatch batch);
-		protected void input(float x, float y) {}
-		protected void update() {}
-		abstract protected void onAssetsLoaded(AssetManager assetManager);
-	}
-	
-	static class BackgroundComponent extends Component {
-		Texture texture;
-		float u1, v1, u2, v2;
-		int screenWidth, screenHeight;
-		private static final int TEXTURE_WIDTH = 32;
-		private static final int TEXTURE_HEIGHT = 32;
-		public BackgroundComponent(PelmanismGame game) {
-			super(game);
-		}
-		@Override
-		protected void resize(int screenWidth, int screenHeight) {
-			this.screenWidth = screenWidth;
-			this.screenHeight = screenHeight;
-			u1 = 0.0f;
-			v1 = screenHeight / (float) TEXTURE_HEIGHT;
-			u2 = screenWidth / (float) TEXTURE_WIDTH;
-			v2 = 0.0f;
-		}
-		@Override
-		protected void onAssetsLoaded(AssetManager assetManager) {
-			texture = assetManager.get(BACKGROUND_TEXTURE);
-		}
-		@Override
-		protected void render(SpriteBatch batch) {
-			switch(game.mUiState) {
-			case Loading:
-				break;
-			default:
-				batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-				batch.draw(texture, 0, 0, screenWidth, screenHeight, u1, v1, u2, v2);
-			}
-		}
-	}
-	
-	static class LogoComponent extends Component {
-		private static final int TEX_X = 0;
-		private static final int TEX_Y = 0;
-		private static final int TEX_W = 231;
-		private static final int TEX_H = 66;
-		private TextureRegion textureRegion;
-		public LogoComponent(PelmanismGame game) {
-			super(game);
-		}
-		@Override
-		protected void resize(int screenWidth, int screenHeight) {
-			rect.setSize(TEX_W, TEX_H);
-			rect.setPosition((game.mDisplayWidth - TEX_W) / 2, game.mDisplayHeight - 10 - TEX_H);
-		}
-		@Override
-		protected void onAssetsLoaded(AssetManager assetManager) {
-			Texture uiTexture = assetManager.get(UI_TEXTURE);
-			textureRegion = new TextureRegion(uiTexture, TEX_X, TEX_Y, TEX_W, TEX_H);
-		}
-		@Override
-		protected void render(SpriteBatch batch) {
-			switch(game.mUiState) {
-			case Loading:
-				break;
-			case LoadingToGame:
-				batch.setColor(1.0f, 1.0f, 1.0f, game.mUiAlpha);
-				game.drawTextureByRect(textureRegion, rect);
-				break;
-			default:
-				batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-				game.drawTextureByRect(textureRegion, rect);
-				break;
-			}
-		}
-	}
-	
-	static class OptionsComponent extends Component {
-		private static final int TEX_X = 233;
-		private static final int TEX_Y = 66;
-		private static final int TEX_W = 102;
-		private static final int TEX_H = 44;
-		private TextureRegion textureRegion;
-		public OptionsComponent(PelmanismGame game) {
-			super(game);
-		}
-		@Override
-		protected void resize(int screenWidth, int screenHeight) {
-			rect.setSize(TEX_W, TEX_H);
-			rect.setPosition((game.mDisplayWidth - TEX_W) / 2, game.mDisplayHeight - 10 - TEX_H);
-		}
-		@Override
-		protected void onAssetsLoaded(AssetManager assetManager) {
-			Texture uiTexture = assetManager.get(UI_TEXTURE);
-			textureRegion = new TextureRegion(uiTexture, TEX_X, TEX_Y, TEX_W, TEX_H);
-		}
-		@Override
-		protected void render(SpriteBatch batch) {
-			switch(game.mUiState) {
-			case LoadingToGame:
-			case GameToOptions_Game:
-			case OptionsToGame_Game:
-				batch.setColor(1.0f, 1.0f, 1.0f, game.mUiAlpha);
-				game.drawTextureByRect(textureRegion, rect);
-				break;
-			case Game:
-				batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-				game.drawTextureByRect(textureRegion, rect);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-	
 
 	/** Tag for debug logging. */
 	private static final String TAG = PelmanismGame.class.getName();
@@ -155,7 +32,7 @@ public class PelmanismGame implements ApplicationListener {
 
 	// App-global data members
 	private final Random mRandom = new Random();
-	
+
 	// Camera
 	private OrthographicCamera mCamera;
 
@@ -164,27 +41,18 @@ public class PelmanismGame implements ApplicationListener {
 
 	// Assets
 	private AssetManager mAssetManager;
-	
-	// UI Components
-	private Component background;
-	private Component logo;
-	private Component options;
-	// TODO!
-	
-	// TODO: Collate all texture information together?
-	private static final String BACKGROUND_TEXTURE = "background.png";
+
+	// UI Components - note that these are always processed in insertion order
+	private List<Component> components;
+
+	// Texture name constants
+	static final String BACKGROUND_TEXTURE = "background.png";
 	private static final String TILESET_TEXTURE = "test_card_4.png";
-	private static final String UI_TEXTURE = "ui_elements_1.png";
-//	private static final Rectangle mCancelButtonTexRect = new Rectangle(124, 66, 109, 44);
-//	private static final Rectangle mNewGameButtonTexRect = new Rectangle(0, 66, 124, 44);
+	static final String UI_TEXTURE = "ui_elements_1.png";
+
 	private Texture mTilesetTexture;
-//	private Texture mUiTexture;
-//	private TextureRegion mCancelButton;
-//	private TextureRegion mNewGameButton;
 	private TextureRegion[] mCardTextures;
-//	mCancelButtonRect.setSize(mCancelButton.getRegionWidth(), mCancelButton.getRegionHeight());
-//	mNewGameButtonRect.setSize(mNewGameButton.getRegionWidth(), mNewGameButton.getRegionHeight());
-	
+
 	// TODO: Board size comes from prefs, options or defaults - how does this work?
 	private static final int BOARD_WIDTH = 4;
 	private static final int BOARD_HEIGHT = 5;
@@ -201,12 +69,13 @@ public class PelmanismGame implements ApplicationListener {
 	private float animFirstAlpha;
 	private float animSecondAlpha;
 	private float showTimer;
-	
-	// Current display metrics
-	private int mDisplayWidth, mDisplayHeight;
 
-	// Alpha value used for fading in/out of UI elements en mass
-	private float mUiAlpha;
+	// Current display metrics
+	int mDisplayWidth;
+	int mDisplayHeight;
+
+	// Alpha value used for fading in/out of UI elements
+	float mUiAlpha;
 
 	// Game State Engine
 	private enum GameState {
@@ -217,23 +86,25 @@ public class PelmanismGame implements ApplicationListener {
 	private GameState mGameState = GameState.AwaitingFirstSelection;
 
 	// User Interface State Engine
-	private enum UiState {
+	enum UiState {
 		Loading, LoadingToGame, Game, GameToOptions_Game, GameToOptions_Options, Options, OptionsToGame_Options, OptionsToGame_Game
 	}
 
 	// The UI state
-	private UiState mUiState = UiState.Loading;
+	UiState mUiState = UiState.Loading;
 
 	private final void startAssetLoad() {
-
+		// Linear filtering of texture
 		TextureParameter linearFilter = new TextureParameter();
 		linearFilter.minFilter = TextureFilter.Linear;
 		linearFilter.magFilter = TextureFilter.Linear;
 
+		// Tiled texture
 		TextureParameter wrapTexture = new TextureParameter();
 		wrapTexture.wrapU = TextureWrap.Repeat;
 		wrapTexture.wrapV = TextureWrap.Repeat;
 
+		// Specify textures to be loaded
 		mAssetManager.load(BACKGROUND_TEXTURE, Texture.class, wrapTexture);
 		mAssetManager.load(TILESET_TEXTURE, Texture.class, linearFilter);
 		mAssetManager.load(UI_TEXTURE, Texture.class, linearFilter);
@@ -245,22 +116,25 @@ public class PelmanismGame implements ApplicationListener {
 
 		// Get reference to preferences file
 		prefs = Gdx.app.getPreferences(PREFERENCES_NAME);
+		
 		// Create camera
 		mCamera = new OrthographicCamera();
+		
 		// Create sprite batch
 		mBatch = new SpriteBatch();
-		// Create asset manager
-		mAssetManager = new AssetManager();
-		// Start loading assets
-		startAssetLoad();
 		
+		// Create asset manager and start loading assets
+		mAssetManager = new AssetManager();
+		startAssetLoad();
+
 		// Create UI Components
-		// TODO: Save this list comewhere!
-		List<Component> components = new ArrayList<Component>();
-		components.add(background = new BackgroundComponent(this));
-		components.add(logo = new LogoComponent(this));
-		components.add(options = new OptionsComponent(this));
-		// TODO!
+		components = new ArrayList<Component>();
+		components.add(new BackgroundComponent(this));
+		components.add(new LogoComponent(this));
+		components.add(new OptionsComponent(this));
+		components.add(new NewGameComponent(this));
+		components.add(new CancelComponent(this));
+		// TODO: Add rest of UI components
 	}
 
 	@Override
@@ -269,6 +143,7 @@ public class PelmanismGame implements ApplicationListener {
 
 		// Dispose of sprite batch
 		mBatch.dispose();
+
 		// Dispose of textures
 		// TODO: Dispose of all textures
 	}
@@ -289,6 +164,12 @@ public class PelmanismGame implements ApplicationListener {
 			if (Gdx.input.justTouched()) {
 				// Get touch location
 				Vector2 touch = getTouchLocation();
+				
+				for(Component c : components) {
+					if(c.rect.contains(touch)) {
+						c.input(touch);
+					}
+				}
 
 				// Determine whether a cell was touched
 				int cell = getTouchedCell(touch);
@@ -369,19 +250,15 @@ public class PelmanismGame implements ApplicationListener {
 			boolean finished = mAssetManager.update();
 			if (finished) {
 				// Assets have been loaded!
-				
+
 				// Acquire Texture references
 				mTilesetTexture = mAssetManager.get(TILESET_TEXTURE);
-//				mUiTexture = mAssetManager.get(UI_TEXTURE);
-				
+
 				// Chop textures into TextureRegions as required
 				mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
-//				mCancelButton = new TextureRegion(mUiTexture, mCancelButtonTexRect.x, mCancelButtonTexRect.y, mCancelButtonTexRect.width, mCancelButtonTexRect.height);
-//				mNewGameButton = new TextureRegion(mUiTexture, mNewGameButtonTexRect.x, mNewGameButtonTexRect.y, mNewGameButtonTexRect.width, mNewGameButtonTexRect.height);
-
 
 				// Either start new game or load old game?
-				// TODO
+				// TODO: Start new game or load game from preferences logic
 				// Randomly generate board
 				// Chose a set of (paired, shuffled) cards
 				List<Integer> chosenCards = generateCardSet();
@@ -389,18 +266,16 @@ public class PelmanismGame implements ApplicationListener {
 				for (int i = 0; i < chosenCards.size(); i++) {
 					mCellContents[i] = chosenCards.get(i);
 				}
-				
+
 				// Inform UI Components that assets are loaded
-				background.onAssetsLoaded(mAssetManager);
-				logo.onAssetsLoaded(mAssetManager);
-				options.onAssetsLoaded(mAssetManager);
-				// TODO
-				
+				for (Component c : components) {
+					c.onAssetsLoaded(mAssetManager);
+				}
+
 				// Update UI Component sizes
-				background.resize(mDisplayWidth, mDisplayHeight);
-				logo.resize(mDisplayWidth, mDisplayHeight);
-				options.resize(mDisplayWidth, mDisplayHeight);
-				// TODO
+				for (Component c : components) {
+					c.resize(mDisplayWidth, mDisplayHeight);
+				}
 
 				// Start to fade in game interface
 				mUiState = UiState.LoadingToGame;
@@ -517,7 +392,8 @@ public class PelmanismGame implements ApplicationListener {
 		// Render screen
 
 		// Clear background
-		Gdx.gl.glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
+		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		// Gdx.gl.glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 		// Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
@@ -529,56 +405,27 @@ public class PelmanismGame implements ApplicationListener {
 		// Start batch
 		mBatch.begin();
 
-		background.render(mBatch);
-		logo.render(mBatch);
-		options.render(mBatch);
-		
+		// Draw all UI components
+		for (Component c : components) {
+			c.render(mBatch);
+		}
+
 		switch (mUiState) {
 		case Loading:
 			// Assets not loaded, nothing more to do
 			break;
 		case LoadingToGame:
-			//logo.render(mBatch);
-//			drawLogo(mUiAlpha);
-			drawNewGameButton(mUiAlpha);
-//			drawOptionsButton(mUiAlpha);
+		case GameToOptions_Game:
+		case OptionsToGame_Game:
 			drawBoard(mUiAlpha);
 			break;
 		case Game:
-//			drawLogo(1.0f);
-			drawNewGameButton(1.0f);
-//			drawOptionsButton(1.0f);
 			drawBoard(1.0f);
 			break;
-		case GameToOptions_Game:
-//			drawLogo(1.0f);
-			drawNewGameButton(mUiAlpha);
-//			drawOptionsButton(mUiAlpha);
-			drawBoard(mUiAlpha);
-			break;
 		case GameToOptions_Options:
-//			drawLogo(1.0f);
-			drawNewGameButton(mUiAlpha);
-			drawCancelButton(mUiAlpha);
-			// TODO: Draw options screen
-			break;
 		case Options:
-//			drawLogo(1.0f);
-			drawNewGameButton(1.0f);
-			drawCancelButton(1.0f);
-			// TODO: Draw options screen
-			break;
 		case OptionsToGame_Options:
-//			drawLogo(1.0f);
-			drawNewGameButton(mUiAlpha);
-			drawCancelButton(mUiAlpha);
 			// TODO: Draw options screen
-			break;
-		case OptionsToGame_Game:
-//			drawLogo(1.0f);
-			drawNewGameButton(mUiAlpha);
-//			drawOptionsButton(mUiAlpha);
-			drawBoard(mUiAlpha);
 			break;
 		}
 
@@ -586,22 +433,8 @@ public class PelmanismGame implements ApplicationListener {
 		mBatch.end();
 	}
 
-	private void drawTextureByRect(TextureRegion textureRegion, Rectangle rect) {
+	void drawTextureByRect(TextureRegion textureRegion, Rectangle rect) {
 		mBatch.draw(textureRegion, rect.x, rect.y, rect.width, rect.height);
-	}
-
-	private final void drawCancelButton(float alpha) {
-		// TODO: Draw cancel button using alpha
-		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
-		//drawTextureByRect(mCancelButton, mCancelButtonRect);
-		//mBatch.draw(mCancelButton, 10, 10);
-	}
-
-	private final void drawNewGameButton(float alpha) {
-		// TODO: Draw new game button using alpha
-		mBatch.setColor(1.0f, 1.0f, 1.0f, alpha);
-		//drawTextureByRect(mNewGameButton, mNewGameButtonRect);
-		// XXX: mBatch.draw(mNewGameButton, mDisplayWidth - 10 - mNewGameButtonWidth, 10);
 	}
 
 	private final void drawBoard(float alpha) {
@@ -655,15 +488,13 @@ public class PelmanismGame implements ApplicationListener {
 		// Save screen dimensions
 		mDisplayWidth = width;
 		mDisplayHeight = height;
-		
+
 		// Position UI Components
-		if(mUiState != UiState.Loading) {
-			background.resize(width, height);
-			logo.resize(width, height);
-			options.resize(width, height);
-			// TODO
+		if (mUiState != UiState.Loading) {
+			for (Component c : components) {
+				c.resize(width, height);
+			}
 		}
-		
 
 		// Position board cells on screen
 		Rectangle availableArea = calculateAvailableArea(width, height);
@@ -763,12 +594,12 @@ public class PelmanismGame implements ApplicationListener {
 	@Override
 	public void pause() {
 		Gdx.app.log(TAG, "pause()");
-		// TODO
+		// TODO: Same game state to preferences
 	}
 
 	@Override
 	public void resume() {
 		Gdx.app.log(TAG, "resume()");
-		// TODO
+		// TODO: Load game state from preferences
 	}
 }
