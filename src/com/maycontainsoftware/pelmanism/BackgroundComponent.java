@@ -8,8 +8,8 @@ class BackgroundComponent extends Component {
 	Texture texture;
 	float u1, v1, u2, v2;
 	int screenWidth, screenHeight;
-	private static final int TEXTURE_WIDTH = 32;
-	private static final int TEXTURE_HEIGHT = 32;
+	private static final int TEXTURE_WIDTH = 512;
+	private static final int TEXTURE_HEIGHT = 512;
 	public BackgroundComponent(PelmanismGame game) {
 		super(game);
 	}

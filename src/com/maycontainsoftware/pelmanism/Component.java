@@ -15,6 +15,6 @@ abstract class Component {
 	abstract protected void resize(int screenWidth, int screenHeight);
 	abstract protected void render(SpriteBatch batch);
 	protected void input(Vector2 touch) {}
-	protected void update() {}
+	protected void update(float delta) {}
 	abstract protected void onAssetsLoaded(AssetManager assetManager);
 }
