@@ -58,7 +58,7 @@ class GameAreaComponent extends Component {
 	@Override
 	protected void onAssetsLoaded(AssetManager assetManager) {
 		// Acquire Texture references
-		mTilesetTexture = assetManager.get(PelmanismGame.TILESET_TEXTURE);
+		mTilesetTexture = assetManager.get(PelmanismGame.HARD_TILESET_TEXTURE);
 
 		// Chop textures into TextureRegions as required
 		mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
@@ -249,13 +249,13 @@ class GameAreaComponent extends Component {
 	private final void updateBoardArea() {
 		Rectangle emptyArea = game.calculateEmptyArea();
 		Gdx.app.log(TAG, "updateBoardArea: emptyArea = " + emptyArea.toString());
-		
+
 		final float availableAspect = emptyArea.getAspectRatio(); // w/h
 		Gdx.app.log(TAG, "updateBoardArea: availableAspect = " + availableAspect);
-		
+
 		final float desiredAspect = BOARD_WIDTH / (float) BOARD_HEIGHT;
 		Gdx.app.log(TAG, "updateBoardArea: desiredAspect = " + desiredAspect);
-		
+
 		if (availableAspect < desiredAspect) {
 			// Fill width, calculate height
 			float desiredHeight = emptyArea.width / desiredAspect;
@@ -269,7 +269,7 @@ class GameAreaComponent extends Component {
 			rect.setPosition(desiredX, emptyArea.y);
 			rect.setSize(desiredWidth, emptyArea.height);
 		}
-		
+
 		Gdx.app.log(TAG, "updateBoardArea: rect = " + rect.toString());
 	}
 

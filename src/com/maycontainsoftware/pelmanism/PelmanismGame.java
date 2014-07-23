@@ -48,8 +48,10 @@ public class PelmanismGame implements ApplicationListener {
 
 	// Texture name constants
 	static final String BACKGROUND_TEXTURE = "felt_green_tiled_greener.png";
-	static final String TILESET_TEXTURE = "simple_card_4.png";
-	static final String UI_TEXTURE = "ui_elements_2.png";
+	static final String SIMPLE_TILESET_TEXTURE = "simple_card_4.png";
+	static final String ROADSIGN_TILESET_TEXTURE = "signs_card.png";
+	static final String HARD_TILESET_TEXTURE = "hard_card.png";
+	static final String UI_TEXTURE = "ui_elements_3.png";
 
 	// Current display metrics - updated on resize()
 	int mDisplayWidth;
@@ -93,7 +95,7 @@ public class PelmanismGame implements ApplicationListener {
 		components.add(new GameAreaComponent(this));
 		components.add(new OptionsAreaComponent(this));
 	}
-	
+
 	final Rectangle calculateEmptyArea() {
 		final int border = 16;
 		float top = logo.rect.y;
@@ -114,7 +116,9 @@ public class PelmanismGame implements ApplicationListener {
 
 		// Specify textures to be loaded
 		mAssetManager.load(BACKGROUND_TEXTURE, Texture.class, wrapTexture);
-		mAssetManager.load(TILESET_TEXTURE, Texture.class, linearFilter);
+		mAssetManager.load(SIMPLE_TILESET_TEXTURE, Texture.class, linearFilter);
+		mAssetManager.load(ROADSIGN_TILESET_TEXTURE, Texture.class, linearFilter);
+		mAssetManager.load(HARD_TILESET_TEXTURE, Texture.class, linearFilter);
 		mAssetManager.load(UI_TEXTURE, Texture.class, linearFilter);
 	}
 
@@ -125,8 +129,8 @@ public class PelmanismGame implements ApplicationListener {
 		// Dispose of sprite batch
 		mBatch.dispose();
 
-		// Dispose of textures
-		// TODO: Dispose of all textures
+		// Dispose of all textures
+		mAssetManager.dispose();
 	}
 
 	private final void doInput(float delta) {
@@ -281,9 +285,7 @@ public class PelmanismGame implements ApplicationListener {
 	@Override
 	public void pause() {
 		Gdx.app.log(TAG, "pause()");
-		
-		// TODO: Save PelmanismGame state to preferences
-		
+
 		// Allow components to handle pause() behaviour
 		for (Component c : components) {
 			c.pause();
@@ -293,9 +295,7 @@ public class PelmanismGame implements ApplicationListener {
 	@Override
 	public void resume() {
 		Gdx.app.log(TAG, "resume()");
-		
-		// TODO: Restore PelmanismGame state from preferences
-		
+
 		// Allow components to handle resume() behaviour
 		for (Component c : components) {
 			c.resume();

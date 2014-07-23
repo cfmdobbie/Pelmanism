@@ -10,9 +10,11 @@ class BackgroundComponent extends Component {
 	int screenWidth, screenHeight;
 	private static final int TEXTURE_WIDTH = 512;
 	private static final int TEXTURE_HEIGHT = 512;
+
 	public BackgroundComponent(PelmanismGame game) {
 		super(game);
 	}
+
 	@Override
 	protected void resize(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
@@ -22,13 +24,15 @@ class BackgroundComponent extends Component {
 		u2 = screenWidth / (float) TEXTURE_WIDTH;
 		v2 = 0.0f;
 	}
+
 	@Override
 	protected void onAssetsLoaded(AssetManager assetManager) {
 		texture = assetManager.get(PelmanismGame.BACKGROUND_TEXTURE);
 	}
+
 	@Override
 	protected void render(SpriteBatch batch) {
-		switch(game.mUiState) {
+		switch (game.mUiState) {
 		case Loading:
 			break;
 		case LoadingToGame:

@@ -1,6 +1,5 @@
 package com.maycontainsoftware.pelmanism;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 class OptionsAreaComponent extends Component {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = OptionsAreaComponent.class.getName();
 
 	// Texture Regions
@@ -20,7 +20,7 @@ class OptionsAreaComponent extends Component {
 	private TextureRegion volumeOffTex;
 	private TextureRegion tilesetTextTex;
 	private TextureRegion soundTextTex;
-	
+
 	// Rectangles
 	private Rectangle simpleTilesetRect = new Rectangle(0, 0, 128, 128);
 	private Rectangle signsTilesetRect = new Rectangle(0, 0, 128, 128);
@@ -29,72 +29,84 @@ class OptionsAreaComponent extends Component {
 	private Rectangle volumeOffRect = new Rectangle(0, 0, 128, 128);
 	private Rectangle tilesetTextRect = new Rectangle(0, 0, 227 - 127, 152 - 110);
 	private Rectangle soundTextRect = new Rectangle(0, 0, 311 - 227, 152 - 110);
-	
+
 	private enum TilesetSelection {
 		Simple, RoadSigns, Hard
 	}
+
 	private TilesetSelection mTilesetSelection;
-	
+
 	private enum VolumeSelection {
 		On, Off
 	}
+
 	private VolumeSelection mVolumeSelection;
-	
+
 	private static final String PREF_TILESET = "pref_tileset";
 	private static final String PREF_VOLUME = "pref_volume";
 
 	public OptionsAreaComponent(PelmanismGame game) {
 		super(game);
-		
-		
+
 		// Run resume logic
 		resume();
 	}
 
 	@Override
 	protected void resize(int screenWidth, int screenHeight) {
-		updateBoardArea();
-		
-		// Options screen layout is: tileset text / tilesets / volume text / volumes
-		tilesetTextRect.setPosition(rect.x, rect.y + rect.height - tilesetTextRect.height);
-		simpleTilesetRect.setPosition(rect.x, tilesetTextRect.y - simpleTilesetRect.height);
-		signsTilesetRect.setPosition(simpleTilesetRect.x + simpleTilesetRect.width, simpleTilesetRect.y);
-		hardTilesetRect.setPosition(signsTilesetRect.x + signsTilesetRect.width, signsTilesetRect.y);
-		soundTextRect.setPosition(rect.x, simpleTilesetRect.y - soundTextRect.height);
-		volumeOnRect.setPosition(rect.x, soundTextRect.y - volumeOnRect.height);
-		volumeOffRect.setPosition(volumeOnRect.x + volumeOnRect.width, volumeOnRect.y);
-	}
 
-	private final void updateBoardArea() {
-		Rectangle emptyArea = game.calculateEmptyArea();
-		Gdx.app.log(TAG, "updateBoardArea: emptyArea = " + emptyArea.toString());
-		
-		rect.set(emptyArea);
+		// Set active area to the whole empty area
+		rect.set(game.calculateEmptyArea());
 
-		/*
-		final float availableAspect = emptyArea.getAspectRatio(); // w/h
-		Gdx.app.log(TAG, "updateBoardArea: availableAspect = " + availableAspect);
-		
-		final float desiredAspect = 1;
-		// TODO: Calculate options area space required
-		Gdx.app.log(TAG, "updateBoardArea: desiredAspect = " + desiredAspect);
+		// Options screen layout is:
+		// tileset text
+		// flexigap|card|gap|card|gap|card|flexigap
+		// volume text
+		// flexigap|card|gap|card|flexigap
 
-		if (availableAspect < desiredAspect) {
-			// Fill width, calculate height
-			float desiredHeight = emptyArea.width / desiredAspect;
-			float desiredY = (emptyArea.height - desiredHeight) / 2 + emptyArea.y;
-			rect.setPosition(emptyArea.x, desiredY);
-			rect.setSize(emptyArea.width, desiredHeight);
+		// Size of cards is dependent on line of three cards
+		// Card maximum size is 128px, no minimum
+		// Gap should be 2px to 16px
+		// Flexigap will take up rest of space
+
+		// rect.width
+
+		float cardSize;
+		float gap;
+		float flexigap3;
+		float flexigap2;
+
+		// A bit messy, bit unavoidable until this is all refactored to use a proper layout system!
+		if (rect.height < 250) {
+			gap = 2;
+			cardSize = 48;
+		} else if (rect.width > (3 * 128 + 2 * 16)) {
+			gap = 16;
+			cardSize = 128;
+		} else if (rect.width > (3 * 128 + 2 * 2)) {
+			gap = 2;
+			cardSize = 128;
 		} else {
-			// Fill height, calculate width
-			float desiredWidth = emptyArea.height * desiredAspect;
-			float desiredX = (emptyArea.width - desiredWidth) / 2 + emptyArea.x;
-			rect.setPosition(desiredX, emptyArea.y);
-			rect.setSize(desiredWidth, emptyArea.height);
+			gap = 2;
+			cardSize = (rect.width - 2 * gap) / 3;
 		}
-		*/
+		// Calculate flexigap spaces
+		flexigap2 = (rect.width - 2 * cardSize - 1 * gap) / 2;
+		flexigap3 = (rect.width - 3 * cardSize - 2 * gap) / 2;
 
-		Gdx.app.log(TAG, "updateBoardArea: rect = " + rect.toString());
+		// Reset card sizes
+		for (Rectangle r : new Rectangle[] { simpleTilesetRect, signsTilesetRect, hardTilesetRect, volumeOnRect, volumeOffRect }) {
+			r.setSize(cardSize);
+		}
+
+		// Set all options element positions
+		tilesetTextRect.setPosition(rect.x + (rect.width - tilesetTextRect.width) / 2, rect.y + rect.height - tilesetTextRect.height);
+		simpleTilesetRect.setPosition(rect.x + flexigap3, tilesetTextRect.y - simpleTilesetRect.height);
+		signsTilesetRect.setPosition(simpleTilesetRect.x + simpleTilesetRect.width + gap, simpleTilesetRect.y);
+		hardTilesetRect.setPosition(signsTilesetRect.x + signsTilesetRect.width + gap, signsTilesetRect.y);
+		soundTextRect.setPosition(rect.x + (rect.width - soundTextRect.width) / 2, simpleTilesetRect.y - soundTextRect.height);
+		volumeOnRect.setPosition(rect.x + flexigap2, soundTextRect.y - volumeOnRect.height);
+		volumeOffRect.setPosition(volumeOnRect.x + volumeOnRect.width + gap, volumeOnRect.y);
 	}
 
 	@Override
@@ -108,38 +120,38 @@ class OptionsAreaComponent extends Component {
 		tilesetTextTex = new TextureRegion(uiTexture, 127, 110, 227 - 127, 152 - 110);
 		soundTextTex = new TextureRegion(uiTexture, 227, 110, 311 - 227, 152 - 110);
 	}
-	
+
 	private void drawUiElements(final SpriteBatch batch, final float alpha) {
 		final float fadeAlpha = 0.25f;
 		float componentAlpha;
-		
+
 		// Draw text labels
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha);
 		game.drawTextureByRect(tilesetTextTex, tilesetTextRect);
 		game.drawTextureByRect(soundTextTex, soundTextRect);
-		
+
 		// Draw tileset cards
 		componentAlpha = mTilesetSelection == TilesetSelection.Simple ? 1.0f : fadeAlpha;
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(simpleTilesetTex, simpleTilesetRect);
-		
+
 		componentAlpha = mTilesetSelection == TilesetSelection.RoadSigns ? 1.0f : fadeAlpha;
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(signsTilesetTex, signsTilesetRect);
-		
+
 		componentAlpha = mTilesetSelection == TilesetSelection.Hard ? 1.0f : fadeAlpha;
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(hardTilesetTex, hardTilesetRect);
-		
+
 		// Draw volume cards
 		componentAlpha = mVolumeSelection == VolumeSelection.On ? 1.0f : fadeAlpha;
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(volumeOnTex, volumeOnRect);
-		
+
 		componentAlpha = mVolumeSelection == VolumeSelection.Off ? 1.0f : fadeAlpha;
 		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(volumeOffTex, volumeOffRect);
-		
+
 	}
 
 	@Override
@@ -150,14 +162,13 @@ class OptionsAreaComponent extends Component {
 			drawUiElements(batch, game.mUiAlpha);
 			break;
 		case Options:
-			// TODO: Fade will be 0.25f
 			drawUiElements(batch, 1.0f);
 			break;
 		default:
 			break;
 		}
 	}
-	
+
 	@Override
 	protected void pause() {
 		// Save selections to preferences
@@ -165,36 +176,57 @@ class OptionsAreaComponent extends Component {
 		game.mPrefs.putString(PREF_VOLUME, mVolumeSelection.toString());
 		game.mPrefs.flush();
 	}
-	
+
 	@Override
 	protected void resume() {
 		// Load tileset selection from preferences
 		String prefTileset = game.mPrefs.getString(PREF_TILESET);
-		for(TilesetSelection ts : TilesetSelection.values()) {
-			if(ts.toString().equals(prefTileset)) {
+		for (TilesetSelection ts : TilesetSelection.values()) {
+			if (ts.toString().equals(prefTileset)) {
 				mTilesetSelection = ts;
 				break;
 			}
 		}
-		if(mTilesetSelection == null) {
+		if (mTilesetSelection == null) {
 			mTilesetSelection = TilesetSelection.Simple;
 		}
-		
+
 		// Load volume selection from preferences
 		String prefVolume = game.mPrefs.getString(PREF_VOLUME);
-		for(VolumeSelection vs : VolumeSelection.values()) {
-			if(vs.toString().equals(prefVolume)) {
+		for (VolumeSelection vs : VolumeSelection.values()) {
+			if (vs.toString().equals(prefVolume)) {
 				mVolumeSelection = vs;
 				break;
 			}
 		}
-		if(mVolumeSelection == null) {
+		if (mVolumeSelection == null) {
 			mVolumeSelection = VolumeSelection.On;
 		}
 	}
-	
+
 	@Override
 	protected void input(Vector2 touch) {
-		// TODO: Process touch event
+		switch (game.mUiState) {
+		case Options:
+
+			if (mTilesetSelection != TilesetSelection.Simple && simpleTilesetRect.contains(touch)) {
+				mTilesetSelection = TilesetSelection.Simple;
+			} else if (mTilesetSelection != TilesetSelection.RoadSigns && signsTilesetRect.contains(touch)) {
+				mTilesetSelection = TilesetSelection.RoadSigns;
+			} else if (mTilesetSelection != TilesetSelection.Hard && hardTilesetRect.contains(touch)) {
+				mTilesetSelection = TilesetSelection.Hard;
+			} else if (mVolumeSelection != VolumeSelection.On && volumeOnRect.contains(touch)) {
+				mVolumeSelection = VolumeSelection.On;
+			} else if (mVolumeSelection != VolumeSelection.Off && volumeOffRect.contains(touch)) {
+				mVolumeSelection = VolumeSelection.Off;
+			}
+
+			// TODO: Is this the best way to handle saving state?
+			pause();
+
+			break;
+		default:
+			break;
+		}
 	}
 }
