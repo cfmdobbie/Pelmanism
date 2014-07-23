@@ -27,7 +27,7 @@ public class PelmanismGame implements ApplicationListener {
 
 	/** Name of preferences file for state persistence. */
 	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
-	private Preferences prefs;
+	Preferences mPrefs;
 
 	// App-global data members
 	final Random mRandom = new Random();
@@ -71,7 +71,7 @@ public class PelmanismGame implements ApplicationListener {
 		Gdx.app.log(TAG, "create()");
 
 		// Get reference to preferences file
-		prefs = Gdx.app.getPreferences(PREFERENCES_NAME);
+		mPrefs = Gdx.app.getPreferences(PREFERENCES_NAME);
 
 		// Create camera
 		mCamera = new OrthographicCamera();
@@ -281,12 +281,24 @@ public class PelmanismGame implements ApplicationListener {
 	@Override
 	public void pause() {
 		Gdx.app.log(TAG, "pause()");
-		// TODO: Same game state to preferences
+		
+		// TODO: Save PelmanismGame state to preferences
+		
+		// Allow components to handle pause() behaviour
+		for (Component c : components) {
+			c.pause();
+		}
 	}
 
 	@Override
 	public void resume() {
 		Gdx.app.log(TAG, "resume()");
-		// TODO: Load game state from preferences
+		
+		// TODO: Restore PelmanismGame state from preferences
+		
+		// Allow components to handle resume() behaviour
+		for (Component c : components) {
+			c.resume();
+		}
 	}
 }

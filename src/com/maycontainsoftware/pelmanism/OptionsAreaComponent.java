@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 class OptionsAreaComponent extends Component {
 
@@ -28,9 +29,26 @@ class OptionsAreaComponent extends Component {
 	private Rectangle volumeOffRect = new Rectangle(0, 0, 128, 128);
 	private Rectangle tilesetTextRect = new Rectangle(0, 0, 227 - 127, 152 - 110);
 	private Rectangle soundTextRect = new Rectangle(0, 0, 311 - 227, 152 - 110);
+	
+	private enum TilesetSelection {
+		Simple, RoadSigns, Hard
+	}
+	private TilesetSelection mTilesetSelection;
+	
+	private enum VolumeSelection {
+		On, Off
+	}
+	private VolumeSelection mVolumeSelection;
+	
+	private static final String PREF_TILESET = "pref_tileset";
+	private static final String PREF_VOLUME = "pref_volume";
 
 	public OptionsAreaComponent(PelmanismGame game) {
 		super(game);
+		
+		
+		// Run resume logic
+		resume();
 	}
 
 	@Override
@@ -91,30 +109,92 @@ class OptionsAreaComponent extends Component {
 		soundTextTex = new TextureRegion(uiTexture, 227, 110, 311 - 227, 152 - 110);
 	}
 	
-	private void drawUiElements(SpriteBatch batch) {
+	private void drawUiElements(final SpriteBatch batch, final float alpha) {
+		final float fadeAlpha = 0.25f;
+		float componentAlpha;
+		
+		// Draw text labels
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha);
 		game.drawTextureByRect(tilesetTextTex, tilesetTextRect);
 		game.drawTextureByRect(soundTextTex, soundTextRect);
+		
+		// Draw tileset cards
+		componentAlpha = mTilesetSelection == TilesetSelection.Simple ? 1.0f : fadeAlpha;
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(simpleTilesetTex, simpleTilesetRect);
+		
+		componentAlpha = mTilesetSelection == TilesetSelection.RoadSigns ? 1.0f : fadeAlpha;
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(signsTilesetTex, signsTilesetRect);
+		
+		componentAlpha = mTilesetSelection == TilesetSelection.Hard ? 1.0f : fadeAlpha;
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(hardTilesetTex, hardTilesetRect);
+		
+		// Draw volume cards
+		componentAlpha = mVolumeSelection == VolumeSelection.On ? 1.0f : fadeAlpha;
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(volumeOnTex, volumeOnRect);
+		
+		componentAlpha = mVolumeSelection == VolumeSelection.Off ? 1.0f : fadeAlpha;
+		batch.setColor(1.0f, 1.0f, 1.0f, alpha * componentAlpha);
 		game.drawTextureByRect(volumeOffTex, volumeOffRect);
+		
 	}
 
 	@Override
-	protected void render(SpriteBatch batch) {
+	protected void render(final SpriteBatch batch) {
 		switch (game.mUiState) {
 		case GameToOptions_Options:
 		case OptionsToGame_Options:
-			batch.setColor(1.0f, 1.0f, 1.0f, game.mUiAlpha);
-			drawUiElements(batch);
+			drawUiElements(batch, game.mUiAlpha);
+			break;
 		case Options:
-			batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 			// TODO: Fade will be 0.25f
-			drawUiElements(batch);
+			drawUiElements(batch, 1.0f);
 			break;
 		default:
 			break;
 		}
+	}
+	
+	@Override
+	protected void pause() {
+		// Save selections to preferences
+		game.mPrefs.putString(PREF_TILESET, mTilesetSelection.toString());
+		game.mPrefs.putString(PREF_VOLUME, mVolumeSelection.toString());
+		game.mPrefs.flush();
+	}
+	
+	@Override
+	protected void resume() {
+		// Load tileset selection from preferences
+		String prefTileset = game.mPrefs.getString(PREF_TILESET);
+		for(TilesetSelection ts : TilesetSelection.values()) {
+			if(ts.toString().equals(prefTileset)) {
+				mTilesetSelection = ts;
+				break;
+			}
+		}
+		if(mTilesetSelection == null) {
+			mTilesetSelection = TilesetSelection.Simple;
+		}
+		
+		// Load volume selection from preferences
+		String prefVolume = game.mPrefs.getString(PREF_VOLUME);
+		for(VolumeSelection vs : VolumeSelection.values()) {
+			if(vs.toString().equals(prefVolume)) {
+				mVolumeSelection = vs;
+				break;
+			}
+		}
+		if(mVolumeSelection == null) {
+			mVolumeSelection = VolumeSelection.On;
+		}
+	}
+	
+	@Override
+	protected void input(Vector2 touch) {
+		// TODO: Process touch event
 	}
 }

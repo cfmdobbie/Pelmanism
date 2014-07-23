@@ -17,4 +17,6 @@ abstract class Component {
 	protected void input(Vector2 touch) {}
 	protected void update(float delta) {}
 	abstract protected void onAssetsLoaded(AssetManager assetManager);
+	protected void pause() {};
+	protected void resume() {};
 }
