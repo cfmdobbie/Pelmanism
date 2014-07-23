@@ -47,9 +47,9 @@ public class PelmanismGame implements ApplicationListener {
 	private Component newGame;
 
 	// Texture name constants
-	static final String BACKGROUND_TEXTURE = "felt_green_tiled.png";
-	static final String TILESET_TEXTURE = "test_card_4.png";
-	static final String UI_TEXTURE = "ui_elements_1.png";
+	static final String BACKGROUND_TEXTURE = "felt_green_tiled_greener.png";
+	static final String TILESET_TEXTURE = "simple_card_4.png";
+	static final String UI_TEXTURE = "ui_elements_2.png";
 
 	// Current display metrics - updated on resize()
 	int mDisplayWidth;
