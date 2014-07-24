@@ -11,18 +11,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.maycontainsoftware.pelmanism.OptionsAreaComponent.TilesetSelection;
 
 class GameAreaComponent extends Component {
 
 	private static final String TAG = GameAreaComponent.class.getName();
 
+	// Current tileset
 	private Texture mTilesetTexture;
+	
+	// Tileset chopped-up into individual cards
+	// Note that last card on the tileset is the card back
 	private TextureRegion[] mCardTextures;
 
-	// TODO: Board size comes from prefs, options or defaults - how does this work?
+	// Board size
+	// TODO: Future: board size/shape defined in prefs?
 	private static final int BOARD_WIDTH = 4;
 	private static final int BOARD_HEIGHT = 5;
 	private static final int NUMBER_OF_CELLS = BOARD_WIDTH * BOARD_HEIGHT;
+	
 	// TODO: Better place for board representation
 	private final Rectangle[] mBoardCells = new Rectangle[NUMBER_OF_CELLS];
 
@@ -54,11 +61,25 @@ class GameAreaComponent extends Component {
 		updateBoardArea();
 		positionBoardCells(rect);
 	}
+	
+	private String getTilesetTextureName() {
+		TilesetSelection tilesetSelection = OptionsAreaComponent.getTilesetOption(game.mPrefs);
+		switch(tilesetSelection) {
+		case Simple:
+			return PelmanismGame.SIMPLE_TILESET_TEXTURE;
+		case RoadSigns:
+			return PelmanismGame.ROADSIGN_TILESET_TEXTURE;
+		case Hard:
+			return PelmanismGame.HARD_TILESET_TEXTURE;
+		default:
+			throw new IllegalArgumentException("Unrecognised tileset option: " + tilesetSelection.toString());
+		}
+	}
 
 	@Override
 	protected void onAssetsLoaded(AssetManager assetManager) {
-		// Acquire Texture references
-		mTilesetTexture = assetManager.get(PelmanismGame.HARD_TILESET_TEXTURE);
+		// Pull tileset texture from asset manager
+		mTilesetTexture = assetManager.get(getTilesetTextureName());
 
 		// Chop textures into TextureRegions as required
 		mCardTextures = chopTextureIntoRegions(mTilesetTexture, 4, 4);
@@ -91,7 +112,7 @@ class GameAreaComponent extends Component {
 		case GameToOptions_Options:
 		case Options:
 		case OptionsToGame_Options:
-			// TODO: Draw options screen
+			// Game area not visible, do nothing
 			break;
 		}
 	}

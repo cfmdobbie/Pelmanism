@@ -27,8 +27,8 @@ abstract class Component {
 	abstract protected void onAssetsLoaded(AssetManager assetManager);
 
 	protected void pause() {
-	};
+	}
 
 	protected void resume() {
-	};
+	}
 }

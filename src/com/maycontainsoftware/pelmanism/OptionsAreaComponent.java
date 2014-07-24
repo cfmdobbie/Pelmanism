@@ -1,5 +1,6 @@
 package com.maycontainsoftware.pelmanism;
 
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -30,13 +31,13 @@ class OptionsAreaComponent extends Component {
 	private Rectangle tilesetTextRect = new Rectangle(0, 0, 227 - 127, 152 - 110);
 	private Rectangle soundTextRect = new Rectangle(0, 0, 311 - 227, 152 - 110);
 
-	private enum TilesetSelection {
+	enum TilesetSelection {
 		Simple, RoadSigns, Hard
 	}
 
 	private TilesetSelection mTilesetSelection;
 
-	private enum VolumeSelection {
+	enum VolumeSelection {
 		On, Off
 	}
 
@@ -48,8 +49,8 @@ class OptionsAreaComponent extends Component {
 	public OptionsAreaComponent(PelmanismGame game) {
 		super(game);
 
-		// Run resume logic
-		resume();
+		// Load options from preferences
+		loadOptions();
 	}
 
 	@Override
@@ -169,39 +170,38 @@ class OptionsAreaComponent extends Component {
 		}
 	}
 
-	@Override
-	protected void pause() {
+	protected void saveOptions() {
 		// Save selections to preferences
 		game.mPrefs.putString(PREF_TILESET, mTilesetSelection.toString());
 		game.mPrefs.putString(PREF_VOLUME, mVolumeSelection.toString());
 		game.mPrefs.flush();
 	}
 
-	@Override
-	protected void resume() {
-		// Load tileset selection from preferences
-		String prefTileset = game.mPrefs.getString(PREF_TILESET);
-		for (TilesetSelection ts : TilesetSelection.values()) {
-			if (ts.toString().equals(prefTileset)) {
-				mTilesetSelection = ts;
-				break;
+	// Load tileset selection from preferences
+	protected static final TilesetSelection getTilesetOption(Preferences prefs) {
+		String prefTileset = prefs.getString(PREF_TILESET);
+		for (TilesetSelection tilesetSelection : TilesetSelection.values()) {
+			if (tilesetSelection.toString().equals(prefTileset)) {
+				return tilesetSelection;
 			}
 		}
-		if (mTilesetSelection == null) {
-			mTilesetSelection = TilesetSelection.Simple;
-		}
-
-		// Load volume selection from preferences
-		String prefVolume = game.mPrefs.getString(PREF_VOLUME);
-		for (VolumeSelection vs : VolumeSelection.values()) {
-			if (vs.toString().equals(prefVolume)) {
-				mVolumeSelection = vs;
-				break;
+		return TilesetSelection.Simple;
+	}
+	
+	// Load volume selection from preferences
+	protected static final VolumeSelection getVolumeOption(Preferences prefs) {
+		String prefVolume = prefs.getString(PREF_VOLUME);
+		for (VolumeSelection volumeSelection : VolumeSelection.values()) {
+			if (volumeSelection.toString().equals(prefVolume)) {
+				return volumeSelection;
 			}
 		}
-		if (mVolumeSelection == null) {
-			mVolumeSelection = VolumeSelection.On;
-		}
+		return VolumeSelection.On;
+	}
+	
+	protected void loadOptions() {
+		mTilesetSelection = getTilesetOption(game.mPrefs);
+		mVolumeSelection = getVolumeOption(game.mPrefs);
 	}
 
 	@Override
@@ -221,8 +221,9 @@ class OptionsAreaComponent extends Component {
 				mVolumeSelection = VolumeSelection.Off;
 			}
 
-			// TODO: Is this the best way to handle saving state?
-			pause();
+			// Just in case anything's changed, save the options to preferences
+			// TODO: A better way to detect changed options?
+			saveOptions();
 
 			break;
 		default:
