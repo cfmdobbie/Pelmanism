@@ -29,7 +29,7 @@ public class MainMenuScreen implements Screen {
 		
 		game.batch.setProjectionMatrix(game.camera.combined);
 		game.batch.begin();
-		game.batch.draw(region, 0, 0);
+		game.batch.draw(region, 0, 0, 720, 1000);
 		//sprite.draw(game.batch);
 		game.batch.end();
 		

@@ -17,7 +17,7 @@ public class MyGame extends Game {
 
 	public SpriteBatch batch;
 	public OrthographicCamera camera;
-//	private Rectangle viewport;
+	private final Rectangle viewport = new Rectangle();
 
 	@Override
 	public void create() {
@@ -34,40 +34,24 @@ public class MyGame extends Game {
 		// Calculate display aspect ratio
 		float displayAspectRatio = (float) width / (float) height;
 		
+		camera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+		
 		// Based on display aspect ratio, calculate camera dimensions
 		if (displayAspectRatio > VIRTUAL_ASPECT_RATIO) {
 			// Display is wider than the game
-			camera.setToOrtho(false, VIRTUAL_HEIGHT * displayAspectRatio, VIRTUAL_HEIGHT);
+			viewport.setSize(height * VIRTUAL_ASPECT_RATIO, height);
+			viewport.setPosition((width - height * VIRTUAL_ASPECT_RATIO) / 2, 0);
 		} else if (displayAspectRatio < VIRTUAL_ASPECT_RATIO) {
 			// Display is taller than the game
-			camera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_WIDTH / displayAspectRatio);
+			viewport.setSize(width, width / VIRTUAL_ASPECT_RATIO);
+			viewport.setPosition(0, (height - width / VIRTUAL_ASPECT_RATIO) / 2);
 		} else {
 			// Display exactly matches game
-			camera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+			viewport.setSize(width, height);
+			viewport.setPosition(0, 0);
 		}
 		// Move (0,0) point to bottom left of virtual area
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
-		
-		/*
-//		float scale = 1.0f;
-//		Vector2 crop = new Vector2(0.0f, 0.0f);
-
-		if (aspectRatio > VIRTUAL_ASPECT_RATIO) {
-			scale = (float) height / (float) VIRTUAL_HEIGHT;
-			crop.x = (width - VIRTUAL_WIDTH * scale) / 2f;
-		} else if (aspectRatio < VIRTUAL_ASPECT_RATIO) {
-			scale = (float) width / (float) VIRTUAL_WIDTH;
-			crop.y = (height - VIRTUAL_HEIGHT * scale) / 2f;
-		} else {
-			scale = (float) width / (float) VIRTUAL_WIDTH;
-		}
-		
-		//crop.set(Scaling.fit.apply(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, width, height));
-		
-		float w = (float) VIRTUAL_WIDTH * scale;
-		float h = (float) VIRTUAL_HEIGHT * scale;
-		viewport = new Rectangle(crop.x, crop.y, w, h);
-		 */
 		
 		super.resize(width, height);
 	}
@@ -82,9 +66,9 @@ public class MyGame extends Game {
 		camera.update();
 		//camera.apply(Gdx.gl10);
 
-		//Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
-		Gdx.gl.glViewport(10, 10, 50, 50);
-
+		// Map rendered scene to centered viewport of correct aspect ratio
+		Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
+		
 		super.render();
 	}
 }
