@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class MyGame extends Game {
 
-	private static final int VIRTUAL_WIDTH = 720;
-	private static final int VIRTUAL_HEIGHT = 1000;
+	static final int VIRTUAL_WIDTH = 720;
+	static final int VIRTUAL_HEIGHT = 1000;
 	private static final float VIRTUAL_ASPECT_RATIO = (float) VIRTUAL_WIDTH / (float) VIRTUAL_HEIGHT;
 
 	SpriteBatch batch;
@@ -30,7 +30,7 @@ public class MyGame extends Game {
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
 
 		// TODO
-		this.setScreen(new MainMenuScreen(this));
+		this.setScreen(new StageTestScreen(this));
 	}
 
 	@Override
