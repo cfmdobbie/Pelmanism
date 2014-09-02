@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class StageTestScreen implements Screen {
 	
-	
 	static class TempActor extends Actor {
 		private Texture texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		private TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
