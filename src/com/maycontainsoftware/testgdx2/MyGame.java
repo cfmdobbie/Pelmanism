@@ -91,7 +91,7 @@ public class MyGame extends Game {
 		// Scissor buffer operations to the viewport
 		Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
 		Gdx.gl.glScissor((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
-		
+
 		// Reset SpriteBatch color to white
 		batch.setColor(Color.WHITE);
 
