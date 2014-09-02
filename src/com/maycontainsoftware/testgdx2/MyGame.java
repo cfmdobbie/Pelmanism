@@ -3,6 +3,7 @@ package com.maycontainsoftware.testgdx2;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,7 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class MyGame extends Game {
-	
+
 	private static final String TAG = MyGame.class.getSimpleName();
 
 	// Virtual screen metrics
@@ -19,13 +20,16 @@ public class MyGame extends Game {
 	static final int VIRTUAL_HEIGHT = 1000;
 	private static final float VIRTUAL_ASPECT_RATIO = (float) VIRTUAL_WIDTH / (float) VIRTUAL_HEIGHT;
 
+	// Background colour
+	static final Color BACKGROUND_COLOR = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
+
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	final Rectangle viewport = new Rectangle();
 	AssetManager manager;
 	TextureAtlas atlas;
 	Skin skin;
-	
+
 	@Override
 	public void create() {
 
@@ -34,46 +38,23 @@ public class MyGame extends Game {
 
 		// Set up camera
 		camera = new OrthographicCamera(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-		//camera = new OrthographicCamera();
-		// camera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 		// Move (0,0) point to bottom left of virtual area
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
-		
+
 		manager = new AssetManager();
 
-		// TODO
+		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		
+
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
-		
+
 		// Calculate display aspect ratio
 		final float displayAspectRatio = (float) width / (float) height;
-		
-//		final boolean wideScreen = displayAspectRatio > VIRTUAL_ASPECT_RATIO;
-//		final boolean tallScreen = !wideScreen;
-		
-		/*
-		if(wideScreen) {
-			// Camera needs to be VIRTUAL_HEIGHT high
-			final float cameraWidth = VIRTUAL_HEIGHT * displayAspectRatio;
-			camera.setToOrtho(false, cameraWidth, VIRTUAL_HEIGHT);
-			Gdx.app.log(TAG, "camera = " + cameraWidth + " x " + VIRTUAL_HEIGHT);
-		} else if(tallScreen) {
-			// Camera needs to be VIRTUAL_WIDTH wide
-			final float cameraHeight = VIRTUAL_WIDTH / displayAspectRatio;
-			camera.setToOrtho(false, VIRTUAL_WIDTH, cameraHeight);
-			Gdx.app.log(TAG, "camera = " + VIRTUAL_WIDTH + " x " + cameraHeight);
-		} else {
-			// Camera needs to be exactly the same as 
-			camera.setToOrtho(false, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-			Gdx.app.log(TAG, "camera = " + VIRTUAL_WIDTH + " x " + VIRTUAL_HEIGHT);
-		}
-		*/
-		
+
 		// Recalculate glViewport
 		if (displayAspectRatio > VIRTUAL_ASPECT_RATIO) {
 			// Display is wider than the game
@@ -89,41 +70,35 @@ public class MyGame extends Game {
 			viewport.setPosition(0, 0);
 		}
 
-
 		// Pass resize() call to active Screen
 		super.resize(width, height);
 	}
 
 	@Override
 	public void render() {
-		
+
 		// Clear colour buffer to black
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		// Don't scissor this clear operation
 		Gdx.gl.glDisable(GL10.GL_SCISSOR_TEST);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+
 		// Update the camera
 		camera.update();
-		
+
 		// Map rendered scene to centred viewport of correct aspect ratio
 		Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 		// Scissor buffer operations to the viewport
 		Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
 		Gdx.gl.glScissor((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 		
+		// Reset SpriteBatch color to white
+		batch.setColor(Color.WHITE);
+
 		// Pass render() call to active Screen
 		super.render();
-		
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
-		if(atlas != null) {
-			batch.draw(atlas.findRegion("cards_hard_on"), 0, 0);
-		}
-		batch.end();
 	}
-	
+
 	@Override
 	public void dispose() {
 
@@ -131,13 +106,8 @@ public class MyGame extends Game {
 		batch.dispose();
 		manager.dispose();
 		skin.dispose();
-		
+
 		// Pass render() call to active Screen
 		super.dispose();
-	}
-	
-	void postAssetLoad() {
-		atlas = manager.get("pelmanism.atlas", TextureAtlas.class);
-		skin = manager.get("uiskin.json", Skin.class);
 	}
 }

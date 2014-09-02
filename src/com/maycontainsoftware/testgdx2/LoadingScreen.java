@@ -2,11 +2,8 @@ package com.maycontainsoftware.testgdx2;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -18,8 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class LoadingScreen implements Screen {
 
 	private final MyGame game;
-	private static final Color bgColour = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
-	private Texture texture;
+	private Texture loadingTexture;
 	private Stage stage;
 
 	public LoadingScreen(MyGame game) {
@@ -30,39 +26,53 @@ public class LoadingScreen implements Screen {
 	public void render(float delta) {
 
 		// Clear screen
-		Gdx.gl.glClearColor(bgColour.r, bgColour.g, bgColour.b, bgColour.a);
+		Gdx.gl.glClearColor(MyGame.BACKGROUND_COLOR.r, MyGame.BACKGROUND_COLOR.g, MyGame.BACKGROUND_COLOR.b, MyGame.BACKGROUND_COLOR.a);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
+		
+		// Update and render the Stage
 		stage.act();
 		stage.draw();
 
+		// Continue to load assets
 		if (game.manager.update()) {
+			// Assets have been loaded!
 			System.out.println("game.manager.update() = true");
-			game.postAssetLoad();
+			
+			// Perform any post-load tasks
+			game.atlas = game.manager.get("pelmanism.atlas", TextureAtlas.class);
+			game.skin = game.manager.get("uiskin.json", Skin.class);
+			
+			// Jump to main menu
 			game.setScreen(new MainMenuScreen(game));
+			
+			// Get rid of loading screen
 			this.dispose();
 		}
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		// Update Stage's viewport calculations
+		stage.setViewport(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, false, game.viewport.x, game.viewport.y, game.viewport.width, game.viewport.height);
 	}
 
 	@Override
 	public void show() {
 		System.out.println("LoadingScreen.show()");
 		
-		texture = new Texture(Gdx.files.internal("loading.png"));
+		// Manually load any assets required for the loading screen
+		loadingTexture = new Texture(Gdx.files.internal("loading.png"));
+		
+		// Create the Stage
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true);
-		stage.addActor(new LoadingActor(texture));
+		stage.addActor(new LoadingActor(loadingTexture));
 
-		TextureParameter wrapTexture = new TextureParameter();
-		wrapTexture.wrapU = TextureWrap.Repeat;
-		wrapTexture.wrapV = TextureWrap.Repeat;
+//		TextureParameter wrapTexture = new TextureParameter();
+//		wrapTexture.wrapU = TextureWrap.Repeat;
+//		wrapTexture.wrapV = TextureWrap.Repeat;
 		
 		// Load assets in AssetManager
 		game.manager.load("pelmanism.atlas", TextureAtlas.class);
-		//game.manager.load("background.png", Texture.class, wrapTexture);
 		// TODO: AssetManager - load more graphic assets
 		// TODO: AssetManager - load sound effect assets
 		// TODO: AssetManager - load music assets
@@ -83,7 +93,7 @@ public class LoadingScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		texture.dispose();
+		loadingTexture.dispose();
 		stage.dispose();
 	}
 
@@ -92,6 +102,7 @@ public class LoadingScreen implements Screen {
 		float animTime = 0.0f;
 
 		public LoadingActor(Texture texture) {
+			// Simple four-frame animation
 			final TextureRegion[] frames = new TextureRegion[4];
 			for (int i = 0; i < 4; i++) {
 				frames[i] = new TextureRegion(texture, 0.0f, i * 0.25f, 1.0f, (i + 1) * 0.25f);
@@ -101,7 +112,9 @@ public class LoadingScreen implements Screen {
 
 		@Override
 		public void draw(SpriteBatch batch, float parentAlpha) {
+			// Get current animation frame
 			TextureRegion currentFrame = animation.getKeyFrame(animTime, true);
+			// Display in centre of screen
 			batch.draw(currentFrame, (720 - 256) / 2, (1000 - 64) / 2);
 		}
 
