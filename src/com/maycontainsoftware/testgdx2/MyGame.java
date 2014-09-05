@@ -2,6 +2,7 @@ package com.maycontainsoftware.testgdx2;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -30,6 +31,31 @@ public class MyGame extends Game {
 	TextureAtlas atlas;
 	Skin skin;
 
+	/** Name of preferences file for state persistence. */
+	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
+	Preferences mPrefs;
+	
+	// Number of players
+	static final String PREF_PLAYERS = "number_of_players";
+	static final String PLAYERS_ONE = "One";
+	static final String PLAYERS_TWO = "Two";
+	static final String PLAYERS_ONE_VS_CPU = "One_Vs_Cpu";
+	static final String[] PLAYERS_OPTIONS = {PLAYERS_ONE, PLAYERS_TWO, PLAYERS_ONE_VS_CPU};
+	
+	// Difficulty
+	static final String PREF_DIFFICULTY = "difficulty";
+	static final String DIFFICULTY_EASY = "Easy";
+	static final String DIFFICULTY_MEDIUM = "Medium";
+	static final String DIFFICULTY_HARD = "Hard";
+	static final String[] DIFFICULTY_OPTIONS = {DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD};
+	
+	// Card sets
+	static final String PREF_CARD_SET = "card_set";
+	static final String CARD_SET_SIMPLE = "Simple";
+	static final String CARD_SET_SIGNS = "Signs";
+	static final String CARD_SET_HARD = "Hard";
+	static final String[] CARD_SET_OPTIONS = {CARD_SET_SIMPLE, CARD_SET_SIGNS, CARD_SET_HARD};
+
 	@Override
 	public void create() {
 
@@ -42,6 +68,9 @@ public class MyGame extends Game {
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
 
 		manager = new AssetManager();
+
+		// Get reference to preferences file
+		mPrefs = Gdx.app.getPreferences(PREFERENCES_NAME);
 
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
