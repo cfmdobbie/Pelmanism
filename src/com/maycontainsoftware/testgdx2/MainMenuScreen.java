@@ -6,14 +6,20 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.RotateToAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
@@ -61,62 +67,90 @@ public class MainMenuScreen implements Screen {
 		Gdx.input.setInputProcessor(stage);
 
 		// Root of the Stage is a Table, used to lay out all other widgets
-		Table table = new Table();
+		final Table table = new Table();
 		table.setFillParent(true);
+		table.setTransform(true);
 		table.defaults().pad(10.0f);
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen
-		TextureRegion background = game.atlas.findRegion("background");
+		final TextureRegion background = game.atlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
 
 		// Title
-		table.add(new Label("Pelmanism!", game.skin, "impact64", Color.RED)).colspan(3);
-		table.row();
-
-		// Players section
-		table.add(new Label("Players:", game.skin, "impact48", Color.WHITE)).colspan(3);
-		table.row();
-		table.add(new Image(game.atlas.findRegion("player_1p_on")));
-		table.add(new Image(game.atlas.findRegion("player_2p_off")));
-		table.add(new Image(game.atlas.findRegion("player_1pvscpu_off")));
-		table.row();
-
-		// Sound section
-		table.add(new Label("Sound:", game.skin, "impact48", Color.WHITE)).colspan(3);
-		table.row();
-		final Image sound = new Image(game.atlas.findRegion("sound_on"));
-		sound.addListener(new InputListener() {
-			boolean on = true;
-
+		// Need a wrapper around the title label that can be rotated
+		final Table titleWrapper = new Table();
+		titleWrapper.setTransform(true);
+		// titleWrapper.debug();
+		final Label title = new Label("Pelmanism!", game.skin, "archristy64", Color.RED);
+		title.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.log(TAG, "sound touched");
-				TextureRegionDrawable d = (TextureRegionDrawable) sound.getDrawable();
-				d.setRegion(MainMenuScreen.this.game.atlas.findRegion(on ? "sound_off" : "sound_on"));
-				on = !on;
+				Gdx.app.log(TAG, "title touchDown");
+				RotateToAction rotateAction = new RotateToAction();
+				rotateAction.setRotation(titleWrapper.getRotation() + 180.0f);
+				rotateAction.setDuration(0.125f);
+				titleWrapper.setOrigin(titleWrapper.getWidth() / 2, titleWrapper.getHeight() / 2);
+				titleWrapper.addAction(rotateAction);
 				return true;
 			}
 		});
-		table.add(sound);
+		titleWrapper.add(title);
+
+		table.add(titleWrapper).colspan(3);
+		table.row();
+
+		// Players section
+		table.add(new Label("Players:", game.skin, "archristy32", Color.WHITE)).colspan(3);
+		table.row();
+		Button onePlayerButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("player_1p_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("player_1p_on")));
+		table.add(onePlayerButton);
+		Button twoPlayersButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("player_2p_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("player_2p_on")));
+		table.add(twoPlayersButton);
+		Button onePlayerVsCpuButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("player_1pvscpu_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("player_1pvscpu_on")));
+		table.add(onePlayerVsCpuButton);
+		table.row();
+
+		// Difficulty section
+		table.add(new Label("Difficulty:", game.skin, "archristy32", Color.WHITE)).colspan(3);
+		table.row();
+		// TODO: Correct graphics
+		Button difficultyEasyButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("difficulty_1_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("difficulty_1_on")));
+		table.add(difficultyEasyButton);
+		Button difficultyMediumButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("difficulty_2_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("difficulty_2_on")));
+		table.add(difficultyMediumButton);
+		Button difficultyHardButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("difficulty_3_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("difficulty_3_on")));
+		table.add(difficultyHardButton);
 		table.row();
 
 		// Card set section
-		table.add(new Label("Card set:", game.skin, "impact48", Color.WHITE)).colspan(3);
+		table.add(new Label("Card set:", game.skin, "archristy32", Color.WHITE)).colspan(3);
 		table.row();
-		table.add(new Image(game.atlas.findRegion("cards_simple_on")));
-		table.add(new Image(game.atlas.findRegion("cards_signs_off")));
-		table.add(new Image(game.atlas.findRegion("cards_hard_off")));
-		table.row();
+		Button cardSetSimpleButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("cards_simple_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("cards_simple_on")));
+		table.add(cardSetSimpleButton);
+		Button cardSetSignsButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("cards_signs_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("cards_signs_on")));
+		table.add(cardSetSignsButton);
+		Button cardSetHardButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("cards_hard_off")), null,
+				new TextureRegionDrawable(game.atlas.findRegion("cards_hard_on")));
+		table.add(cardSetHardButton);
+		// new ButtonGroup(cardSetSimpleButton, cardSetSignsButton, cardSetHardButton);
+		table.row().padBottom(20.0f);
 
-		// XXX: Test code
-		table.add(new Label("Number of pairs:", game.skin, "impact48", Color.WHITE)).colspan(3);
-		table.row();
-		table.add(new Label("8", game.skin, "impact64", Color.WHITE));
-		table.add(new Label("10", game.skin, "impact64", Color.WHITE));
-		table.add(new Label("12", game.skin, "impact64", Color.WHITE));
-		table.row();
-		table.add(new TextButton("This is a button", game.skin)).colspan(3);
+		// Buttons
+		// Help Button
+		Button helpButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("help")));
+		table.add(helpButton).padTop(50.0f);
+		// Start Game Button
+		Button startButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("start")));
+		table.add(startButton).padTop(50.0f);
 		table.row();
 
 		// table.debug();
@@ -133,7 +167,7 @@ public class MainMenuScreen implements Screen {
 		stage.act();
 		stage.draw();
 
-		// Table.drawDebug(stage);
+		Table.drawDebug(stage);
 	}
 
 	@Override
