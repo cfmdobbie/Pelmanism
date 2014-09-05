@@ -5,17 +5,13 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.RotateToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -81,18 +77,18 @@ public class MainMenuScreen implements Screen {
 
 		// Buttons
 		// Help Button
-		final Button helpButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("help")));
+		final Button helpButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("help_button")));
 		helpButton.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				// TODO: Display help screen
+				MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
+				MainMenuScreen.this.dispose();
 				return true;
 			}
 		});
 		table.add(helpButton).padTop(50.0f);
-		table.add();
 		// Start Game Button
-		final Button startButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("start")));
+		final Button startButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("start_button")));
 		startButton.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -100,7 +96,7 @@ public class MainMenuScreen implements Screen {
 				return true;
 			}
 		});
-		table.add(startButton).padTop(50.0f);
+		table.add(startButton).colspan(2).padTop(50.0f);
 		table.row();
 
 		// table.debug();
@@ -191,28 +187,4 @@ public class MainMenuScreen implements Screen {
 	public void dispose() {
 		stage.dispose();
 	}
-
-	/** A Label that spins 180 degrees when touched. */
-	static class SpinningLabel extends Table {
-		public SpinningLabel(MyGame game, String text, String font, Color color) {
-			this.setTransform(true);
-			final Label label = new Label(text, game.skin, font, color);
-			label.addListener(new InputListener() {
-				@Override
-				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-					Gdx.app.log(TAG, "SpinningLabel touchDown");
-					if (SpinningLabel.this.getActions().size == 0) {
-						final RotateToAction rotateAction = new RotateToAction();
-						rotateAction.setRotation(SpinningLabel.this.getRotation() + 180.0f);
-						rotateAction.setDuration(0.125f);
-						SpinningLabel.this.setOrigin(SpinningLabel.this.getWidth() / 2, SpinningLabel.this.getHeight() / 2);
-						SpinningLabel.this.addAction(rotateAction);
-					}
-					return true;
-				}
-			});
-			this.add(label);
-		}
-	}
-
 }
