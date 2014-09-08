@@ -6,11 +6,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
@@ -41,7 +42,7 @@ public class HelpScreen implements Screen {
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen
-		final TextureRegion background = game.atlas.findRegion("background");
+		final TextureRegion background = game.uiAtlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
 
 		// How to play
@@ -73,13 +74,14 @@ public class HelpScreen implements Screen {
 		table.row();
 
 		// Back button
-		final Button backButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("back_button")));
-		backButton.addListener(new InputListener() {
+		final Drawable backButtonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_on"));
+		final Drawable backButtonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_off"));
+		final Button backButton = new Button(backButtonOff, backButtonOn);
+		backButton.addListener(new ChangeListener() {
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+			public void changed(ChangeEvent event, Actor actor) {
 				HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
 				HelpScreen.this.dispose();
-				return true;
 			}
 		});
 		table.add(backButton).padTop(50.0f);

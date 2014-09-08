@@ -40,7 +40,10 @@ public class LoadingScreen implements Screen {
 //		wrapTexture.wrapV = TextureWrap.Repeat;
 		
 		// Load assets in AssetManager
-		game.manager.load("pelmanism.atlas", TextureAtlas.class);
+		game.manager.load("ui.atlas", TextureAtlas.class);
+		game.manager.load("simple.atlas", TextureAtlas.class);
+		game.manager.load("signs.atlas", TextureAtlas.class);
+		game.manager.load("hard.atlas", TextureAtlas.class);
 		// TODO: AssetManager - load more graphic assets
 		// TODO: AssetManager - load sound effect assets
 		// TODO: AssetManager - load music assets
@@ -64,7 +67,10 @@ public class LoadingScreen implements Screen {
 			Gdx.app.log(TAG, "game.manager.update() = true");
 			
 			// Perform any post-load tasks
-			game.atlas = game.manager.get("pelmanism.atlas", TextureAtlas.class);
+			game.uiAtlas = game.manager.get("ui.atlas", TextureAtlas.class);
+			game.simpleCardSet = game.manager.get("simple.atlas", TextureAtlas.class);
+			game.signsCardSet = game.manager.get("signs.atlas", TextureAtlas.class);
+			game.hardCardSet = game.manager.get("hard.atlas", TextureAtlas.class);
 			game.skin = game.manager.get("uiskin.json", Skin.class);
 			
 			// Jump to main menu

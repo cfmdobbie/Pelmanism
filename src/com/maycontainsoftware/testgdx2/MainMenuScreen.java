@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
@@ -39,12 +39,12 @@ public class MainMenuScreen implements Screen {
 		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table table = new Table();
 		table.setFillParent(true);
-		table.setTransform(true);
+		//table.setTransform(true);
 		table.defaults().pad(10.0f);
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen
-		final TextureRegion background = game.atlas.findRegion("background");
+		final TextureRegion background = game.uiAtlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
 
 		// Title
@@ -77,23 +77,26 @@ public class MainMenuScreen implements Screen {
 
 		// Buttons
 		// Help Button
-		final Button helpButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("help_button")));
-		helpButton.addListener(new InputListener() {
-			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+		final Drawable helpButtonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("help_button_on"));
+		final Drawable helpButtonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("help_button_off"));
+		final Button helpButton = new Button(helpButtonOff, helpButtonOn);
+		helpButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
 				MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
 				MainMenuScreen.this.dispose();
-				return true;
-			}
-		});
+	        }
+	    });
 		table.add(helpButton).padTop(50.0f);
 		// Start Game Button
-		final Button startButton = new Button(new TextureRegionDrawable(game.atlas.findRegion("start_button")));
-		startButton.addListener(new InputListener() {
+		final Drawable startButtonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("start_button_on"));
+		final Drawable startButtonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("start_button_off"));
+		final Button startButton = new Button(startButtonOff, startButtonOn);
+		startButton.addListener(new ChangeListener() {
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				// TODO: Start game
-				return true;
+			public void changed (ChangeEvent event, Actor actor) {
+				MainMenuScreen.this.game.setScreen(new GameScreen(MainMenuScreen.this.game));
+				MainMenuScreen.this.dispose();
 			}
 		});
 		table.add(startButton).colspan(2).padTop(50.0f);
@@ -109,13 +112,12 @@ public class MainMenuScreen implements Screen {
 		for (int i = 0; i < n; i++) {
 			final int index = i;
 			buttons[i] = makeToggleButton(imagePrefixes[i]);
-			buttons[i].addListener(new InputListener() {
+			buttons[i].addListener(new ChangeListener() {
 				@Override
-				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				public void changed(ChangeEvent event, Actor actor) {
 					final Preferences prefs = MainMenuScreen.this.game.mPrefs;
 					prefs.putString(prefsName, values[index]);
 					prefs.flush();
-					return true;
 				}
 			});
 		}
@@ -138,9 +140,9 @@ public class MainMenuScreen implements Screen {
 	}
 
 	private final Button makeToggleButton(String textureRegionPrefix) {
-		final Drawable off = new TextureRegionDrawable(game.atlas.findRegion(textureRegionPrefix + "_off"));
-		final Drawable on = new TextureRegionDrawable(game.atlas.findRegion(textureRegionPrefix + "_on"));
-		final Button button = new Button(off, null, on);
+		final Drawable off = new TextureRegionDrawable(game.uiAtlas.findRegion(textureRegionPrefix + "_off"));
+		final Drawable on = new TextureRegionDrawable(game.uiAtlas.findRegion(textureRegionPrefix + "_on"));
+		final Button button = new Button(off, on, on);
 		return button;
 	}
 

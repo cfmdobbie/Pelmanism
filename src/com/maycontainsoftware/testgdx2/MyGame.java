@@ -28,8 +28,11 @@ public class MyGame extends Game {
 	OrthographicCamera camera;
 	final Rectangle viewport = new Rectangle();
 	AssetManager manager;
-	TextureAtlas atlas;
+	TextureAtlas uiAtlas;
 	Skin skin;
+	TextureAtlas simpleCardSet;
+	TextureAtlas signsCardSet;
+	TextureAtlas hardCardSet;
 
 	/** Name of preferences file for state persistence. */
 	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
@@ -41,6 +44,7 @@ public class MyGame extends Game {
 	static final String PLAYERS_TWO = "Two";
 	static final String PLAYERS_ONE_VS_CPU = "One_Vs_Cpu";
 	static final String[] PLAYERS_OPTIONS = {PLAYERS_ONE, PLAYERS_TWO, PLAYERS_ONE_VS_CPU};
+	static enum Foo {A, B};
 	
 	// Difficulty
 	static final String PREF_DIFFICULTY = "difficulty";
@@ -55,6 +59,7 @@ public class MyGame extends Game {
 	static final String CARD_SET_SIGNS = "Signs";
 	static final String CARD_SET_HARD = "Hard";
 	static final String[] CARD_SET_OPTIONS = {CARD_SET_SIMPLE, CARD_SET_SIGNS, CARD_SET_HARD};
+	static enum CardEnum { Simple, Signs, Hard };
 
 	@Override
 	public void create() {
