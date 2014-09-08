@@ -57,7 +57,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
-		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYERS, MyGame.PLAYERS_OPTIONS);
+		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYERS, MyGame.Players.values());
 
 		// Difficulty section
 		// Label
@@ -65,7 +65,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] difficultyImagePrefixes = { "difficulty_1", "difficulty_2", "difficulty_3" };
-		makeButtonSet(table, difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, MyGame.DIFFICULTY_OPTIONS);
+		makeButtonSet(table, difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, MyGame.Difficulty.values());
 
 		// Card set section
 		// Label
@@ -73,7 +73,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] cardSetImagePrefixes = { "cards_simple", "cards_signs", "cards_hard" };
-		makeButtonSet(table, cardSetImagePrefixes, MyGame.PREF_CARD_SET, MyGame.CARD_SET_OPTIONS);
+		makeButtonSet(table, cardSetImagePrefixes, MyGame.PREF_CARD_SET, MyGame.CardSet.values());
 
 		// Buttons
 		// Help Button
@@ -105,7 +105,7 @@ public class MainMenuScreen implements Screen {
 		// table.debug();
 	}
 
-	private void makeButtonSet(final Table table, final String[] imagePrefixes, final String prefsName, final String[] values) {
+	private void makeButtonSet(final Table table, final String[] imagePrefixes, final String prefsName, final Enum<?>[] values) {
 		// METHOD
 		final int n = imagePrefixes.length;
 		Button[] buttons = new Button[n];
@@ -116,7 +116,7 @@ public class MainMenuScreen implements Screen {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
 					final Preferences prefs = MainMenuScreen.this.game.mPrefs;
-					prefs.putString(prefsName, values[index]);
+					prefs.putString(prefsName, values[index].toString());
 					prefs.flush();
 				}
 			});
@@ -125,7 +125,7 @@ public class MainMenuScreen implements Screen {
 		// Check selected button
 		final String currentPrefValue = game.mPrefs.getString(prefsName);
 		for (int i = 0; i < n; i++) {
-			if (currentPrefValue != null && currentPrefValue.equals(values[i])) {
+			if (currentPrefValue != null && currentPrefValue.equals(values[i].toString())) {
 				buttons[i].setChecked(true);
 			}
 		}

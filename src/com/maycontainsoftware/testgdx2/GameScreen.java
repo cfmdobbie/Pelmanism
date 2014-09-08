@@ -24,31 +24,41 @@ public class GameScreen implements Screen {
 
 	private final MyGame game;
 	private final Stage stage;
-	private final TextureAtlas cardSet;
+	private final TextureAtlas cardSetAtlas;
+	private final MyGame.Players players;
+	private final MyGame.Difficulty difficulty;
 	
-	//private enum Players { One, Two, One_Vs_Cpu};
-	//private final Players players;
-
+	private final TextureAtlas getCardSetAtlasFromPrefs() {
+		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, MyGame.CardSet.Simple.toString());
+		final MyGame.CardSet cardSet = MyGame.CardSet.valueOf(cardSetFromPreferences);
+		switch(cardSet) {
+		default:
+			// This should be unreachable code
+			// Fall through to "Simple" behaviour
+		case Simple:
+			return game.simpleCardSet;
+		case Signs:
+			return game.signsCardSet;
+		case Hard:
+			return game.hardCardSet;
+		}
+	}
+	
 	public GameScreen(MyGame game) {
 		this.game = game;
-
+		
 		// Determine card set
-		final String cardSetOption = game.mPrefs.getString(MyGame.PREF_CARD_SET, MyGame.CARD_SET_SIMPLE);
-		if (cardSetOption.equals(MyGame.CARD_SET_SIGNS)) {
-			cardSet = game.signsCardSet;
-		} else if (cardSetOption.equals(MyGame.CARD_SET_HARD)) {
-			cardSet = game.hardCardSet;
-		} else {
-			cardSet = game.simpleCardSet;
-		}
+		cardSetAtlas = getCardSetAtlasFromPrefs();
 		
 		// Players
-		final String playersOption = game.mPrefs.getString(MyGame.PREF_PLAYERS, MyGame.PLAYERS_ONE);
+		final String playersFromPreferences = game.mPrefs.getString(MyGame.PREF_PLAYERS, MyGame.Players.One.toString());
+		players = MyGame.Players.valueOf(playersFromPreferences);
 		// One, Two, One_Vs_Cpu
 		
 		// Difficulty
-		final String difficultyOption = game.mPrefs.getString(MyGame.PREF_DIFFICULTY, MyGame.DIFFICULTY_EASY);
-		// Easy, Medium, Hard
+		final String difficultyFromPreferences = game.mPrefs.getString(MyGame.PREF_DIFFICULTY, MyGame.Difficulty.Easy.toString());
+		difficulty = MyGame.Difficulty.valueOf(difficultyFromPreferences);
+		// Easy, Medium or Hard
 
 		// Create Stage
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true, game.batch);
@@ -87,25 +97,25 @@ public class GameScreen implements Screen {
 		final Table gameArea = new Table();
 		//gameArea.debug();
 
-		gameArea.add(new Image(cardSet.findRegion("01"))).expand();
-		gameArea.add(new Image(cardSet.findRegion("02"))).expand();
-		gameArea.add(new Image(cardSet.findRegion("03"))).expand();
-		gameArea.add(new Image(cardSet.findRegion("04"))).expand();
+		gameArea.add(new Image(cardSetAtlas.findRegion("01"))).expand();
+		gameArea.add(new Image(cardSetAtlas.findRegion("02"))).expand();
+		gameArea.add(new Image(cardSetAtlas.findRegion("03"))).expand();
+		gameArea.add(new Image(cardSetAtlas.findRegion("04"))).expand();
 		gameArea.row().expandY();
-		gameArea.add(new Image(cardSet.findRegion("05")));
-		gameArea.add(new Image(cardSet.findRegion("06")));
-		gameArea.add(new Image(cardSet.findRegion("07")));
-		gameArea.add(new Image(cardSet.findRegion("08")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("05")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("06")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("07")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("08")));
 		gameArea.row().expandY();
-		gameArea.add(new Image(cardSet.findRegion("09")));
-		gameArea.add(new Image(cardSet.findRegion("10")));
-		gameArea.add(new Image(cardSet.findRegion("11")));
-		gameArea.add(new Image(cardSet.findRegion("12")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("09")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("10")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("11")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("12")));
 		gameArea.row().expandY();
-		gameArea.add(new Image(cardSet.findRegion("13")));
-		gameArea.add(new Image(cardSet.findRegion("14")));
-		gameArea.add(new Image(cardSet.findRegion("15")));
-		gameArea.add(new Image(cardSet.findRegion("16")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("13")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("14")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("15")));
+		gameArea.add(new Image(cardSetAtlas.findRegion("16")));
 		gameArea.row().expandY();
 
 		table.add(gameArea).expandX().expandY().fillX().fillY().colspan(2);

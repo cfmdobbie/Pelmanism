@@ -40,26 +40,15 @@ public class MyGame extends Game {
 	
 	// Number of players
 	static final String PREF_PLAYERS = "number_of_players";
-	static final String PLAYERS_ONE = "One";
-	static final String PLAYERS_TWO = "Two";
-	static final String PLAYERS_ONE_VS_CPU = "One_Vs_Cpu";
-	static final String[] PLAYERS_OPTIONS = {PLAYERS_ONE, PLAYERS_TWO, PLAYERS_ONE_VS_CPU};
-	static enum PlayersEnum {One, Two, One_Vs_Cpu};
+	static enum Players {One, Two, One_Vs_Cpu};
 	
 	// Difficulty
 	static final String PREF_DIFFICULTY = "difficulty";
-	static final String DIFFICULTY_EASY = "Easy";
-	static final String DIFFICULTY_MEDIUM = "Medium";
-	static final String DIFFICULTY_HARD = "Hard";
-	static final String[] DIFFICULTY_OPTIONS = {DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD};
+	static enum Difficulty { Easy, Medium, Hard};
 	
 	// Card sets
 	static final String PREF_CARD_SET = "card_set";
-	static final String CARD_SET_SIMPLE = "Simple";
-	static final String CARD_SET_SIGNS = "Signs";
-	static final String CARD_SET_HARD = "Hard";
-	static final String[] CARD_SET_OPTIONS = {CARD_SET_SIMPLE, CARD_SET_SIGNS, CARD_SET_HARD};
-	//static enum CardEnum { Simple, Signs, Hard };
+	static enum CardSet { Simple, Signs, Hard };
 
 	@Override
 	public void create() {
