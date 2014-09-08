@@ -10,7 +10,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class MyGame extends Game {
 
@@ -132,5 +135,12 @@ public class MyGame extends Game {
 
 		// Pass render() call to active Screen
 		super.dispose();
+	}
+	
+	final Button makeTexturedButton(String textureRegionPrefix, boolean toggle) {
+		final Drawable off = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_off"));
+		final Drawable on = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_on"));
+		final Button button = toggle ? new Button(off, on, on) : new Button(off, on);
+		return button;
 	}
 }

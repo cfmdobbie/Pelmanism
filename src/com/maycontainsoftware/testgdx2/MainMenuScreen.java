@@ -111,7 +111,7 @@ public class MainMenuScreen implements Screen {
 		Button[] buttons = new Button[n];
 		for (int i = 0; i < n; i++) {
 			final int index = i;
-			buttons[i] = makeToggleButton(imagePrefixes[i]);
+			buttons[i] = game.makeTexturedButton(imagePrefixes[i], true);
 			buttons[i].addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -137,13 +137,6 @@ public class MainMenuScreen implements Screen {
 			table.add(b);
 		}
 		table.row();
-	}
-
-	private final Button makeToggleButton(String textureRegionPrefix) {
-		final Drawable off = new TextureRegionDrawable(game.uiAtlas.findRegion(textureRegionPrefix + "_off"));
-		final Drawable on = new TextureRegionDrawable(game.uiAtlas.findRegion(textureRegionPrefix + "_on"));
-		final Button button = new Button(off, on, on);
-		return button;
 	}
 
 	@Override
