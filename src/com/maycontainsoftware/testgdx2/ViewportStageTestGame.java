@@ -43,7 +43,7 @@ public class ViewportStageTestGame implements ApplicationListener {
 		camera = new OrthographicCamera(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 		// Move (0,0) point to bottom left of virtual area
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
-		// XXX: stage.setCamera(game.camera);
+		// stage.setCamera(game.camera);
 		
 		texture = new Texture(Gdx.files.internal("loading.png"));
 		
@@ -135,8 +135,6 @@ public class ViewportStageTestGame implements ApplicationListener {
 		// Scissor buffer operations to the viewport
 		Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
 		Gdx.gl.glScissor((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
-		
-		// TODO
 		
 		// CLear active area
 		Gdx.gl.glClearColor(0.25f, 0.25f, 0.25f, 1.0f);

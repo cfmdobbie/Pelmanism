@@ -30,22 +30,6 @@ public class GameScreen implements Screen {
 	private final MyGame.Players players;
 	private final MyGame.Difficulty difficulty;
 
-	private final TextureAtlas getCardSetAtlasFromPrefs() {
-		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, MyGame.CardSet.Simple.toString());
-		final MyGame.CardSet cardSet = MyGame.CardSet.valueOf(cardSetFromPreferences);
-		switch (cardSet) {
-		default:
-			// This should be unreachable code
-			// Fall through to "Simple" behaviour
-		case Simple:
-			return game.simpleCardSet;
-		case Signs:
-			return game.signsCardSet;
-		case Hard:
-			return game.hardCardSet;
-		}
-	}
-
 	public GameScreen(MyGame game) {
 		this.game = game;
 
@@ -77,17 +61,9 @@ public class GameScreen implements Screen {
 		final TextureRegion background = game.uiAtlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
 
-		// TODO
-
 		// Secondary score display
 
-		switch (players) {
-		default:
-		case One:
-			// One player, secondary score display not needed
-			break;
-		case One_Vs_Cpu:
-		case Two:
+		if (players != Players.One) {
 			// Second player exists, either human or computer - will need a second score display
 
 			// Player two info
@@ -98,10 +74,12 @@ public class GameScreen implements Screen {
 			final Color color = players == Players.Two ? Color.BLUE : Color.GRAY;
 			p2Table.add(new Label(playerTwoName, game.skin, "archristy48", color));
 			p2Table.add().expandX();
-			p2Table.add(new Label("N Points", game.skin, "archristy48", color));
+			// TODO: Need to be able to update points on the fly, so need access to this Label
+			p2Table.add(new Label("0 Points", game.skin, "archristy48", color));
 			table.add(p2Table).colspan(2).fillX();
 
-			break;
+			// N.B. TiledDrawable leaves <1px gaps, so this is not usable
+			// p2Table.setBackground(new TiledDrawable(game.uiAtlas.findRegion("yellow")));
 		}
 
 		// Game area
@@ -131,7 +109,8 @@ public class GameScreen implements Screen {
 		final Table gameArea = new Table();
 		// gameArea.debug();
 
-		// XXX: Temp code
+		// TODO: Create game model, set up card grid as per model
+
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cardsPerRow; c++) {
 				final int card = (c + r * cardsPerRow) % regions.length;
@@ -140,8 +119,9 @@ public class GameScreen implements Screen {
 			gameArea.row().expandY();
 		}
 
-		// Game area takes all remaining space in table
-		table.add(gameArea).expandX().expandY().fillX().fillY().colspan(2);
+		// Game area is fixed in size, but must take up all remaining space in table
+		// Hard-coded table size here, as that's the easiest way to do it
+		table.add(gameArea).width(645.0f).height(645.0f).expandX().expandY().colspan(2);
 
 		// Primary score display
 
@@ -151,7 +131,8 @@ public class GameScreen implements Screen {
 		// p1Table.debug();
 		p1Table.add(new Label("Player One", game.skin, "archristy48", Color.RED));
 		p1Table.add().expandX();
-		p1Table.add(new Label("N Points", game.skin, "archristy48", Color.RED));
+		// TODO: Need to be able to update points on the fly, so need access to this Label
+		p1Table.add(new Label("0 Points", game.skin, "archristy48", Color.RED));
 		table.add(p1Table).colspan(2).fillX();
 
 		// Buttons
@@ -221,7 +202,24 @@ public class GameScreen implements Screen {
 		stage.dispose();
 	}
 
+	private final TextureAtlas getCardSetAtlasFromPrefs() {
+		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, MyGame.CardSet.Simple.toString());
+		final MyGame.CardSet cardSet = MyGame.CardSet.valueOf(cardSetFromPreferences);
+		switch (cardSet) {
+		default:
+			// This should be unreachable code
+			// Fall through to "Simple" behaviour
+		case Simple:
+			return game.simpleCardSet;
+		case Signs:
+			return game.signsCardSet;
+		case Hard:
+			return game.hardCardSet;
+		}
+	}
+
 	private final TextureRegion[] selectCardTextures(int n) {
+		// TODO: Need this atlas available to screen, as need access to "Back" graphic
 		final TextureAtlas atlas = getCardSetAtlasFromPrefs();
 		final TextureRegion[] regions = new TextureRegion[n];
 
@@ -247,5 +245,4 @@ public class GameScreen implements Screen {
 
 		return regions;
 	}
-
 }

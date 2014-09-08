@@ -44,7 +44,6 @@ public class LoadingScreen implements Screen {
 		game.manager.load("simple.atlas", TextureAtlas.class);
 		game.manager.load("signs.atlas", TextureAtlas.class);
 		game.manager.load("hard.atlas", TextureAtlas.class);
-		// TODO: AssetManager - load more graphic assets
 		// TODO: AssetManager - load sound effect assets
 		// TODO: AssetManager - load music assets
 		game.manager.load("uiskin.json", Skin.class);

@@ -5,8 +5,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -26,6 +24,7 @@ public class StageTestScreen implements Screen {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private final MyGame game;
 
 	private Color bgColour = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
@@ -37,7 +36,7 @@ public class StageTestScreen implements Screen {
 	public StageTestScreen(MyGame game) {
 		this.game = game;
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true);
-		// XXX: Different constructors allow setting SpriteBatch and viewport metrics
+		// N.B. Different constructors allow setting SpriteBatch and viewport metrics
 		stage.addActor(new TempActor());
 	}
 
