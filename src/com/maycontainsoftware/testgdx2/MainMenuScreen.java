@@ -16,6 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
+import com.maycontainsoftware.testgdx2.MyGame.CardSet;
+import com.maycontainsoftware.testgdx2.MyGame.Difficulty;
+import com.maycontainsoftware.testgdx2.MyGame.PlayerConfiguration;
 
 public class MainMenuScreen implements Screen {
 
@@ -57,7 +60,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
-		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYERS, MyGame.Players.values());
+		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYERS, PlayerConfiguration.values());
 
 		// Difficulty section
 		// Label
@@ -65,7 +68,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] difficultyImagePrefixes = { "difficulty_1", "difficulty_2", "difficulty_3" };
-		makeButtonSet(table, difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, MyGame.Difficulty.values());
+		makeButtonSet(table, difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, Difficulty.values());
 
 		// Card set section
 		// Label
@@ -73,7 +76,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] cardSetImagePrefixes = { "cards_simple", "cards_signs", "cards_hard" };
-		makeButtonSet(table, cardSetImagePrefixes, MyGame.PREF_CARD_SET, MyGame.CardSet.values());
+		makeButtonSet(table, cardSetImagePrefixes, MyGame.PREF_CARD_SET, CardSet.values());
 
 		// Buttons
 		// Help Button

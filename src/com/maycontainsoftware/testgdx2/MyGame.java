@@ -33,25 +33,64 @@ public class MyGame extends Game {
 	AssetManager manager;
 	TextureAtlas uiAtlas;
 	Skin skin;
-	TextureAtlas simpleCardSet;
-	TextureAtlas signsCardSet;
-	TextureAtlas hardCardSet;
 
 	/** Name of preferences file for state persistence. */
 	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
 	Preferences mPrefs;
-	
+
 	// Number of players
-	static final String PREF_PLAYERS = "number_of_players";
-	static enum Players {One, Two, One_Vs_Cpu};
-	
+	static final String PREF_PLAYERS = "player_configuration";
+
+	static enum PlayerConfiguration {
+		One(1, null, null),
+		Two(2, "Player Two", Color.BLUE),
+		One_Vs_Cpu(2, "Computer", Color.GRAY);
+
+		final int numberOfPlayers;
+		final String secondPlayerName;
+		final Color secondPlayerColor;
+
+		private PlayerConfiguration(final int numberOfPlayers, final String secondPlayerName, final Color secondPlayerColor) {
+			this.numberOfPlayers = numberOfPlayers;
+			this.secondPlayerName = secondPlayerName;
+			this.secondPlayerColor = secondPlayerColor;
+		}
+
+		final boolean secondPlayerExists() {
+			return numberOfPlayers != 1;
+		}
+	};
+
 	// Difficulty
 	static final String PREF_DIFFICULTY = "difficulty";
-	static enum Difficulty { Easy, Medium, Hard};
-	
+
+	static enum Difficulty {
+		Easy(4),
+		Medium(6),
+		Hard(8);
+
+		final int boardSize;
+
+		private Difficulty(final int boardSize) {
+			this.boardSize = boardSize;
+		}
+	};
+
 	// Card sets
 	static final String PREF_CARD_SET = "card_set";
-	static enum CardSet { Simple, Signs, Hard };
+
+	static enum CardSet {
+		Simple("simple.atlas"),
+		Signs("signs.atlas"),
+		Hard("hard.atlas");
+
+		final String atlasName;
+		final String backRegionName = "back";
+
+		private CardSet(final String atlasName) {
+			this.atlasName = atlasName;
+		}
+	};
 
 	@Override
 	public void create() {
@@ -136,7 +175,7 @@ public class MyGame extends Game {
 		// Pass render() call to active Screen
 		super.dispose();
 	}
-	
+
 	final Button makeTexturedButton(String textureRegionPrefix, boolean toggle) {
 		final Drawable off = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_off"));
 		final Drawable on = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_on"));

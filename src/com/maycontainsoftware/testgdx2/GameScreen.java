@@ -19,7 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
-import com.maycontainsoftware.testgdx2.MyGame.Players;
+import com.maycontainsoftware.testgdx2.MyGame.CardSet;
+import com.maycontainsoftware.testgdx2.MyGame.Difficulty;
+import com.maycontainsoftware.testgdx2.MyGame.PlayerConfiguration;
 
 public class GameScreen implements Screen {
 
@@ -27,19 +29,60 @@ public class GameScreen implements Screen {
 
 	private final MyGame game;
 	private final Stage stage;
-	private final MyGame.Players players;
-	private final MyGame.Difficulty difficulty;
+	private final PlayerConfiguration playerConfiguration;
+	private final Difficulty difficulty;
+
+	static class PelmanismModel {
+		final int numberOfPlayers;
+		private int currentPlayer = 0;
+		final int[] playerScores;
+		final int numberOfCards;
+
+		public PelmanismModel(final int numberOfPlayers, final int numberOfCards) {
+			this.numberOfPlayers = numberOfPlayers;
+			this.playerScores = new int[numberOfPlayers];
+			this.numberOfCards = numberOfCards;
+		}
+
+		final int getCurrentPlayer() {
+			return currentPlayer;
+		}
+
+		final void nextPlayer() {
+			currentPlayer = (currentPlayer + 1) % numberOfPlayers;
+		}
+
+		final void resetGame() {
+			currentPlayer = 0;
+			for (int i = 0; i < numberOfPlayers; i++) {
+				playerScores[i] = 0;
+			}
+			// TODO: Reset card states
+		}
+	}
+
+	private final PelmanismModel model;
 
 	public GameScreen(MyGame game) {
 		this.game = game;
 
 		// Players
-		final String playersFromPreferences = game.mPrefs.getString(MyGame.PREF_PLAYERS, MyGame.Players.One.toString());
-		players = MyGame.Players.valueOf(playersFromPreferences);
+		final String playerConfigurationPref = game.mPrefs.getString(MyGame.PREF_PLAYERS, PlayerConfiguration.One.toString());
+		playerConfiguration = PlayerConfiguration.valueOf(playerConfigurationPref);
 
 		// Difficulty
-		final String difficultyFromPreferences = game.mPrefs.getString(MyGame.PREF_DIFFICULTY, MyGame.Difficulty.Easy.toString());
-		difficulty = MyGame.Difficulty.valueOf(difficultyFromPreferences);
+		final String difficultyPref = game.mPrefs.getString(MyGame.PREF_DIFFICULTY, Difficulty.Easy.toString());
+		difficulty = Difficulty.valueOf(difficultyPref);
+
+		// Determine board size
+		final int cardsPerRow;
+		final int rows;
+		cardsPerRow = rows = difficulty.boardSize;
+		final int totalCards = cardsPerRow * rows;
+		final int numberOfPairs = totalCards / 2;
+
+		// Create game model
+		model = new PelmanismModel(playerConfiguration.numberOfPlayers, totalCards);
 
 		// Create Stage
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true, game.batch);
@@ -58,24 +101,22 @@ public class GameScreen implements Screen {
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen
+		// TODO: Note that the TiledDrawable doesn't render correctly; this should be replaced
 		final TextureRegion background = game.uiAtlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
 
 		// Secondary score display
 
-		if (players != Players.One) {
-			// Second player exists, either human or computer - will need a second score display
+		if (playerConfiguration.secondPlayerExists()) {
+			// Will need a second score display
 
-			// Player two info
 			table.row().padTop(20.0f);
 			final SpinningTable p2Table = new SpinningTable();
 			// p2Table.debug();
-			final String playerTwoName = players == Players.Two ? "Player Two" : "Computer";
-			final Color color = players == Players.Two ? Color.BLUE : Color.GRAY;
-			p2Table.add(new Label(playerTwoName, game.skin, "archristy48", color));
+			p2Table.add(new Label(playerConfiguration.secondPlayerName, game.skin, "archristy48", playerConfiguration.secondPlayerColor));
 			p2Table.add().expandX();
 			// TODO: Need to be able to update points on the fly, so need access to this Label
-			p2Table.add(new Label("0 Points", game.skin, "archristy48", color));
+			p2Table.add(new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor));
 			table.add(p2Table).colspan(2).fillX();
 
 			// N.B. TiledDrawable leaves <1px gaps, so this is not usable
@@ -83,25 +124,8 @@ public class GameScreen implements Screen {
 		}
 
 		// Game area
-		table.row().padTop(30.0f);
 
-		final int cardsPerRow;
-		final int rows;
-		switch (difficulty) {
-		default:
-			// Fall through to Easy
-		case Easy:
-			cardsPerRow = rows = 4;
-			break;
-		case Medium:
-			cardsPerRow = rows = 6;
-			break;
-		case Hard:
-			cardsPerRow = rows = 8;
-			break;
-		}
-		final int totalCards = cardsPerRow * rows;
-		final int numberOfPairs = totalCards / 2;
+		table.row().padTop(30.0f);
 
 		// Given numberOfPairs, return that number of unique random TextureRegions from appropriate TextureAtlas
 		final TextureRegion[] regions = selectCardTextures(numberOfPairs);
@@ -109,7 +133,7 @@ public class GameScreen implements Screen {
 		final Table gameArea = new Table();
 		// gameArea.debug();
 
-		// TODO: Create game model, set up card grid as per model
+		// Set up card grid
 
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cardsPerRow; c++) {
@@ -120,6 +144,7 @@ public class GameScreen implements Screen {
 		}
 
 		// Game area is fixed in size, but must take up all remaining space in table
+		// Game area should be square to avoid rendering cards out-of-aspect
 		// Hard-coded table size here, as that's the easiest way to do it
 		table.add(gameArea).width(645.0f).height(645.0f).expandX().expandY().colspan(2);
 
@@ -203,19 +228,9 @@ public class GameScreen implements Screen {
 	}
 
 	private final TextureAtlas getCardSetAtlasFromPrefs() {
-		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, MyGame.CardSet.Simple.toString());
-		final MyGame.CardSet cardSet = MyGame.CardSet.valueOf(cardSetFromPreferences);
-		switch (cardSet) {
-		default:
-			// This should be unreachable code
-			// Fall through to "Simple" behaviour
-		case Simple:
-			return game.simpleCardSet;
-		case Signs:
-			return game.signsCardSet;
-		case Hard:
-			return game.hardCardSet;
-		}
+		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, CardSet.Simple.toString());
+		final CardSet cardSet = CardSet.valueOf(cardSetFromPreferences);
+		return game.manager.get(cardSet.atlasName, TextureAtlas.class);
 	}
 
 	private final TextureRegion[] selectCardTextures(int n) {

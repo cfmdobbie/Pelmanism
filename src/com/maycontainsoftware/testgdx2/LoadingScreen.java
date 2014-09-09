@@ -67,9 +67,6 @@ public class LoadingScreen implements Screen {
 			
 			// Perform any post-load tasks
 			game.uiAtlas = game.manager.get("ui.atlas", TextureAtlas.class);
-			game.simpleCardSet = game.manager.get("simple.atlas", TextureAtlas.class);
-			game.signsCardSet = game.manager.get("signs.atlas", TextureAtlas.class);
-			game.hardCardSet = game.manager.get("hard.atlas", TextureAtlas.class);
 			game.skin = game.manager.get("uiskin.json", Skin.class);
 			
 			// Jump to main menu
