@@ -60,7 +60,7 @@ public class MainMenuScreen implements Screen {
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
-		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYERS, PlayerConfiguration.values());
+		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYER_CONFIGURATION, PlayerConfiguration.values());
 
 		// Difficulty section
 		// Label

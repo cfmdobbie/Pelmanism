@@ -20,8 +20,8 @@ public class MyGame extends Game {
 	private static final String TAG = MyGame.class.getSimpleName();
 
 	// Virtual screen metrics
-	static final int VIRTUAL_WIDTH = 720;
-	static final int VIRTUAL_HEIGHT = 1000;
+	public static final int VIRTUAL_WIDTH = 720;
+	public static final int VIRTUAL_HEIGHT = 1000;
 	private static final float VIRTUAL_ASPECT_RATIO = (float) VIRTUAL_WIDTH / (float) VIRTUAL_HEIGHT;
 
 	// Background colour
@@ -39,9 +39,9 @@ public class MyGame extends Game {
 	Preferences mPrefs;
 
 	// Number of players
-	static final String PREF_PLAYERS = "player_configuration";
+	public static final String PREF_PLAYER_CONFIGURATION = "player_configuration";
 
-	static enum PlayerConfiguration {
+	public static enum PlayerConfiguration {
 		One(1, null, null),
 		Two(2, "Player Two", Color.BLUE),
 		One_Vs_Cpu(2, "Computer", Color.GRAY);
@@ -62,35 +62,49 @@ public class MyGame extends Game {
 	};
 
 	// Difficulty
-	static final String PREF_DIFFICULTY = "difficulty";
+	public static final String PREF_DIFFICULTY = "difficulty";
 
-	static enum Difficulty {
+	public static enum Difficulty {
 		Easy(4),
 		Medium(6),
 		Hard(8);
 
-		final int boardSize;
+		private final int boardSize;
 
 		private Difficulty(final int boardSize) {
 			this.boardSize = boardSize;
 		}
+		
+		public final int getTotalCards() {
+			return getBoardRows() * getBoardColumns();
+		}
+		public final int getBoardRows() {
+			return boardSize;
+		}
+		public final int getBoardColumns() {
+			return boardSize;
+		}
 	};
 
 	// Card sets
-	static final String PREF_CARD_SET = "card_set";
+	public static final String PREF_CARD_SET = "card_set";
 
-	static enum CardSet {
+	public static enum CardSet {
 		Simple("simple.atlas"),
 		Signs("signs.atlas"),
 		Hard("hard.atlas");
 
 		final String atlasName;
-		static final String backRegionName = "back";
+		final String backRegionName = "back";
 
 		private CardSet(final String atlasName) {
 			this.atlasName = atlasName;
 		}
 	};
+	
+	// Audio settings
+	public static final String PREF_SOUND = "sound";
+	boolean sound;
 
 	@Override
 	public void create() {
@@ -107,6 +121,9 @@ public class MyGame extends Game {
 
 		// Get reference to preferences file
 		mPrefs = Gdx.app.getPreferences(PREFERENCES_NAME);
+		
+		// Load sound preference
+		sound = getSoundFromPrefs();
 
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
@@ -185,7 +202,30 @@ public class MyGame extends Game {
 	
 	/** Load CardSet based on saved value in preferences, or default to Simple if preference not available. */
 	public final CardSet getCardSetFromPrefs() {
-		final String cardSetFromPreferences = mPrefs.getString(MyGame.PREF_CARD_SET, CardSet.Simple.toString());
-		return CardSet.valueOf(cardSetFromPreferences);
+		final String pref = mPrefs.getString(MyGame.PREF_CARD_SET, CardSet.Simple.toString());
+		return CardSet.valueOf(pref);
 	}
+	
+	/** Load Difficulty based on saved value in preferences, or default to Easy if preference not available. */
+	public final Difficulty getDifficultyFromPrefs() {
+		final String pref = mPrefs.getString(MyGame.PREF_DIFFICULTY, Difficulty.Easy.toString());
+		return Difficulty.valueOf(pref);
+	}
+	
+	/** Load PlayerConfiguration based on saved value in preferences, or default to One if preference not available. */
+	public final PlayerConfiguration getPlayerConfigurationFromPrefs() {
+		final String pref = mPrefs.getString(MyGame.PREF_PLAYER_CONFIGURATION, PlayerConfiguration.One.toString());
+		return PlayerConfiguration.valueOf(pref);
+	}
+	
+	/** Load audio setting based on saved value in preferences, or default to on if preference not available. */
+	public final boolean getSoundFromPrefs() {
+		return mPrefs.getBoolean(MyGame.PREF_SOUND, true);
+	}
+	
+	public final void saveSoundToPrefs() {
+		mPrefs.putBoolean(PREF_SOUND, sound);
+		mPrefs.flush();
+	}
+	
 }

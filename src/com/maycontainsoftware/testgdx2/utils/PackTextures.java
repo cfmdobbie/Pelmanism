@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.testgdx2.utils;
 
 import java.io.File;
 import java.io.FileFilter;

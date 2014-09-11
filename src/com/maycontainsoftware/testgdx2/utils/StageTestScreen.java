@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.testgdx2.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.maycontainsoftware.testgdx2.MyGame;
 
 public class StageTestScreen implements Screen {
 	
