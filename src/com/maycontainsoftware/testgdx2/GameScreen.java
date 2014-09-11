@@ -11,13 +11,18 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.maycontainsoftware.testgdx2.MyGame.CardSet;
 import com.maycontainsoftware.testgdx2.MyGame.Difficulty;
@@ -28,40 +33,46 @@ public class GameScreen implements Screen {
 	private static final String TAG = GameScreen.class.getSimpleName();
 
 	private final MyGame game;
-	private final Stage stage;
+	
+	// Game configuration
 	private final PlayerConfiguration playerConfiguration;
 	private final Difficulty difficulty;
+	
+	// Display-type properties
+	private final Stage stage;
+	private final TextureAtlas atlas;
+	private final TextureRegion cardBackRegion;
+	
+	// Game model
+	private final Pelmanism model;
+	
+	static class CardActor extends Image {
+		final int index;
+		final TextureRegion cardTexture;
+		final TextureRegion cardBackTexture;
 
-	static class PelmanismModel {
-		final int numberOfPlayers;
-		private int currentPlayer = 0;
-		final int[] playerScores;
-		final int numberOfCards;
+		public CardActor(final int index, final TextureRegion cardTexture, final TextureRegion cardBackTexture) {
+			this.index = index;
+			this.cardTexture = cardTexture;
+			this.cardBackTexture = cardBackTexture;
 
-		public PelmanismModel(final int numberOfPlayers, final int numberOfCards) {
-			this.numberOfPlayers = numberOfPlayers;
-			this.playerScores = new int[numberOfPlayers];
-			this.numberOfCards = numberOfCards;
-		}
-
-		final int getCurrentPlayer() {
-			return currentPlayer;
-		}
-
-		final void nextPlayer() {
-			currentPlayer = (currentPlayer + 1) % numberOfPlayers;
-		}
-
-		final void resetGame() {
-			currentPlayer = 0;
-			for (int i = 0; i < numberOfPlayers; i++) {
-				playerScores[i] = 0;
-			}
-			// TODO: Reset card states
+			this.addListener(new InputListener() {
+				@Override
+				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+					final Action setCardBack = new Action() {
+						@Override
+						public boolean act(float delta) {
+							final TextureRegionDrawable drawable = (TextureRegionDrawable) (CardActor.this.getDrawable());
+							drawable.setRegion(cardBackTexture);
+							return true;
+						}
+					};
+					CardActor.this.addAction(Actions.sequence(Actions.fadeOut(0.25f), setCardBack, Actions.fadeIn(0.25f)));
+					return true;
+				}
+			});
 		}
 	}
-
-	private final PelmanismModel model;
 
 	public GameScreen(MyGame game) {
 		this.game = game;
@@ -81,8 +92,12 @@ public class GameScreen implements Screen {
 		final int totalCards = cardsPerRow * rows;
 		final int numberOfPairs = totalCards / 2;
 
+		// Load graphic assets
+		atlas = getCardSetAtlasFromPrefs();
+		cardBackRegion = atlas.findRegion(CardSet.backRegionName);
+
 		// Create game model
-		model = new PelmanismModel(playerConfiguration.numberOfPlayers, totalCards);
+		model = new Pelmanism(playerConfiguration.numberOfPlayers, totalCards);
 
 		// Create Stage
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true, game.batch);
@@ -111,13 +126,13 @@ public class GameScreen implements Screen {
 			// Will need a second score display
 
 			table.row().padTop(20.0f);
-			final SpinningTable p2Table = new SpinningTable();
+			final SpinningTable playerTwoTable = new SpinningTable();
 			// p2Table.debug();
-			p2Table.add(new Label(playerConfiguration.secondPlayerName, game.skin, "archristy48", playerConfiguration.secondPlayerColor));
-			p2Table.add().expandX();
+			playerTwoTable.add(new Label(playerConfiguration.secondPlayerName, game.skin, "archristy48", playerConfiguration.secondPlayerColor));
+			playerTwoTable.add().expandX();
 			// TODO: Need to be able to update points on the fly, so need access to this Label
-			p2Table.add(new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor));
-			table.add(p2Table).colspan(2).fillX();
+			playerTwoTable.add(new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor));
+			table.add(playerTwoTable).colspan(2).fillX();
 
 			// N.B. TiledDrawable leaves <1px gaps, so this is not usable
 			// p2Table.setBackground(new TiledDrawable(game.uiAtlas.findRegion("yellow")));
@@ -137,8 +152,34 @@ public class GameScreen implements Screen {
 
 		for (int r = 0; r < rows; r++) {
 			for (int c = 0; c < cardsPerRow; c++) {
+
+				final int cardIndex = c + r * cardsPerRow;
+				CardActor cardActor_ = new CardActor(cardIndex);
+				gameArea.add(cardActor_).expand().pad(5.0f);
+
 				final int card = (c + r * cardsPerRow) % regions.length;
-				gameArea.add(new Image(regions[card])).expand().pad(5.0f);
+				final Image cardActor = new Image(regions[card]);
+				final String cardName = "(" + c + "," + r + ")";
+				cardActor.addListener(new InputListener() {
+					@Override
+					public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+						System.out.println("touched " + cardName);
+
+						Action setCardBack = new Action() {
+							@Override
+							public boolean act(float delta) {
+								final TextureRegionDrawable drawable = (TextureRegionDrawable) (cardActor.getDrawable());
+								drawable.setRegion(cardBackRegion);
+								return true;
+							}
+						};
+						cardActor.addAction(Actions.sequence(Actions.fadeOut(0.25f), setCardBack, Actions.fadeIn(0.25f)));
+
+						return true;
+					}
+				});
+
+				gameArea.add(cardActor).expand().pad(5.0f);
 			}
 			gameArea.row().expandY();
 		}
@@ -152,13 +193,13 @@ public class GameScreen implements Screen {
 
 		// Player one info
 		table.row().padTop(30.0f);
-		final SpinningTable p1Table = new SpinningTable();
+		final SpinningTable playerOneTable = new SpinningTable();
 		// p1Table.debug();
-		p1Table.add(new Label("Player One", game.skin, "archristy48", Color.RED));
-		p1Table.add().expandX();
+		playerOneTable.add(new Label("Player One", game.skin, "archristy48", Color.RED));
+		playerOneTable.add().expandX();
 		// TODO: Need to be able to update points on the fly, so need access to this Label
-		p1Table.add(new Label("0 Points", game.skin, "archristy48", Color.RED));
-		table.add(p1Table).colspan(2).fillX();
+		playerOneTable.add(new Label("0 Points", game.skin, "archristy48", Color.RED));
+		table.add(playerOneTable).colspan(2).fillX();
 
 		// Buttons
 		table.row().padTop(30.0f).padBottom(20.0f);
@@ -226,16 +267,13 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		stage.dispose();
 	}
-
+	
 	private final TextureAtlas getCardSetAtlasFromPrefs() {
-		final String cardSetFromPreferences = game.mPrefs.getString(MyGame.PREF_CARD_SET, CardSet.Simple.toString());
-		final CardSet cardSet = CardSet.valueOf(cardSetFromPreferences);
+		final CardSet cardSet = game.getCardSetFromPrefs();
 		return game.manager.get(cardSet.atlasName, TextureAtlas.class);
 	}
 
 	private final TextureRegion[] selectCardTextures(int n) {
-		// TODO: Need this atlas available to screen, as need access to "Back" graphic
-		final TextureAtlas atlas = getCardSetAtlasFromPrefs();
 		final TextureRegion[] regions = new TextureRegion[n];
 
 		// Generate list of numbers from 1 to 32

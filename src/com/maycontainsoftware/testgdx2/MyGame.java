@@ -85,7 +85,7 @@ public class MyGame extends Game {
 		Hard("hard.atlas");
 
 		final String atlasName;
-		final String backRegionName = "back";
+		static final String backRegionName = "back";
 
 		private CardSet(final String atlasName) {
 			this.atlasName = atlasName;
@@ -181,5 +181,11 @@ public class MyGame extends Game {
 		final Drawable on = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_on"));
 		final Button button = toggle ? new Button(off, on, on) : new Button(off, on);
 		return button;
+	}
+	
+	/** Load CardSet based on saved value in preferences, or default to Simple if preference not available. */
+	public final CardSet getCardSetFromPrefs() {
+		final String cardSetFromPreferences = mPrefs.getString(MyGame.PREF_CARD_SET, CardSet.Simple.toString());
+		return CardSet.valueOf(cardSetFromPreferences);
 	}
 }

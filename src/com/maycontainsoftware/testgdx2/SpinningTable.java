@@ -19,7 +19,8 @@ public class SpinningTable extends Table {
 				if (SpinningTable.this.getActions().size == 0) {
 					final RotateToAction rotateAction = new RotateToAction();
 					rotateAction.setRotation(SpinningTable.this.getRotation() + 180.0f);
-					rotateAction.setDuration(0.125f);
+					rotateAction.setDuration(0.25f);
+					SpinningTable.this.setZIndex(999);
 					SpinningTable.this.setOrigin(SpinningTable.this.getWidth() / 2, SpinningTable.this.getHeight() / 2);
 					SpinningTable.this.addAction(rotateAction);
 				}

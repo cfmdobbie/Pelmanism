@@ -21,8 +21,9 @@ public class SpinningLabel extends Table {
 				Gdx.app.log(TAG, "SpinningLabel touchDown");
 				if (SpinningLabel.this.getActions().size == 0) {
 					final RotateToAction rotateAction = new RotateToAction();
+					SpinningLabel.this.setZIndex(999);
 					rotateAction.setRotation(SpinningLabel.this.getRotation() + 180.0f);
-					rotateAction.setDuration(0.125f);
+					rotateAction.setDuration(0.25f);
 					SpinningLabel.this.setOrigin(SpinningLabel.this.getWidth() / 2, SpinningLabel.this.getHeight() / 2);
 					SpinningLabel.this.addAction(rotateAction);
 				}
