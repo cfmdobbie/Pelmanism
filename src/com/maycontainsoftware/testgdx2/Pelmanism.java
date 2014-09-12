@@ -154,6 +154,17 @@ public class Pelmanism {
 
 			secondPick = cardNumber;
 			gameState = GameState.CardsChosen;
+			
+			if (isMatch()) {
+				// If it was a match, mark cards as matched
+				matched[firstPick] = true;
+				matched[secondPick] = true;
+				// Update player score
+				playerScores[currentPlayer]++;
+				// And remember that another pair has been found
+				pairsFound++;
+			}
+			
 			return true;
 		case CardsChosen:
 		case GameOver:
@@ -166,13 +177,6 @@ public class Pelmanism {
 	public final void acceptPicks() {
 		switch (gameState) {
 		case CardsChosen:
-			// If it was a match, mark it
-			if (isMatch()) {
-				matched[firstPick] = true;
-				matched[secondPick] = true;
-				playerScores[currentPlayer]++;
-				pairsFound++;
-			}
 			// Clear picked cards
 			firstPick = null;
 			secondPick = null;

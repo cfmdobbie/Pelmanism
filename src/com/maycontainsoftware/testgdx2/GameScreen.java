@@ -62,6 +62,11 @@ public class GameScreen implements Screen {
 	/** The Pelmanism game model object. */
 	private final Pelmanism model;
 
+	/** Player one's score label. */
+	private Label playerOneScoreLabel;
+	/** Player two's score label. */
+	private Label playerTwoScoreLabel;
+
 	/**
 	 * Object representing the actual card on the screen.
 	 * 
@@ -70,12 +75,16 @@ public class GameScreen implements Screen {
 	static class CardActor extends Image {
 		/** This card's index, an integer from 0 to N-1 where N is the total number of cards on the board. */
 		final int index;
+		/** A reference to the Screen. */
+		final GameScreen screen;
 		/** A reference to the game model. */
 		final Pelmanism model;
 		/** This card's front texture. */
 		final TextureRegion cardTexture;
 		/** This card's back texture. */
 		final TextureRegion cardBackTexture;
+
+		private static CardActor firstPick = null;
 
 		/**
 		 * Construct a new CardActor object.
@@ -85,14 +94,15 @@ public class GameScreen implements Screen {
 		 * @param cardTexture
 		 * @param cardBackTexture
 		 */
-		public CardActor(final int index, final Pelmanism model, final TextureRegion cardTexture,
+		public CardActor(final int index, final GameScreen screen, final TextureRegion cardTexture,
 				final TextureRegion cardBackTexture) {
 
 			// Pass default/initial texture to superclass' constructor
 			super(cardBackTexture);
 
 			this.index = index;
-			this.model = model;
+			this.screen = screen;
+			this.model = screen.model;
 			this.cardTexture = cardTexture;
 			this.cardBackTexture = cardBackTexture;
 
@@ -106,25 +116,94 @@ public class GameScreen implements Screen {
 						if (model.turnCard(index)) {
 							// Game state will now be "PendingSecondPick"
 
-							CardActor.this.addAction(Actions.sequence(getWinkOutAction(),
-									getSwitchTextureAction(cardTexture), getWinkInAction()));
+							// Remember that this is the first chosen card
+							firstPick = CardActor.this;
+
+							// Flip the card over
+							CardActor.this.addAction(actionWinkToFront());
 						}
 						break;
 					case PendingSecondPick:
+
 						if (model.turnCard(index)) {
 							// Game state will now be "CardsChosen"
-							CardActor.this.addAction(Actions.sequence(Actions.fadeOut(0.25f), Actions.fadeIn(0.25f)));
 
 							if (model.isMatch()) {
-								// ???
-							} else {
-								// ???
-							}
 
+								final Action[] actions = new Action[] {
+										// Flip the card over
+										actionWinkToFront(),
+										// Hold cards visible for a moment
+										Actions.delay(0.5f),
+										// Update score
+										new Action() {
+											@Override
+											public boolean act(float delta) {
+												// Determine current player
+												final int currentPlayer = model.getCurrentPlayer();
+												// Determine player's updated score
+												final int newScore = model.getPlayerScore(currentPlayer);
+												// Update UI
+												screen.updateScore(currentPlayer, newScore);
+												return true;
+											}
+										},
+										// Fade out both chosen cards
+										// TODO: Move to a utility method?
+										new Action() {
+											@Override
+											public boolean act(float delta) {
+												// Fade out first card
+												firstPick.addAction(Actions.fadeOut(0.25f));
+												return true;
+											}
+										}, Actions.fadeOut(0.25f),
+										// Accept picks
+										// TODO: Move to a utility method?
+										new Action() {
+											@Override
+											public boolean act(float delta) {
+												model.acceptPicks();
+												// Game state will now be either "PendingFirstPick" or "GameOver"
+												// TODO: Check for GameOver state
+												return true;
+											}
+										}, };
+								CardActor.this.addAction(Actions.sequence(actions));
+								
+							} else {
+
+								final Action[] actions = new Action[] {
+										// Flip the card over
+										actionWinkToFront(),
+										// Hold cards visible for a moment
+										Actions.delay(0.5f),
+										// Flip both cards back over
+										// First card
+										new Action() {
+											@Override
+											public boolean act(float delta) {
+												firstPick.addAction(firstPick.actionWinkToBack());
+												return true;
+											}
+										},
+										// Second card
+										actionWinkToBack(),
+										// Accept picks
+										new Action() {
+											@Override
+											public boolean act(float delta) {
+												model.acceptPicks();
+												// Game state will now be "PendingFirstPick"
+												return true;
+											}
+										} };
+								CardActor.this.addAction(Actions.sequence(actions));
+							}
 						}
 						break;
 					case CardsChosen:
-						// TODO: Can we reach this state?
+						// We're mid-animation at the moment - ignore input
 						break;
 					case GameOver:
 						// Game is over - ignore input
@@ -134,8 +213,6 @@ public class GameScreen implements Screen {
 						break;
 					}
 
-					// // CardActor.this.addAction(Actions.sequence(Actions.fadeOut(0.25f), setCardBack,
-					// Actions.fadeIn(0.25f)));
 					return true;
 				}
 			});
@@ -144,11 +221,11 @@ public class GameScreen implements Screen {
 		/** Switch the current texture region for a different region. */
 		private final void switchTexture(final TextureRegion region) {
 			final TextureRegionDrawable drawable = (TextureRegionDrawable) (this.getDrawable());
-			drawable.setRegion(cardTexture);
+			drawable.setRegion(region);
 		}
 
 		/** Return an Action that immediately switches the card texture region. */
-		private final Action getSwitchTextureAction(final TextureRegion region) {
+		private final Action actionSpecifiedTexture(final TextureRegion region) {
 			return new Action() {
 				@Override
 				public boolean act(float delta) {
@@ -157,9 +234,19 @@ public class GameScreen implements Screen {
 				}
 			};
 		}
+		
+		/** Return an action that immediately switches to the card front texture. */
+		private final Action actionFrontTexture() {
+			return actionSpecifiedTexture(cardTexture);
+		}
+
+		/** Return an action that immediately switches to the card back texture. */
+		private final Action actionBackTexture() {
+			return actionSpecifiedTexture(cardBackTexture);
+		}
 
 		/** Create an Action that implements the "wink out" animation. */
-		private final Action getWinkOutAction() {
+		private final Action actionWinkOut() {
 			final float cardWidth = this.getWidth();
 			final float duration = 0.125f;
 
@@ -170,7 +257,7 @@ public class GameScreen implements Screen {
 		}
 
 		/** Create an Action that implements the "wink in" animation. */
-		private final Action getWinkInAction() {
+		private final Action actionWinkIn() {
 			final float cardWidth = this.getWidth();
 			final float duration = 0.125f;
 
@@ -178,6 +265,16 @@ public class GameScreen implements Screen {
 			Action scaleToFullWidth = Actions.scaleTo(1.0f, 1.0f, duration);
 
 			return Actions.parallel(shiftLeft, scaleToFullWidth);
+		}
+		
+		/** Return an action that winks in and out, switching to the card front texture. */
+		private final Action actionWinkToFront() {
+			return Actions.sequence(actionWinkOut(), actionFrontTexture(), actionWinkIn());
+		}
+		
+		/** Return an action that winks in and out, switching to the card back texture. */
+		private final Action actionWinkToBack() {
+			return Actions.sequence(actionWinkOut(), actionBackTexture(), actionWinkIn());
 		}
 	}
 
@@ -316,8 +413,9 @@ public class GameScreen implements Screen {
 			playerTwoTable.add(new Label(playerConfiguration.secondPlayerName, game.skin, "archristy48",
 					playerConfiguration.secondPlayerColor));
 			playerTwoTable.add().expandX();
-			// TODO: Need to be able to update points on the fly, so need access to this Label
-			playerTwoTable.add(new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor));
+			// Need to be able to update points on the fly, so need access to this Label
+			playerTwoScoreLabel = new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor);
+			playerTwoTable.add(playerTwoScoreLabel);
 			table.add(playerTwoTable).colspan(2).fillX();
 
 			// N.B. TiledDrawable leaves <1px gaps, so this is not usable.
@@ -341,7 +439,7 @@ public class GameScreen implements Screen {
 
 				final int cardIndex = c + r * columns;
 				final TextureRegion cardRegion = cardRegions[model.getCard(cardIndex)];
-				final CardActor cardActor = new CardActor(cardIndex, model, cardRegion, cardBackRegion);
+				final CardActor cardActor = new CardActor(cardIndex, this, cardRegion, cardBackRegion);
 				gameArea.add(cardActor).expand().pad(5.0f);
 			}
 			gameArea.row().expandY();
@@ -360,8 +458,9 @@ public class GameScreen implements Screen {
 		// p1Table.debug();
 		playerOneTable.add(new Label("Player One", game.skin, "archristy48", Color.RED));
 		playerOneTable.add().expandX();
-		// TODO: Need to be able to update points on the fly, so need access to this Label
-		playerOneTable.add(new Label("0 Points", game.skin, "archristy48", Color.RED));
+		// Need to be able to update points on the fly, so need access to this Label
+		playerOneScoreLabel = new Label("0 Points", game.skin, "archristy48", Color.RED);
+		playerOneTable.add(playerOneScoreLabel);
 		table.add(playerOneTable).colspan(2).fillX();
 
 		// Buttons
@@ -393,5 +492,10 @@ public class GameScreen implements Screen {
 		});
 
 		table.add(soundButton).right();
+	}
+
+	/** Update the score for the specified player. */
+	private final void updateScore(final int player, final int score) {
+		(player == 0 ? playerOneScoreLabel : playerTwoScoreLabel).setText(score + " points");
 	}
 }
