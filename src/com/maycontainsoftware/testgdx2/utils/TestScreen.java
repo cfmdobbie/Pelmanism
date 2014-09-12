@@ -11,6 +11,7 @@ import com.maycontainsoftware.testgdx2.MyGame;
 
 public class TestScreen implements Screen {
 	
+	@SuppressWarnings("unused")
 	private final MyGame game;
 	
 	private Stage stage;

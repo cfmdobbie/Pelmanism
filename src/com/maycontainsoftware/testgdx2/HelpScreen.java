@@ -3,7 +3,6 @@ package com.maycontainsoftware.testgdx2;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,14 +14,30 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
+/**
+ * The help screen. This screen is accessible from the main menu and gives some basic instructions for play, and
+ * credits.
+ * 
+ * @author Charlie
+ */
 public class HelpScreen implements Screen {
 
+	/** Tag, for logging purposes. */
 	private static final String TAG = HelpScreen.class.getSimpleName();
 
+	/** Reference to the Game instance. */
 	private final MyGame game;
+
+	/** This Screen's Stage. */
 	private final Stage stage;
 
-	public HelpScreen(MyGame game) {
+	/**
+	 * Construct a new HelpScreen object.
+	 * 
+	 * @param game
+	 */
+	public HelpScreen(final MyGame game) {
+
 		this.game = game;
 
 		// Create Stage
@@ -49,17 +64,14 @@ public class HelpScreen implements Screen {
 		table.add(new SpinningLabel(game, "How to Play:", "archristy64", Color.RED));
 		table.row();
 
-		String[] howToPlayText = {
-				"Players take it in turns to pick two cards.\n" +
-				"Find a pair and you win a point!\n" +
-				"Get the highest score you can.",
-				"Play solo, against a friend or against the\n" +
-				"computer.",
-				"Higher difficulties offer larger boards,\n" +
-				"faster play and more challenging computer\n" +
-				"players." };
+		final String[] howToPlayText = {
+				"Players take it in turns to pick two cards.\n" + "Find a pair and you win a point!\n"
+						+ "Get the highest score you can.",
+				"Play solo, against a friend or against the\n" + "computer.",
+				"Higher difficulties offer larger boards,\n" + "faster play and more challenging computer\n"
+						+ "players." };
 
-		for(String line : howToPlayText) {
+		for (final String line : howToPlayText) {
 			table.add(new SpinningLabel(game, line, "archristy32", Color.WHITE));
 			table.row();
 		}
@@ -68,7 +80,8 @@ public class HelpScreen implements Screen {
 		table.add(new SpinningLabel(game, "Credits:", "archristy64", Color.RED));
 		table.row();
 
-		String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n" + "Developed in libGDX";
+		final String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n"
+				+ "Developed in libGDX";
 
 		table.add(new SpinningLabel(game, creditsText, "archristy32", Color.WHITE));
 		table.row();
@@ -92,11 +105,6 @@ public class HelpScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-
-		// Clear screen
-		final Color c = MyGame.BACKGROUND_COLOR;
-		Gdx.gl.glClearColor(c.r, c.g, c.b, c.a);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// Update and render Stage
 		stage.act();

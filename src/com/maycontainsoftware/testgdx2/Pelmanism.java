@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** A model that represents a game of Pelmanism. */
+/**
+ * A model that represents a game of Pelmanism.
+ * 
+ * @author Charlie
+ */
 public class Pelmanism {
 
 	// Fundamental properties of the game model
@@ -138,7 +142,7 @@ public class Pelmanism {
 			if (!isCardPickable(cardNumber)) {
 				return false;
 			}
-			
+
 			firstPick = cardNumber;
 			gameState = GameState.PendingSecondPick;
 			return true;
@@ -147,7 +151,7 @@ public class Pelmanism {
 			if (!isCardPickable(cardNumber)) {
 				return false;
 			}
-			
+
 			secondPick = cardNumber;
 			gameState = GameState.CardsChosen;
 			return true;
@@ -157,13 +161,13 @@ public class Pelmanism {
 			throw new IllegalStateException("Game in invalid state: " + gameState);
 		}
 	}
-	
+
 	/** Accept the chosen cards. */
 	public final void acceptPicks() {
 		switch (gameState) {
 		case CardsChosen:
 			// If it was a match, mark it
-			if(isMatch()) {
+			if (isMatch()) {
 				matched[firstPick] = true;
 				matched[secondPick] = true;
 				playerScores[currentPlayer]++;
@@ -172,9 +176,9 @@ public class Pelmanism {
 			// Clear picked cards
 			firstPick = null;
 			secondPick = null;
-			
+
 			// Update state
-			if(pairsFound >= numberOfPairs) {
+			if (pairsFound >= numberOfPairs) {
 				// Game must be over!
 				gameState = GameState.GameOver;
 			} else {
@@ -190,22 +194,22 @@ public class Pelmanism {
 			throw new IllegalStateException("Game in invalid state: " + gameState);
 		}
 	}
-	
+
 	/** The number of players in the game. */
 	public final int getNumberOfPlayers() {
 		return numberOfPlayers;
 	}
-	
+
 	/** The number of cards on the board. */
 	public final int getNumberOfCards() {
 		return numberOfCards;
 	}
-	
+
 	/** The total number of pairs available. */
 	public final int getNumberOfPairs() {
 		return numberOfPairs;
 	}
-	
+
 	/** Player score. */
 	public final int getPlayerScore(final int playerNumber) {
 		if (playerNumber < 0 || playerNumber >= numberOfPlayers) {
@@ -266,7 +270,7 @@ public class Pelmanism {
 		// No pairs have been found
 		pairsFound = 0;
 	}
-	
+
 	/** The current state of the game. */
 	public GameState getGameState() {
 		return gameState;
