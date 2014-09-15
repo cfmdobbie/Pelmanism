@@ -66,6 +66,16 @@ public class GameScreen implements Screen {
 	private Label playerOneScoreLabel;
 	/** Player two's score label. */
 	private Label playerTwoScoreLabel;
+	
+	// Game state
+	static enum GameState {
+		PendingFirstPick,
+		PendingSecondPick,
+		Animating,
+		GameOver,
+	}
+	private GameState gameState = GameState.PendingFirstPick;
+	
 
 	/**
 	 * Object representing the actual card on the screen.
@@ -73,18 +83,91 @@ public class GameScreen implements Screen {
 	 * @author Charlie
 	 */
 	static class CardActor extends Image {
-		/** This card's index, an integer from 0 to N-1 where N is the total number of cards on the board. */
-		final int index;
+		//** This card's index, an integer from 0 to N-1 where N is the total number of cards on the board. */
+		//final int index;
+		
+		private final Card card;
+		
 		/** A reference to the Screen. */
-		final GameScreen screen;
+		private final GameScreen screen;
 		/** A reference to the game model. */
-		final Pelmanism model;
+		private final Pelmanism model;
 		/** This card's front texture. */
-		final TextureRegion cardTexture;
+		private final TextureRegion cardTexture;
 		/** This card's back texture. */
-		final TextureRegion cardBackTexture;
+		private final TextureRegion cardBackTexture;
 
 		private static CardActor firstPick = null;
+		private static CardActor secondPick = null;
+		//private static TurnResult turnResult = null;
+		
+		private void processTurn() {
+			
+			final Turn turn = new Turn(firstPick.card, secondPick.card);
+			final TurnResult result = model.turn(turn);
+			
+			if(!result.isMatch()) {
+				
+				// Not a match
+				firstPick.addAction(firstPick.actionDelayedWinkToBack());
+				secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
+					@Override
+					public boolean act(float delta) {
+						
+						// Player changed, change highlight
+						// TODO: Highlight correct player
+						// Update game state
+						screen.gameState = GameState.PendingFirstPick;
+						
+						return true;
+					}
+				}));
+				
+			} else {
+				if(!result.isGameOver()) {
+					
+					// TODO: Need to move all these float primitives to constant fields
+					
+					// A match, and game is not over yet
+					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
+					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
+						@Override
+						public boolean act(float delta) {
+							
+							// Player not changed
+							// Score changed, update label
+							final int playerId = result.turn.getPlayerId();
+							screen.updateScore(playerId, model.getPlayerScore(playerId));
+							// Update game state
+							screen.gameState = GameState.PendingFirstPick;
+							
+							return true;
+						}
+					}));
+					
+				} else {
+					
+					// A match, and game is over
+					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), firstPick.actionWinkOut()));
+					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), secondPick.actionWinkOut(), new Action() {
+						@Override
+						public boolean act(float delta) {
+							
+							// Player not changed
+							// Score changed, update label
+							final int playerId = result.turn.getPlayerId();
+							screen.updateScore(playerId, model.getPlayerScore(playerId));
+							// Update game state
+							screen.gameState = GameState.GameOver;
+							
+							return true;
+						}
+					}));
+					
+				}
+			}
+			
+		}
 
 		/**
 		 * Construct a new CardActor object.
@@ -94,35 +177,72 @@ public class GameScreen implements Screen {
 		 * @param cardTexture
 		 * @param cardBackTexture
 		 */
-		public CardActor(final int index, final GameScreen screen, final TextureRegion cardTexture,
+		public CardActor(final Card card, final GameScreen screen, final TextureRegion cardTexture,
 				final TextureRegion cardBackTexture) {
-
+			
 			// Pass default/initial texture to superclass' constructor
 			super(cardBackTexture);
-
-			this.index = index;
+			
+			this.card = card;
+			//final int index
+			//this.index = index;
 			this.screen = screen;
 			this.model = screen.model;
 			this.cardTexture = cardTexture;
 			this.cardBackTexture = cardBackTexture;
-
+			
 			// Touch events on the card are intercepted by an InputListener.
 			this.addListener(new InputListener() {
 				@Override
 				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-					switch (model.getGameState()) {
+					
+					switch(screen.gameState) {
 					case PendingFirstPick:
-						if (model.turnCard(index)) {
-							// Game state will now be "PendingSecondPick"
-
+						
+						if(!CardActor.this.card.isMatched()) {
 							// Remember that this is the first chosen card
 							firstPick = CardActor.this;
-
 							// Flip the card over
 							CardActor.this.addAction(actionWinkToFront());
+							// Update state
+							screen.gameState = GameState.PendingSecondPick;
 						}
+						
 						break;
+					case PendingSecondPick:
+						
+						if(CardActor.this != firstPick && !CardActor.this.card.isMatched()) {
+							// Remember that this is the second chosen card
+							secondPick = CardActor.this;
+							// Flip the card over
+							CardActor.this.addAction(Actions.sequence(actionWinkToFront(), new Action() {
+								@Override
+								public boolean act(float delta) {
+									CardActor.this.processTurn();
+									return true;
+								}
+							}));
+							// Update state
+							screen.gameState = GameState.Animating;
+						}
+						
+						break;
+					case Animating:
+						// Cards are animating - ignore all input
+						
+						// XXX: This means you can't pick a new card while it is animating to back.  This causes a significant lag in the usability.
+						
+						break;
+					case GameOver:
+						// TODO
+						break;
+					default:
+						// TODO
+						break;
+					}
+					
+/*
+					switch (model.getGameState()) {
 					case PendingSecondPick:
 
 						if (model.turnCard(index)) {
@@ -211,7 +331,7 @@ public class GameScreen implements Screen {
 					default:
 						// TODO: How to handle this exceptional condition?
 						break;
-					}
+					}*/
 
 					return true;
 				}
@@ -276,6 +396,10 @@ public class GameScreen implements Screen {
 		private final Action actionWinkToBack() {
 			return Actions.sequence(actionWinkOut(), actionBackTexture(), actionWinkIn());
 		}
+		
+		private final Action actionDelayedWinkToBack() {
+			return Actions.sequence(Actions.delay(1.0f), actionWinkToBack());
+		}
 	}
 
 	/**
@@ -292,17 +416,14 @@ public class GameScreen implements Screen {
 		cardSet = game.getCardSetFromPrefs();
 
 		// Create game model
-		model = new Pelmanism(playerConfiguration.numberOfPlayers, difficulty.getTotalCards());
-
-		// Determine board size
-		final int numberOfPairs = model.getNumberOfPairs();
+		model = new Pelmanism(playerConfiguration.numberOfPlayers, difficulty.getNumberOfPairs());
 
 		// Load graphic assets
 		atlas = game.manager.get(cardSet.atlasName, TextureAtlas.class);
 		cardBackRegion = atlas.findRegion(cardSet.backRegionName);
 		// Given numberOfPairs, return that number of unique random TextureRegions from appropriate TextureAtlas.
 		// TODO: Want to select a new subset of regions for each game; need to rearrange this
-		cardRegions = selectCardTextures(numberOfPairs);
+		cardRegions = selectCardTextures(difficulty.getNumberOfPairs());
 
 		// Create Stage
 		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true, game.batch);
@@ -438,8 +559,9 @@ public class GameScreen implements Screen {
 			for (int c = 0; c < columns; c++) {
 
 				final int cardIndex = c + r * columns;
-				final TextureRegion cardRegion = cardRegions[model.getCard(cardIndex)];
-				final CardActor cardActor = new CardActor(cardIndex, this, cardRegion, cardBackRegion);
+				final Card card = model.getCard(cardIndex);
+				final TextureRegion cardRegion = cardRegions[card.getPairId()];
+				final CardActor cardActor = new CardActor(card, this, cardRegion, cardBackRegion);
 				gameArea.add(cardActor).expand().pad(5.0f);
 			}
 			gameArea.row().expandY();
@@ -496,6 +618,6 @@ public class GameScreen implements Screen {
 
 	/** Update the score for the specified player. */
 	private final void updateScore(final int player, final int score) {
-		(player == 0 ? playerOneScoreLabel : playerTwoScoreLabel).setText(score + " points");
+		(player == 0 ? playerOneScoreLabel : playerTwoScoreLabel).setText(score + " Point" + (score != 1 ? "s" : ""));
 	}
 }

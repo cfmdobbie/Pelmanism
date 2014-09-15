@@ -123,37 +123,44 @@ public class MyGame extends Game {
 	 */
 	public static enum Difficulty {
 		// Easy difficulty
-		Easy(4),
+		Easy(8),
 		// Medium difficulty
-		Medium(6),
+		Medium(18),
 		// Hard difficulty
-		Hard(8);
+		Hard(32);
 
-		/** The board size, represented essentially as the square root of the number of cards on the board. */
-		private final int boardSize;
+		/** The number of pairs on the board. */
+		private final int numberOfPairs;
 
 		/**
 		 * Construct a new difficulty setting.
 		 * 
-		 * @param boardSize
+		 * @param numberOfPairs
 		 */
-		private Difficulty(final int boardSize) {
-			this.boardSize = boardSize;
+		private Difficulty(final int numberOfPairs) {
+			this.numberOfPairs = numberOfPairs;
 		}
 
-		/** The total cards on the board in this difficulty mode. */
+		/** The number of pairs on the board in this difficulty mode. */
+		public final int getNumberOfPairs() {
+			return numberOfPairs;
+		}
+
+		/** The total number of cards on the board in this difficulty mode. */
 		public final int getTotalCards() {
-			return getBoardRows() * getBoardColumns();
+			return numberOfPairs * 2;
 		}
 
 		/** The number of rows of cards on the board in this difficulty mode. */
 		public final int getBoardRows() {
-			return boardSize;
+			// TODO: Calculations for non-square boards
+			return (int) Math.sqrt(getTotalCards());
 		}
 
 		/** The number of columns of cards on the board in this difficulty mode. */
 		public final int getBoardColumns() {
-			return boardSize;
+			// TODO: Calculations for non-square boards
+			return (int) Math.sqrt(getTotalCards());
 		}
 	};
 

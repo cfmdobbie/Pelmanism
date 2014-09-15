@@ -4,279 +4,174 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A model that represents a game of Pelmanism.
- * 
- * @author Charlie
- */
-public class Pelmanism {
+class Pelmanism {
 
-	// Fundamental properties of the game model
-
-	/** The number of players in the game. */
-	private final int numberOfPlayers;
-
-	/** The number of cards on the table. */
-	private final int numberOfCards;
-
-	/** The number of pairs on the table. */
-	private final int numberOfPairs;
-
-	// Fundamental properties of the current game
-
-	/** Card arrangement, for determining matches. */
-	private final int[] cards;
-
-	// Current game state
-
-	/** Game state engine */
-	public static enum GameState {
-		PendingFirstPick,
-		PendingSecondPick,
-		CardsChosen,
-		GameOver
-	}
-
-	/** Game state engine state */
-	private GameState gameState = GameState.PendingFirstPick;
-
-	/** The number of the current player. Player numbers are zero-indexed. */
-	private int currentPlayer = 0;
-
-	/** Player scores. A player's score is the number of successful pairs found. */
+	// Players
+	final int numberOfPlayers;
+	private int currentPlayerId;
 	private final int[] playerScores;
-
-	/** Pairs of cards found. */
+	// Pairs
+	private final int numberOfPairs;
 	private int pairsFound;
+	// Cards
+	final int numberOfCards;
+	private final Card[] cards;
+	// Game state
+	private int lastTurnId;
+	private boolean gameOver;
 
-	/** Cards that have already been matched. */
-	private final boolean[] matched;
-
-	/** The index of the first card picked. */
-	private Integer firstPick = null;
-
-	/** The index of the second card picked. */
-	private Integer secondPick = null;
-
-	/**
-	 * Create a new instance of a game model.
-	 * 
-	 * @param numberOfPlayers
-	 *            The number of players in the game.
-	 * @param numberOfCards
-	 *            The number of cards on the table.
-	 */
-	public Pelmanism(final int numberOfPlayers, final int numberOfCards) {
+	public Pelmanism(final int numberOfPlayers, final int numberOfPairs) {
 
 		// Check arguments
 		if (numberOfPlayers <= 0) {
 			throw new IllegalArgumentException("numberOfPlayers = " + numberOfPlayers);
 		}
-		if (numberOfCards <= 0 || (numberOfCards % 2) != 0) {
-			throw new IllegalArgumentException("numberOfCards = " + numberOfCards);
+		if (numberOfPairs <= 0) {
+			throw new IllegalArgumentException("numberOfPairs = " + numberOfPairs);
 		}
 
 		// Set up all game properties
+		// Constants
 		this.numberOfPlayers = numberOfPlayers;
+		this.numberOfPairs = numberOfPairs;
+		this.numberOfCards = numberOfPairs * 2;
+		// Constant arrays of variables
 		this.playerScores = new int[numberOfPlayers];
-		this.numberOfCards = numberOfCards;
-		this.numberOfPairs = numberOfCards / 2;
-		this.matched = new boolean[numberOfCards];
-		this.cards = new int[numberOfCards];
+		this.cards = new Card[numberOfCards];
 
-		// Reset the game state
 		resetGame();
+	}
+	
+	public int getNumberOfPairs() {
+		return numberOfPairs;
 	}
 
 	/** Returns the current player number. */
-	public final int getCurrentPlayer() {
-		return currentPlayer;
+	public final int getCurrentPlayerId() {
+		return currentPlayerId;
+	}
+	
+	public int getNumberOfPlayers() {
+		return numberOfPlayers;
+	}
+
+	public final int getPlayerScore(final int playerId) {
+		if (playerId < 0 || playerId >= numberOfPlayers) {
+			throw new IllegalArgumentException("Invalid player id: " + playerId);
+		}
+		return playerScores[playerId];
 	}
 
 	/** Moves control to the next player. */
 	private final void nextPlayer() {
 		if (numberOfPlayers != 1) {
-			currentPlayer = (currentPlayer + 1) % numberOfPlayers;
+			currentPlayerId = (currentPlayerId + 1) % numberOfPlayers;
 		}
 	}
 
-	/** Card picture id. */
-	public final int getCard(int cardNumber) {
-		if (cardNumber < 0 || cardNumber >= numberOfCards) {
-			throw new IllegalArgumentException("Card number invalid: " + cardNumber);
-		}
-		return cards[cardNumber];
-	}
-
-	/** Whether card is a valid choice to turn over at this time. */
-	public final boolean isCardPickable(final int cardNumber) {
+	public final Card getCard(final int cardId) {
 		// Check arguments
-		if (cardNumber < 0 || cardNumber >= numberOfCards) {
-			throw new IllegalArgumentException("Card number invalid: " + cardNumber);
+		if (cardId < 0 || cardId >= numberOfCards) {
+			throw new IllegalArgumentException("Card id invalid: " + cardId);
+		}
+		return cards[cardId];
+	}
+
+	public final boolean isCardPickable(final int cardId) {
+		// Check arguments
+		if (cardId < 0 || cardId >= numberOfCards) {
+			throw new IllegalArgumentException("Card id invalid: " + cardId);
 		}
 
-		// If already matched (and removed) cannot pick again
-		if (matched[cardNumber]) {
+		// If already matched, cannot pick again
+		if (cards[cardId].isMatched()) {
 			return false;
 		}
 
-		// If waiting for second pick this card was picked first, cannot pick again
-		if (gameState == GameState.PendingSecondPick && cardNumber == firstPick) {
-			return false;
-		}
-
-		// Otherwise, pick away!
 		return true;
 	}
 
-	/** Turn a card over. */
-	public final boolean turnCard(final int cardNumber) {
-		// Check arguments
-		if (cardNumber < 0 || cardNumber >= numberOfCards) {
-			throw new IllegalArgumentException("Card number invalid: " + cardNumber);
-		}
-
-		switch (gameState) {
-		case PendingFirstPick:
-			// Can't turn card if it's not pickable
-			if (!isCardPickable(cardNumber)) {
-				return false;
-			}
-
-			firstPick = cardNumber;
-			gameState = GameState.PendingSecondPick;
-			return true;
-		case PendingSecondPick:
-			// Can't turn card if it's not pickable
-			if (!isCardPickable(cardNumber)) {
-				return false;
-			}
-
-			secondPick = cardNumber;
-			gameState = GameState.CardsChosen;
-			
-			if (isMatch()) {
-				// If it was a match, mark cards as matched
-				matched[firstPick] = true;
-				matched[secondPick] = true;
-				// Update player score
-				playerScores[currentPlayer]++;
-				// And remember that another pair has been found
-				pairsFound++;
-			}
-			
-			return true;
-		case CardsChosen:
-		case GameOver:
-		default:
-			throw new IllegalStateException("Game in invalid state: " + gameState);
-		}
-	}
-
-	/** Accept the chosen cards. */
-	public final void acceptPicks() {
-		switch (gameState) {
-		case CardsChosen:
-			// Clear picked cards
-			firstPick = null;
-			secondPick = null;
-
-			// Update state
-			if (pairsFound >= numberOfPairs) {
-				// Game must be over!
-				gameState = GameState.GameOver;
-			} else {
-				// Next player's turn
-				nextPlayer();
-				gameState = GameState.PendingFirstPick;
-			}
-			break;
-		case PendingFirstPick:
-		case PendingSecondPick:
-		case GameOver:
-		default:
-			throw new IllegalStateException("Game in invalid state: " + gameState);
-		}
-	}
-
-	/** The number of players in the game. */
-	public final int getNumberOfPlayers() {
-		return numberOfPlayers;
-	}
-
-	/** The number of cards on the board. */
-	public final int getNumberOfCards() {
-		return numberOfCards;
-	}
-
-	/** The total number of pairs available. */
-	public final int getNumberOfPairs() {
-		return numberOfPairs;
-	}
-
-	/** Player score. */
-	public final int getPlayerScore(final int playerNumber) {
-		if (playerNumber < 0 || playerNumber >= numberOfPlayers) {
-			throw new IllegalArgumentException("Invalid player number: " + playerNumber);
-		}
-		return playerScores[playerNumber];
-	}
-
-	/** Whether current game is over. */
 	public final boolean isGameOver() {
-		return gameState == GameState.GameOver;
+		return gameOver;
 	}
 
-	/** Whether chosen two cards were a match. */
-	public final boolean isMatch() {
-		switch (gameState) {
-		case CardsChosen:
-			return cards[firstPick] == cards[secondPick];
-		case GameOver:
-		case PendingFirstPick:
-		case PendingSecondPick:
-		default:
-			throw new IllegalStateException("Game in invalid state: " + gameState);
+	public final TurnResult turn(final Turn turn) {
+
+		// TODO: Sanity check turn data
+
+		// Increment turn counter
+		lastTurnId++;
+
+		// Update turn information
+		turn.setTurnId(lastTurnId);
+		turn.setPlayerId(currentPlayerId);
+
+		// The result of this turn being played
+		final TurnResult result;
+
+		if (!Card.isMatch(turn.getFirstPick(), turn.getSecondPick())) {
+			// No match!
+
+			result = new TurnResult(turn, false, false);
+
+			// Control passes to next player
+			nextPlayer();
+		} else {
+			// Match!
+
+			// Mark cards as matched
+			turn.getFirstPick().setMatched(true);
+			turn.getSecondPick().setMatched(true);
+
+			// Update pairs found
+			pairsFound++;
+			// Update player score
+			playerScores[currentPlayerId]++;
+
+			if (pairsFound < numberOfPairs) {
+				// Game continues!
+				result = new TurnResult(turn, true, false);
+			} else {
+				// Game over!
+				result = new TurnResult(turn, true, true);
+				this.gameOver = true;
+			}
+
 		}
+
+		return result;
 	}
 
-	/** Reset game state in preparation for next game. */
-	public final void resetGame() {
-		// First player always starts
-		currentPlayer = 0;
+	private final void resetGame() {
+
+		// Initialise variables
+
+		// Before first turn, so last turn is -1
+		this.lastTurnId = -1;
+
+		// Always start with player one
+		this.currentPlayerId = 0;
+
+		// No pairs found at start of game
+		this.pairsFound = 0;
+
+		// Game is not over
+		this.gameOver = false;
+
+		// Reset all player scores to zero
 		for (int i = 0; i < numberOfPlayers; i++) {
-			// Scores reset to zero
 			playerScores[i] = 0;
-		}
-		for (int i = 0; i < numberOfCards; i++) {
-			// All cards revealed again
-			matched[i] = false;
 		}
 
 		// Generate new card layout
-		List<Integer> newCards = new ArrayList<Integer>(numberOfCards);
+		final List<Integer> pairIds = new ArrayList<Integer>(numberOfCards);
 		for (int i = 0; i < numberOfPairs; i++) {
-			newCards.add(i);
-			newCards.add(i);
+			pairIds.add(i);
+			pairIds.add(i);
 		}
-		Collections.shuffle(newCards);
+		Collections.shuffle(pairIds);
 		for (int i = 0; i < numberOfCards; i++) {
-			cards[i] = newCards.get(i);
+			cards[i] = new Card(i, pairIds.get(i));
 		}
-
-		// Game state
-		gameState = GameState.PendingFirstPick;
-
-		// No cards are picked
-		firstPick = null;
-		secondPick = null;
-
-		// No pairs have been found
-		pairsFound = 0;
-	}
-
-	/** The current state of the game. */
-	public GameState getGameState() {
-		return gameState;
 	}
 }
