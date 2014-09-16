@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -204,6 +205,8 @@ public class GameScreen implements Screen {
 							firstPick = CardActor.this;
 							// Flip the card over
 							CardActor.this.addAction(actionWinkToFront());
+							// Play sound effect
+							screen.game.playCardTurnSound();
 							// Update state
 							screen.gameState = GameState.PendingSecondPick;
 						}
@@ -222,6 +225,8 @@ public class GameScreen implements Screen {
 									return true;
 								}
 							}));
+							// Play sound effect
+							screen.game.playCardTurnSound();
 							// Update state
 							screen.gameState = GameState.Animating;
 						}
@@ -434,6 +439,9 @@ public class GameScreen implements Screen {
 
 		// Create UI elements
 		createUi();
+		
+		// Play shuffle sound
+		game.playCardDealSound();
 	}
 
 	@Override

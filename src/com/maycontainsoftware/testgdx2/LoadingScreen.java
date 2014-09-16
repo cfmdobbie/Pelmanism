@@ -2,6 +2,7 @@ package com.maycontainsoftware.testgdx2;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,6 +35,16 @@ public class LoadingScreen implements Screen {
 	/** This Screen's Stage. */
 	private Stage stage;
 
+	/** Names of the card-turn sound effects. */
+	private final String[] cardTurnSoundNames = {
+			"sound/cardPlace1.mp3",
+			"sound/cardSlide4.mp3",
+			"sound/cardSlide5.mp3",
+			"sound/cardSlide6.mp3",
+			"sound/cardSlide7.mp3",
+			"sound/cardSlide8.mp3",
+	};
+	
 	/**
 	 * Construct a new LoadingScreen object.
 	 * 
@@ -55,12 +66,20 @@ public class LoadingScreen implements Screen {
 		stage.addActor(new LoadingActor(loadingTexture));
 
 		// Load assets in AssetManager
+		// Texture atlases
 		game.manager.load("ui.atlas", TextureAtlas.class);
 		game.manager.load("simple.atlas", TextureAtlas.class);
 		game.manager.load("signs.atlas", TextureAtlas.class);
 		game.manager.load("hard.atlas", TextureAtlas.class);
-		// TODO: AssetManager - load sound effect assets
-		// TODO: AssetManager - load music assets
+		// Sound effects
+		game.manager.load("sound/cardFan1.mp3", Sound.class);
+		for (final String name : cardTurnSoundNames) {
+			game.manager.load(name, Sound.class);
+		}
+		// TODO: More sound effects? UI feedback, game over
+		// Music
+		// TODO: Do we want background music?
+		// UI skin
 		game.manager.load("uiskin.json", Skin.class);
 	}
 
@@ -77,8 +96,14 @@ public class LoadingScreen implements Screen {
 			Gdx.app.log(TAG, "game.manager.update() = true");
 
 			// Perform any post-load tasks
+			// Get reference to UI assets
 			game.uiAtlas = game.manager.get("ui.atlas", TextureAtlas.class);
 			game.skin = game.manager.get("uiskin.json", Skin.class);
+			// Get references to sound effects
+			game.cardTurnSounds = new Sound[cardTurnSoundNames.length];
+			for (int i = 0; i < cardTurnSoundNames.length; i++) {
+				game.cardTurnSounds[i] = game.manager.get(cardTurnSoundNames[i], Sound.class);
+			}
 
 			// Jump to main menu
 			game.setScreen(new MainMenuScreen(game));

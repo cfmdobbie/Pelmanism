@@ -4,11 +4,13 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -57,6 +59,8 @@ public class MyGame extends Game {
 	 * graphics created to represent backgrounds, buttons etc.
 	 */
 	TextureAtlas uiAtlas;
+	
+	Sound[] cardTurnSounds;
 
 	/** The Scene2D UI skin instance. */
 	Skin skin;
@@ -356,5 +360,17 @@ public class MyGame extends Game {
 	public final void savePreference(String name, String value) {
 		mPrefs.putString(name, value);
 		mPrefs.flush();
+	}
+
+	public void playCardTurnSound() {
+		if(sound) {
+			cardTurnSounds[MathUtils.random(cardTurnSounds.length - 1)].play();
+		}
+	}
+	
+	public void playCardDealSound() {
+		if(sound) {
+			manager.get("sound/cardFan1.mp3", Sound.class).play();
+		}
 	}
 }
