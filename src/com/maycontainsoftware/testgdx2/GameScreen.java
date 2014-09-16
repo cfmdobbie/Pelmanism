@@ -569,9 +569,17 @@ public class GameScreen implements Screen {
 
 		// Game area is fixed in size, but must take up all remaining space in table.
 		// Game area should be square to avoid rendering cards out-of-aspect.
-		// Hard-coded table size here, as that's the easiest way to do it.
-		table.add(gameArea).width(645.0f).height(645.0f).expandX().expandY().colspan(2);
-
+		// With a known width of 645px and assumed >1 aspect ratio of board, fixed height can be calculated
+		
+		// Fixed width
+		final float game_area_width = 645.0f;
+		// Note: Card cells have 5px padding all around
+		final float card_width = (game_area_width / difficulty.getBoardColumns()) - (2 * 5.0f);
+		final float card_height = card_width;
+		final float game_area_height = (card_height + (2 * 5.0f)) * difficulty.getBoardRows();
+		
+		table.add(gameArea).width(game_area_width).height(game_area_height).expandX().expandY().colspan(2);
+		
 		// Primary score display
 
 		// Player one info
