@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -50,19 +52,15 @@ public class HelpScreen implements Screen {
 		Gdx.input.setInputProcessor(stage);
 
 		// Root of the Stage is a Table, used to lay out all other widgets
-		final Table table = new Table();
-		table.setFillParent(true);
-		table.setTransform(true);
-		table.defaults().pad(10.0f);
-		stage.addActor(table);
-
-		// Set tiled background for Table, thus for Screen
-		final TextureRegion background = game.uiAtlas.findRegion("background");
-		table.setBackground(new TiledDrawable(background));
+		final Table scrollingTable = new Table();
+		// table.setFillParent(true);
+		// table.setTransform(true);
+		scrollingTable.defaults().pad(10.0f);
+		// stage.addActor(table);
 
 		// How to play
-		table.add(new SpinningLabel(game, "How to Play:", "archristy64", Color.RED));
-		table.row();
+		scrollingTable.add(new SpinningLabel(game, "How to Play:", "archristy64", Color.RED));
+		scrollingTable.row();
 
 		final String[] howToPlayText = {
 				"Players take it in turns to pick two cards.\n" + "Find a pair and you win a point!\n"
@@ -72,21 +70,41 @@ public class HelpScreen implements Screen {
 						+ "players." };
 
 		for (final String line : howToPlayText) {
-			table.add(new SpinningLabel(game, line, "archristy32", Color.WHITE));
-			table.row();
+			scrollingTable.add(new SpinningLabel(game, line, "archristy32", Color.WHITE)).fillX();
+			scrollingTable.row();
 		}
 
 		// Credits
-		table.add(new SpinningLabel(game, "Credits:", "archristy64", Color.RED));
-		table.row();
+		scrollingTable.add(new SpinningLabel(game, "Credits:", "archristy64", Color.RED));
+		scrollingTable.row();
 
 		final String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n"
 				+ "Developed in libGDX";
 
-		table.add(new SpinningLabel(game, creditsText, "archristy32", Color.WHITE));
-		table.row();
+		scrollingTable.add(new SpinningLabel(game, creditsText, "archristy32", Color.WHITE));
+		scrollingTable.row();
+
+		// scrollingTable.debug();
+
+		// ScrollPane to hold scrolling table
+		final ScrollPane scroll = new ScrollPane(scrollingTable, game.skin);
+		scroll.setFadeScrollBars(false);
+
+		// Root table
+		final Table rootTable = new Table();
+		rootTable.setFillParent(true);
+		// rootTable.debug();
+
+		// Add the scrolling area
+		rootTable.row();
+		rootTable.add(scroll).fill().expand();
+
+		// TODO: A better scroll indication line? Improve the scrollbar?
+		rootTable.row().height(15.0f);
+		rootTable.add(new Image(game.uiAtlas.findRegion("scroll_indication_line2"))).padTop(5.0f);
 
 		// Back button
+		rootTable.row();
 		final Drawable backButtonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_on"));
 		final Drawable backButtonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_off"));
 		final Button backButton = new Button(backButtonOff, backButtonOn);
@@ -97,10 +115,14 @@ public class HelpScreen implements Screen {
 				HelpScreen.this.dispose();
 			}
 		});
-		table.add(backButton).padTop(50.0f);
-		table.row();
+		rootTable.add(backButton).padTop(5.0f);
 
-		// table.debug();
+		// Set tiled background for the root table, thus for the whold Screen
+		final TextureRegion background = game.uiAtlas.findRegion("background");
+		rootTable.setBackground(new TiledDrawable(background));
+
+		// Add the root table to the stage
+		stage.addActor(rootTable);
 	}
 
 	@Override
