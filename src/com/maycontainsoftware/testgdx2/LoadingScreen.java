@@ -70,6 +70,7 @@ public class LoadingScreen implements Screen {
 		for (final String name : cardTurnSoundNames) {
 			game.manager.load(name, Sound.class);
 		}
+		game.manager.load("sound/ting.mp3", Sound.class);
 		// TODO: More sound effects? UI feedback, game over
 		// Music
 		// TODO: Do we want background music?

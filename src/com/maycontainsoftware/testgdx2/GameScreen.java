@@ -139,8 +139,10 @@ public class GameScreen implements Screen {
 					public boolean act(float delta) {
 
 						// Player changed, change highlight
-						screen.playerOne.setHighlight(model.getCurrentPlayerId() == 0);
-						screen.playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
+						if(model.getNumberOfPlayers() > 1) {
+							screen.playerOne.setHighlight(model.getCurrentPlayerId() == 0);
+							screen.playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
+						}
 						
 						// Update game state
 						screen.gameState = GameState.PendingFirstPick;
@@ -173,6 +175,9 @@ public class GameScreen implements Screen {
 						}
 					}));
 
+					// Play sound effect
+					screen.game.playCardMatchSound();
+					
 				} else {
 
 					// A match, and game is over
@@ -195,6 +200,8 @@ public class GameScreen implements Screen {
 									return true;
 								}
 							}));
+					
+					// TODO: What do we do when the game is over?!?
 				}
 			}
 

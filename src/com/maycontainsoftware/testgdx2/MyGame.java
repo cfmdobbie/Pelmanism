@@ -376,4 +376,11 @@ public class MyGame extends Game {
 			manager.get("sound/cardFan1.mp3", Sound.class).play();
 		}
 	}
+
+	/** Play the card match sound, if sounds are enabled. */
+	public void playCardMatchSound() {
+		if (sound) {
+			manager.get("sound/ting.mp3", Sound.class).play();
+		}
+	}
 }
