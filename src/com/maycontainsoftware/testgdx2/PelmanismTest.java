@@ -2,6 +2,11 @@ package com.maycontainsoftware.testgdx2;
 
 import java.util.Random;
 
+/**
+ * Test application for the Pelmanism game model.
+ * 
+ * @author Charlie
+ */
 public class PelmanismTest {
 
 	public static void main(String[] args) {

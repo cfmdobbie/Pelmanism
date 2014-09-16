@@ -4,22 +4,56 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Pelmanism game model.
+ * 
+ * @author Charlie
+ */
 class Pelmanism {
 
 	// Players
+
+	/** The number of players in the game. */
 	final int numberOfPlayers;
+
+	/** The id of the current player. Player ids are zero-indexed, of course. */
 	private int currentPlayerId;
+
+	/** Player scores. A player's score is the number of successful pairs found. */
 	private final int[] playerScores;
+
 	// Pairs
+
+	/** The number of pairs on the table. */
 	private final int numberOfPairs;
+
+	/** How many pairs of cards have been found so far in this game. */
 	private int pairsFound;
+
 	// Cards
+
+	/** The number of cards on the table. */
 	final int numberOfCards;
+
+	/** The cards on the board. */
 	private final Card[] cards;
+
 	// Game state
+
+	/** The last turn id to be completed. */
 	private int lastTurnId;
+
+	/** Whether or not the game is over. */
 	private boolean gameOver;
 
+	/**
+	 * Create a new instance of the game model.
+	 * 
+	 * @param numberOfPlayers
+	 *            The number of players in the game.
+	 * @param numberOfPairs
+	 *            The number of pairs on the table.
+	 */
 	public Pelmanism(final int numberOfPlayers, final int numberOfPairs) {
 
 		// Check arguments
@@ -42,8 +76,14 @@ class Pelmanism {
 		resetGame();
 	}
 
-	public int getNumberOfPairs() {
+	/** The total number of pairs available on the board. */
+	public final int getNumberOfPairs() {
 		return numberOfPairs;
+	}
+
+	/** The number of cards on the board. */
+	public final int getNumberOfCards() {
+		return numberOfCards;
 	}
 
 	/** Returns the current player number. */
@@ -51,10 +91,12 @@ class Pelmanism {
 		return currentPlayerId;
 	}
 
-	public int getNumberOfPlayers() {
+	/** The number of players in the game. */
+	public final int getNumberOfPlayers() {
 		return numberOfPlayers;
 	}
 
+	/** Player score. */
 	public final int getPlayerScore(final int playerId) {
 		if (playerId < 0 || playerId >= numberOfPlayers) {
 			throw new IllegalArgumentException("Invalid player id: " + playerId);
@@ -69,6 +111,7 @@ class Pelmanism {
 		}
 	}
 
+	/** Get a card, by id. */
 	public final Card getCard(final int cardId) {
 		// Check arguments
 		if (cardId < 0 || cardId >= numberOfCards) {
@@ -77,6 +120,7 @@ class Pelmanism {
 		return cards[cardId];
 	}
 
+	/** Whether card is a valid choice to turn over at this time. */
 	public final boolean isCardPickable(final int cardId) {
 		// Check arguments
 		if (cardId < 0 || cardId >= numberOfCards) {
@@ -91,10 +135,12 @@ class Pelmanism {
 		return true;
 	}
 
+	/** Whether current game is over. */
 	public final boolean isGameOver() {
 		return gameOver;
 	}
 
+	/** Submit a new turn. */
 	public final TurnResult turn(final Turn turn) {
 
 		// TODO: Sanity check turn data
@@ -142,6 +188,7 @@ class Pelmanism {
 		return result;
 	}
 
+	/** Reset game state in preparation for next game. */
 	private final void resetGame() {
 
 		// Initialise variables

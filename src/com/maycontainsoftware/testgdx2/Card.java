@@ -1,6 +1,10 @@
 package com.maycontainsoftware.testgdx2;
 
-/** Logical representation of a card on the board. */
+/**
+ * Logical representation of a card on the board.
+ * 
+ * @author Charlie
+ */
 class Card {
 
 	/** Unique id for this card. */
@@ -45,6 +49,7 @@ class Card {
 		return matched;
 	}
 
+	/** Set whether this card has been matched, and has therefore been removed from the board. */
 	public void setMatched(final boolean matched) {
 		this.matched = matched;
 	}

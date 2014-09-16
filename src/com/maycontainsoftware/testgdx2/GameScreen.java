@@ -41,33 +41,46 @@ public class GameScreen implements Screen {
 	private final MyGame game;
 
 	// Game configuration
+
 	/** The player configuration loaded from preferences. */
 	private final PlayerConfiguration playerConfiguration;
+
 	/** The difficulty configuration loaded from preferences. */
 	private final Difficulty difficulty;
+
 	/** The card set configuration loaded from preferences. */
 	private final CardSet cardSet;
 
 	// Display-type properties
+
 	/** This Screen's Stage object. */
 	private final Stage stage;
+
 	/** The atlas containing the cards. */
 	private final TextureAtlas atlas;
+
 	/** The region in the atlas containing the card back graphic. */
 	private final TextureRegion cardBackRegion;
+
 	/** The TextureRegions holding the card graphics. */
 	private final TextureRegion[] cardRegions;
 
 	// Game model
+
 	/** The Pelmanism game model object. */
 	private final Pelmanism model;
 
+	// Graphical elements needed for future access
+
 	/** Player one's score label. */
 	private Label playerOneScoreLabel;
+
 	/** Player two's score label. */
 	private Label playerTwoScoreLabel;
 
 	// Game state
+
+	/** Enumeration representing game state. */
 	static enum GameState {
 		PendingFirstPick,
 		PendingSecondPick,
@@ -75,6 +88,7 @@ public class GameScreen implements Screen {
 		GameOver,
 	}
 
+	/** The game state. */
 	private GameState gameState = GameState.PendingFirstPick;
 
 	/**
@@ -84,28 +98,39 @@ public class GameScreen implements Screen {
 	 */
 	static class CardActor extends Image {
 
+		/** The card represented by this actor. */
 		private final Card card;
 
 		/** A reference to the Screen. */
 		private final GameScreen screen;
+
 		/** A reference to the game model. */
 		private final Pelmanism model;
+
 		/** This card's front texture. */
 		private final TextureRegion cardTexture;
+
 		/** This card's back texture. */
 		private final TextureRegion cardBackTexture;
 
+		/** The actor representing the first card to be picked. */
 		private static CardActor firstPick = null;
+
+		/** The actor representing the second card to be picked. */
 		private static CardActor secondPick = null;
 
+		/** Given two card picks, process the turn in the game model and update the interface as required. */
 		private void processTurn() {
 
+			// The turn to be submitted
 			final Turn turn = new Turn(firstPick.card, secondPick.card);
+			// The results of submitting the turn
 			final TurnResult result = model.turn(turn);
 
 			if (!result.isMatch()) {
 
 				// Not a match
+
 				firstPick.addAction(firstPick.actionDelayedWinkToBack());
 				secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
 					@Override
@@ -123,9 +148,9 @@ public class GameScreen implements Screen {
 			} else {
 				if (!result.isGameOver()) {
 
-					// TODO: Need to move all these float primitives to constant fields
-
 					// A match, and game is not over yet
+
+					// TODO: Need to move all these float primitives to constant fields
 					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
 					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
 						@Override
@@ -145,6 +170,7 @@ public class GameScreen implements Screen {
 				} else {
 
 					// A match, and game is over
+
 					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), firstPick.actionWinkOut()));
 					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), secondPick.actionWinkOut(),
 							new Action() {
@@ -161,7 +187,6 @@ public class GameScreen implements Screen {
 									return true;
 								}
 							}));
-
 				}
 			}
 
@@ -306,6 +331,7 @@ public class GameScreen implements Screen {
 			return Actions.sequence(actionWinkOut(), actionBackTexture(), actionWinkIn());
 		}
 
+		/** Return an action that pauses then flips card to the back. */
 		private final Action actionDelayedWinkToBack() {
 			return Actions.sequence(Actions.delay(1.0f), actionWinkToBack());
 		}

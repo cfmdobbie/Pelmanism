@@ -18,6 +18,7 @@ public class SpinningLabel extends Table {
 	/** Tag for logging purposes. */
 	private static final String TAG = SpinningLabel.class.getSimpleName();
 
+	/** Constructor. */
 	public SpinningLabel(MyGame game, String text, String font, Color color) {
 
 		// Need to allow transformations on the surrounding table

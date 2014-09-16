@@ -60,6 +60,7 @@ public class MyGame extends Game {
 	 */
 	TextureAtlas uiAtlas;
 
+	/** Sound objects representing the sound of a card being turned over. */
 	Sound[] cardTurnSounds;
 
 	/** The Scene2D UI skin instance. */
@@ -362,12 +363,14 @@ public class MyGame extends Game {
 		mPrefs.flush();
 	}
 
+	/** Play a random card-turn sound, if sounds are enabled. */
 	public void playCardTurnSound() {
 		if (sound) {
 			cardTurnSounds[MathUtils.random(cardTurnSounds.length - 1)].play();
 		}
 	}
 
+	/** Play the card dealing sound, if sounds are enabled. */
 	public void playCardDealSound() {
 		if (sound) {
 			manager.get("sound/cardFan1.mp3", Sound.class).play();

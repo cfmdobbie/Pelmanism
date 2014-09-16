@@ -10,20 +10,21 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.maycontainsoftware.testgdx2.MyGame;
 
 public class TestScreen implements Screen {
-	
+
 	@SuppressWarnings("unused")
 	private final MyGame game;
-	
+
 	private Stage stage;
-	
+
 	static class MyActor extends Actor {
 		Texture texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+
 		@Override
 		public void draw(SpriteBatch batch, float parentAlpha) {
 			batch.draw(texture, 0, 0);
 		}
 	}
-	
+
 	public TestScreen(MyGame game) {
 		this.game = game;
 		stage = new Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);

@@ -16,6 +16,7 @@ public class SpinningTable extends Table {
 	/** Tag for logging purposes. */
 	private static final String TAG = SpinningTable.class.getSimpleName();
 
+	/** Constructor. */
 	public SpinningTable() {
 		// Need to allow transformations on the surrounding table
 		this.setTransform(true);

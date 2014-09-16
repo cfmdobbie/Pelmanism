@@ -12,14 +12,16 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.maycontainsoftware.testgdx2.MyGame;
 
 public class StageTestScreen implements Screen {
-	
+
 	static class TempActor extends Actor {
 		private Texture texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		private TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
+
 		@Override
 		public void draw(SpriteBatch batch, float parentAlpha) {
 			batch.draw(region, 0, 0);
 		}
+
 		@Override
 		public void act(float delta) {
 		}
@@ -30,8 +32,8 @@ public class StageTestScreen implements Screen {
 
 	private Color bgColour = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
 	private Texture texture;
-//	private TextureRegion region;
-//	private Sprite sprite;
+	// private TextureRegion region;
+	// private Sprite sprite;
 	private Stage stage;
 
 	public StageTestScreen(MyGame game) {
@@ -47,15 +49,15 @@ public class StageTestScreen implements Screen {
 		// Clear screen
 		Gdx.gl.glClearColor(bgColour.r, bgColour.g, bgColour.b, bgColour.a);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+
 		stage.act();
 		stage.draw();
 
-//		game.batch.setProjectionMatrix(game.camera.combined);
-//		game.batch.begin();
-//		//game.batch.draw(region, 0, 0, 720, 1000);
-//		// sprite.draw(game.batch);
-//		game.batch.end();
+		// game.batch.setProjectionMatrix(game.camera.combined);
+		// game.batch.begin();
+		// //game.batch.draw(region, 0, 0, 720, 1000);
+		// // sprite.draw(game.batch);
+		// game.batch.end();
 
 		// ??? stage.act(), stage.draw() ???
 	}
@@ -67,15 +69,15 @@ public class StageTestScreen implements Screen {
 	@Override
 	public void show() {
 
-//		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-//		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-//
-//		region = new TextureRegion(texture, 0, 0, 512, 275);
-//
-//		sprite = new Sprite(region);
-//		sprite.setSize(500.1f, 500.1f * sprite.getHeight() / sprite.getWidth());
-//		sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-//		sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
+		// texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		// texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		//
+		// region = new TextureRegion(texture, 0, 0, 512, 275);
+		//
+		// sprite = new Sprite(region);
+		// sprite.setSize(500.1f, 500.1f * sprite.getHeight() / sprite.getWidth());
+		// sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
+		// sprite.setPosition(-sprite.getWidth() / 2, -sprite.getHeight() / 2);
 	}
 
 	@Override
