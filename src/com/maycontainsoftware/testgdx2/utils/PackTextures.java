@@ -46,6 +46,13 @@ public class PackTextures {
 		// Allow aliases if images are detected to be identical
 		settings.alias = true;
 
+		// Padding defaults to 2px in both directions; might need to tweak these
+		// settings.paddingX = 4;
+		// settings.paddingY = 4;
+
+		// TiledDrawable exhibits odd lines between tiles, unless duplicatePadding is turned on
+		settings.duplicatePadding = true;
+
 		// Subdirectories to process
 		final File[] dirList = inputDir.listFiles(new FileFilter() {
 			@Override

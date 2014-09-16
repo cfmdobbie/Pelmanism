@@ -19,8 +19,10 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.maycontainsoftware.testgdx2.MyGame.CardSet;
@@ -72,11 +74,11 @@ public class GameScreen implements Screen {
 
 	// Graphical elements needed for future access
 
-	/** Player one's score label. */
-	private Label playerOneScoreLabel;
+	/** Player one's score display. */
+	private PlayerScoreActor playerOne;
 
-	/** Player two's score label. */
-	private Label playerTwoScoreLabel;
+	/** Player two's score display. */
+	private PlayerScoreActor playerTwo;
 
 	// Game state
 
@@ -137,7 +139,9 @@ public class GameScreen implements Screen {
 					public boolean act(float delta) {
 
 						// Player changed, change highlight
-						// TODO: Highlight correct player
+						screen.playerOne.setHighlight(model.getCurrentPlayerId() == 0);
+						screen.playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
+						
 						// Update game state
 						screen.gameState = GameState.PendingFirstPick;
 
@@ -157,9 +161,11 @@ public class GameScreen implements Screen {
 						public boolean act(float delta) {
 
 							// Player not changed
+							
 							// Score changed, update label
 							final int playerId = result.turn.getPlayerId();
 							screen.updateScore(playerId, model.getPlayerScore(playerId));
+							
 							// Update game state
 							screen.gameState = GameState.PendingFirstPick;
 
@@ -178,9 +184,11 @@ public class GameScreen implements Screen {
 								public boolean act(float delta) {
 
 									// Player not changed
+									
 									// Score changed, update label
 									final int playerId = result.turn.getPlayerId();
 									screen.updateScore(playerId, model.getPlayerScore(playerId));
+									
 									// Update game state
 									screen.gameState = GameState.GameOver;
 
@@ -457,9 +465,11 @@ public class GameScreen implements Screen {
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen.
-		// TODO: Note that the TiledDrawable doesn't render correctly; this should be replaced.
 		final TextureRegion background = game.uiAtlas.findRegion("background");
 		table.setBackground(new TiledDrawable(background));
+
+		// Drawable used for highlighting the player scores
+		final Drawable highlightDrawable = new TiledDrawable(game.uiAtlas.findRegion("yellow"));
 
 		// Secondary score display
 
@@ -467,18 +477,10 @@ public class GameScreen implements Screen {
 			// Will need a second score display
 
 			table.row().padTop(20.0f);
-			final SpinningTable playerTwoTable = new SpinningTable();
-			// p2Table.debug();
-			playerTwoTable.add(new Label(playerConfiguration.secondPlayerName, game.skin, "archristy48",
-					playerConfiguration.secondPlayerColor));
-			playerTwoTable.add().expandX();
-			// Need to be able to update points on the fly, so need access to this Label
-			playerTwoScoreLabel = new Label("0 Points", game.skin, "archristy48", playerConfiguration.secondPlayerColor);
-			playerTwoTable.add(playerTwoScoreLabel);
-			table.add(playerTwoTable).colspan(2).fillX();
 
-			// N.B. TiledDrawable leaves <1px gaps, so this is not usable.
-			// p2Table.setBackground(new TiledDrawable(game.uiAtlas.findRegion("yellow")));
+			playerTwo = new PlayerScoreActor(playerConfiguration.secondPlayerName,
+					playerConfiguration.secondPlayerColor, game.skin, highlightDrawable);
+			table.add(playerTwo).colspan(2).fillX();
 		}
 
 		// Game area
@@ -522,14 +524,12 @@ public class GameScreen implements Screen {
 
 		// Player one info
 		table.row().padTop(30.0f);
-		final SpinningTable playerOneTable = new SpinningTable();
-		// p1Table.debug();
-		playerOneTable.add(new Label("Player One", game.skin, "archristy48", Color.RED));
-		playerOneTable.add().expandX();
-		// Need to be able to update points on the fly, so need access to this Label
-		playerOneScoreLabel = new Label("0 Points", game.skin, "archristy48", Color.RED);
-		playerOneTable.add(playerOneScoreLabel);
-		table.add(playerOneTable).colspan(2).fillX();
+
+		playerOne = new PlayerScoreActor("Player One", Color.RED, game.skin, highlightDrawable);
+		table.add(playerOne).colspan(2).fillX();
+
+		// Player one starts the game
+		playerOne.setHighlight(true);
 
 		// Buttons
 		table.row().padTop(30.0f).padBottom(20.0f);
@@ -564,6 +564,61 @@ public class GameScreen implements Screen {
 
 	/** Update the score for the specified player. */
 	private final void updateScore(final int player, final int score) {
-		(player == 0 ? playerOneScoreLabel : playerTwoScoreLabel).setText(score + " Point" + (score != 1 ? "s" : ""));
+		(player == 0 ? playerOne : playerTwo).updateScore(score);
+	}
+
+	/**
+	 * An actor that represents a player's name and score. The actor contains convenience methods for highlighting and
+	 * updating the score.
+	 * 
+	 * @author Charlie
+	 */
+	static class PlayerScoreActor extends SpinningTable {
+		/** The label that holds the score; kept for future access. */
+		private final Label scoreLabel;
+
+		/** A null drawable, used for clearing actor background. */
+		private static final Drawable nullDrawable = null;
+
+		/** A drawable used as a background to highlight the actor. */
+		private final Drawable highlightDrawable;
+
+		/** Construct a new player and score display. */
+		public PlayerScoreActor(final String playerName, final Color playerColor, final Skin skin,
+				final Drawable highlightDrawable) {
+
+			// Keep reference to the highlight drawable
+			this.highlightDrawable = highlightDrawable;
+
+			// Left edge, the player name
+			final Label playerNameLabel = new Label(playerName, skin, "archristy48", playerColor);
+			add(playerNameLabel).padLeft(10.0f);
+
+			// Middle, an empty cell that takes up all remaining space
+			add().expandX();
+
+			// Right edge, the player score
+			scoreLabel = new Label("", skin, "archristy48", playerColor);
+			add(scoreLabel).padRight(10.0f);
+
+			// Start off not highlighted
+			setHighlight(false);
+			// Start off at zero points
+			updateScore(0);
+		}
+
+		/** Set whether or not to highlight this score display. */
+		public void setHighlight(final boolean highlight) {
+			if (highlight) {
+				setBackground(highlightDrawable);
+			} else {
+				setBackground(nullDrawable);
+			}
+		}
+
+		/** Update the score display to reflect the new score. */
+		public void updateScore(final int score) {
+			scoreLabel.setText(score + " Point" + (score != 1 ? "s" : ""));
+		}
 	}
 }
