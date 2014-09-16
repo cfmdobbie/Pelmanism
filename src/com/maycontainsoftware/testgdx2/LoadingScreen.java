@@ -36,15 +36,9 @@ public class LoadingScreen implements Screen {
 	private Stage stage;
 
 	/** Names of the card-turn sound effects. */
-	private final String[] cardTurnSoundNames = {
-			"sound/cardPlace1.mp3",
-			"sound/cardSlide4.mp3",
-			"sound/cardSlide5.mp3",
-			"sound/cardSlide6.mp3",
-			"sound/cardSlide7.mp3",
-			"sound/cardSlide8.mp3",
-	};
-	
+	private final String[] cardTurnSoundNames = { "sound/cardPlace1.mp3", "sound/cardSlide4.mp3",
+			"sound/cardSlide5.mp3", "sound/cardSlide6.mp3", "sound/cardSlide7.mp3", "sound/cardSlide8.mp3", };
+
 	/**
 	 * Construct a new LoadingScreen object.
 	 * 

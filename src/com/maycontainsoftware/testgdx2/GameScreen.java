@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -67,7 +66,7 @@ public class GameScreen implements Screen {
 	private Label playerOneScoreLabel;
 	/** Player two's score label. */
 	private Label playerTwoScoreLabel;
-	
+
 	// Game state
 	static enum GameState {
 		PendingFirstPick,
@@ -75,8 +74,8 @@ public class GameScreen implements Screen {
 		Animating,
 		GameOver,
 	}
+
 	private GameState gameState = GameState.PendingFirstPick;
-	
 
 	/**
 	 * Object representing the actual card on the screen.
@@ -84,11 +83,9 @@ public class GameScreen implements Screen {
 	 * @author Charlie
 	 */
 	static class CardActor extends Image {
-		//** This card's index, an integer from 0 to N-1 where N is the total number of cards on the board. */
-		//final int index;
-		
+
 		private final Card card;
-		
+
 		/** A reference to the Screen. */
 		private final GameScreen screen;
 		/** A reference to the game model. */
@@ -100,74 +97,74 @@ public class GameScreen implements Screen {
 
 		private static CardActor firstPick = null;
 		private static CardActor secondPick = null;
-		//private static TurnResult turnResult = null;
-		
+
 		private void processTurn() {
-			
+
 			final Turn turn = new Turn(firstPick.card, secondPick.card);
 			final TurnResult result = model.turn(turn);
-			
-			if(!result.isMatch()) {
-				
+
+			if (!result.isMatch()) {
+
 				// Not a match
 				firstPick.addAction(firstPick.actionDelayedWinkToBack());
 				secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
 					@Override
 					public boolean act(float delta) {
-						
+
 						// Player changed, change highlight
 						// TODO: Highlight correct player
 						// Update game state
 						screen.gameState = GameState.PendingFirstPick;
-						
+
 						return true;
 					}
 				}));
-				
+
 			} else {
-				if(!result.isGameOver()) {
-					
+				if (!result.isGameOver()) {
+
 					// TODO: Need to move all these float primitives to constant fields
-					
+
 					// A match, and game is not over yet
 					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
 					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
 						@Override
 						public boolean act(float delta) {
-							
+
 							// Player not changed
 							// Score changed, update label
 							final int playerId = result.turn.getPlayerId();
 							screen.updateScore(playerId, model.getPlayerScore(playerId));
 							// Update game state
 							screen.gameState = GameState.PendingFirstPick;
-							
+
 							return true;
 						}
 					}));
-					
+
 				} else {
-					
+
 					// A match, and game is over
 					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), firstPick.actionWinkOut()));
-					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), secondPick.actionWinkOut(), new Action() {
-						@Override
-						public boolean act(float delta) {
-							
-							// Player not changed
-							// Score changed, update label
-							final int playerId = result.turn.getPlayerId();
-							screen.updateScore(playerId, model.getPlayerScore(playerId));
-							// Update game state
-							screen.gameState = GameState.GameOver;
-							
-							return true;
-						}
-					}));
-					
+					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), secondPick.actionWinkOut(),
+							new Action() {
+								@Override
+								public boolean act(float delta) {
+
+									// Player not changed
+									// Score changed, update label
+									final int playerId = result.turn.getPlayerId();
+									screen.updateScore(playerId, model.getPlayerScore(playerId));
+									// Update game state
+									screen.gameState = GameState.GameOver;
+
+									return true;
+								}
+							}));
+
 				}
 			}
-			
+
 		}
 
 		/**
@@ -180,27 +177,25 @@ public class GameScreen implements Screen {
 		 */
 		public CardActor(final Card card, final GameScreen screen, final TextureRegion cardTexture,
 				final TextureRegion cardBackTexture) {
-			
+
 			// Pass default/initial texture to superclass' constructor
 			super(cardBackTexture);
-			
+
 			this.card = card;
-			//final int index
-			//this.index = index;
 			this.screen = screen;
 			this.model = screen.model;
 			this.cardTexture = cardTexture;
 			this.cardBackTexture = cardBackTexture;
-			
+
 			// Touch events on the card are intercepted by an InputListener.
 			this.addListener(new InputListener() {
 				@Override
 				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-					
-					switch(screen.gameState) {
+
+					switch (screen.gameState) {
 					case PendingFirstPick:
-						
-						if(!CardActor.this.card.isMatched()) {
+
+						if (!CardActor.this.card.isMatched()) {
 							// Remember that this is the first chosen card
 							firstPick = CardActor.this;
 							// Flip the card over
@@ -210,11 +205,11 @@ public class GameScreen implements Screen {
 							// Update state
 							screen.gameState = GameState.PendingSecondPick;
 						}
-						
+
 						break;
 					case PendingSecondPick:
-						
-						if(CardActor.this != firstPick && !CardActor.this.card.isMatched()) {
+
+						if (CardActor.this != firstPick && !CardActor.this.card.isMatched()) {
 							// Remember that this is the second chosen card
 							secondPick = CardActor.this;
 							// Flip the card over
@@ -230,13 +225,14 @@ public class GameScreen implements Screen {
 							// Update state
 							screen.gameState = GameState.Animating;
 						}
-						
+
 						break;
 					case Animating:
 						// Cards are animating - ignore all input
-						
-						// XXX: This means you can't pick a new card while it is animating to back.  This causes a significant lag in the usability.
-						
+
+						// XXX: This means you can't pick a new card while it is animating to back. This causes a
+						// significant lag in the usability.
+
 						break;
 					case GameOver:
 						// TODO
@@ -245,98 +241,6 @@ public class GameScreen implements Screen {
 						// TODO
 						break;
 					}
-					
-/*
-					switch (model.getGameState()) {
-					case PendingSecondPick:
-
-						if (model.turnCard(index)) {
-							// Game state will now be "CardsChosen"
-
-							if (model.isMatch()) {
-
-								final Action[] actions = new Action[] {
-										// Flip the card over
-										actionWinkToFront(),
-										// Hold cards visible for a moment
-										Actions.delay(0.5f),
-										// Update score
-										new Action() {
-											@Override
-											public boolean act(float delta) {
-												// Determine current player
-												final int currentPlayer = model.getCurrentPlayer();
-												// Determine player's updated score
-												final int newScore = model.getPlayerScore(currentPlayer);
-												// Update UI
-												screen.updateScore(currentPlayer, newScore);
-												return true;
-											}
-										},
-										// Fade out both chosen cards
-										// TODO: Move to a utility method?
-										new Action() {
-											@Override
-											public boolean act(float delta) {
-												// Fade out first card
-												firstPick.addAction(Actions.fadeOut(0.25f));
-												return true;
-											}
-										}, Actions.fadeOut(0.25f),
-										// Accept picks
-										// TODO: Move to a utility method?
-										new Action() {
-											@Override
-											public boolean act(float delta) {
-												model.acceptPicks();
-												// Game state will now be either "PendingFirstPick" or "GameOver"
-												// TODO: Check for GameOver state
-												return true;
-											}
-										}, };
-								CardActor.this.addAction(Actions.sequence(actions));
-								
-							} else {
-
-								final Action[] actions = new Action[] {
-										// Flip the card over
-										actionWinkToFront(),
-										// Hold cards visible for a moment
-										Actions.delay(0.5f),
-										// Flip both cards back over
-										// First card
-										new Action() {
-											@Override
-											public boolean act(float delta) {
-												firstPick.addAction(firstPick.actionWinkToBack());
-												return true;
-											}
-										},
-										// Second card
-										actionWinkToBack(),
-										// Accept picks
-										new Action() {
-											@Override
-											public boolean act(float delta) {
-												model.acceptPicks();
-												// Game state will now be "PendingFirstPick"
-												return true;
-											}
-										} };
-								CardActor.this.addAction(Actions.sequence(actions));
-							}
-						}
-						break;
-					case CardsChosen:
-						// We're mid-animation at the moment - ignore input
-						break;
-					case GameOver:
-						// Game is over - ignore input
-						break;
-					default:
-						// TODO: How to handle this exceptional condition?
-						break;
-					}*/
 
 					return true;
 				}
@@ -359,7 +263,7 @@ public class GameScreen implements Screen {
 				}
 			};
 		}
-		
+
 		/** Return an action that immediately switches to the card front texture. */
 		private final Action actionFrontTexture() {
 			return actionSpecifiedTexture(cardTexture);
@@ -391,17 +295,17 @@ public class GameScreen implements Screen {
 
 			return Actions.parallel(shiftLeft, scaleToFullWidth);
 		}
-		
+
 		/** Return an action that winks in and out, switching to the card front texture. */
 		private final Action actionWinkToFront() {
 			return Actions.sequence(actionWinkOut(), actionFrontTexture(), actionWinkIn());
 		}
-		
+
 		/** Return an action that winks in and out, switching to the card back texture. */
 		private final Action actionWinkToBack() {
 			return Actions.sequence(actionWinkOut(), actionBackTexture(), actionWinkIn());
 		}
-		
+
 		private final Action actionDelayedWinkToBack() {
 			return Actions.sequence(Actions.delay(1.0f), actionWinkToBack());
 		}
@@ -439,7 +343,7 @@ public class GameScreen implements Screen {
 
 		// Create UI elements
 		createUi();
-		
+
 		// Play shuffle sound
 		game.playCardDealSound();
 	}
@@ -578,16 +482,16 @@ public class GameScreen implements Screen {
 		// Game area is fixed in size, but must take up all remaining space in table.
 		// Game area should be square to avoid rendering cards out-of-aspect.
 		// With a known width of 645px and assumed >1 aspect ratio of board, fixed height can be calculated
-		
+
 		// Fixed width
 		final float game_area_width = 645.0f;
 		// Note: Card cells have 5px padding all around
 		final float card_width = (game_area_width / difficulty.getBoardColumns()) - (2 * 5.0f);
 		final float card_height = card_width;
 		final float game_area_height = (card_height + (2 * 5.0f)) * difficulty.getBoardRows();
-		
+
 		table.add(gameArea).width(game_area_width).height(game_area_height).expandX().expandY().colspan(2);
-		
+
 		// Primary score display
 
 		// Player one info

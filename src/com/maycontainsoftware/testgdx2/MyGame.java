@@ -59,7 +59,7 @@ public class MyGame extends Game {
 	 * graphics created to represent backgrounds, buttons etc.
 	 */
 	TextureAtlas uiAtlas;
-	
+
 	Sound[] cardTurnSounds;
 
 	/** The Scene2D UI skin instance. */
@@ -363,13 +363,13 @@ public class MyGame extends Game {
 	}
 
 	public void playCardTurnSound() {
-		if(sound) {
+		if (sound) {
 			cardTurnSounds[MathUtils.random(cardTurnSounds.length - 1)].play();
 		}
 	}
-	
+
 	public void playCardDealSound() {
-		if(sound) {
+		if (sound) {
 			manager.get("sound/cardFan1.mp3", Sound.class).play();
 		}
 	}

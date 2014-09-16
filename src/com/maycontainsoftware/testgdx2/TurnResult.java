@@ -1,6 +1,5 @@
 package com.maycontainsoftware.testgdx2;
 
-
 /** Representation of the result of a turn being played. */
 class TurnResult {
 

@@ -154,7 +154,7 @@ public class OldPelmanism {
 
 			secondPick = cardNumber;
 			gameState = GameState.CardsChosen;
-			
+
 			if (isMatch()) {
 				// If it was a match, mark cards as matched
 				matched[firstPick] = true;
@@ -164,7 +164,7 @@ public class OldPelmanism {
 				// And remember that another pair has been found
 				pairsFound++;
 			}
-			
+
 			return true;
 		case CardsChosen:
 		case GameOver:

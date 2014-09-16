@@ -41,7 +41,7 @@ class Pelmanism {
 
 		resetGame();
 	}
-	
+
 	public int getNumberOfPairs() {
 		return numberOfPairs;
 	}
@@ -50,7 +50,7 @@ class Pelmanism {
 	public final int getCurrentPlayerId() {
 		return currentPlayerId;
 	}
-	
+
 	public int getNumberOfPlayers() {
 		return numberOfPlayers;
 	}
