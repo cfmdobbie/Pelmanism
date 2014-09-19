@@ -3,6 +3,8 @@ package com.maycontainsoftware.testgdx2;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -10,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -62,7 +65,40 @@ public class MainMenuScreen implements Screen {
 
 		// Set tiled background for Table, thus for Screen
 		final TextureRegion background = game.uiAtlas.findRegion("background");
-		table.setBackground(new TiledDrawable(background));
+		final TextureRegion colorSquare = game.uiAtlas.findRegion("color_square2");
+		final TextureRegion bgPattern1 = game.uiAtlas.findRegion("bgPattern7");
+		
+		table.setBackground(new BaseDrawable() {
+			@Override
+			public void draw(SpriteBatch batch, float x, float y, float width, float height) {
+				
+				//batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				
+				batch.draw(colorSquare, x, y, width, height);
+				boolean enabled = batch.isBlendingEnabled();
+				batch.enableBlending();
+				batch.draw(bgPattern1, x, y, width, height);
+				if(!enabled) {
+					batch.disableBlending();
+				}
+			}
+		});
+		table.setBackground(new TiledDrawable(bgPattern1) {
+			@Override
+			public void draw(SpriteBatch batch, float x, float y, float width, float height) {
+				//batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				
+				batch.draw(colorSquare, x, y, width, height);
+				boolean enabled = batch.isBlendingEnabled();
+				batch.enableBlending();
+				super.draw(batch, x, y, width, height);
+				if(!enabled) {
+					batch.disableBlending();
+				}
+			}
+		});
+		
+		
 
 		// Title
 		table.add(new SpinningLabel(game, "Pelmanism!", "archristy64", Color.RED)).colspan(3);
