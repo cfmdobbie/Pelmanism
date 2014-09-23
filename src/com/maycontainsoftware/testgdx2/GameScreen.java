@@ -472,8 +472,8 @@ public class GameScreen implements Screen {
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen.
-		final TextureRegion background = game.uiAtlas.findRegion("background");
-		table.setBackground(new TiledDrawable(background));
+		//final TextureRegion background = game.uiAtlas.findRegion("background");
+		//table.setBackground(new TiledDrawable(background));
 
 		// Drawable used for highlighting the player scores
 		final Drawable highlightDrawable = new TiledDrawable(game.uiAtlas.findRegion("yellow"));

@@ -56,7 +56,7 @@ public class LoadingScreen implements Screen {
 		loadingTexture = new Texture(Gdx.files.internal("loading.png"));
 
 		// Create the Stage
-		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true);
+		stage = new Stage(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, true, game.batch);
 		stage.addActor(new LoadingActor(loadingTexture));
 
 		// Load assets in AssetManager
@@ -111,6 +111,7 @@ public class LoadingScreen implements Screen {
 	@Override
 	public void resize(int width, int height) {
 		// Update Stage's viewport calculations
+		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		stage.setViewport(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, false, game.viewport.x, game.viewport.y,
 				game.viewport.width, game.viewport.height);
 	}

@@ -3,7 +3,6 @@ package com.maycontainsoftware.testgdx2;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
 /**
  * The help screen. This screen is accessible from the main menu and gives some basic instructions for play, and
@@ -118,8 +116,8 @@ public class HelpScreen implements Screen {
 		rootTable.add(backButton).padTop(5.0f);
 
 		// Set tiled background for the root table, thus for the whold Screen
-		final TextureRegion background = game.uiAtlas.findRegion("background");
-		rootTable.setBackground(new TiledDrawable(background));
+		//final TextureRegion background = game.uiAtlas.findRegion("background");
+		//rootTable.setBackground(new TiledDrawable(background));
 
 		// Add the root table to the stage
 		stage.addActor(rootTable);

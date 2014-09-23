@@ -8,14 +8,17 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
 /**
  * The Game implementation.
@@ -65,6 +68,8 @@ public class MyGame extends Game {
 
 	/** The Scene2D UI skin instance. */
 	Skin skin;
+
+	private Drawable background;
 
 	/** Name of preferences file for state persistence. */
 	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
@@ -233,6 +238,9 @@ public class MyGame extends Game {
 		// Load sound preference
 		sound = getSoundFromPrefs();
 
+		// Get the background drawable
+		background = createBackgroundDrawable();
+
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
 	}
@@ -287,7 +295,13 @@ public class MyGame extends Game {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// Reset SpriteBatch color to white
-		batch.setColor(Color.WHITE);
+		// TODO: This doesn't appear to be necessary - check this!
+		// batch.setColor(Color.WHITE);
+
+		// XXX: Render background
+		batch.begin();
+		background.draw(batch, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+		batch.end();
 
 		// Pass render() call to active Screen
 		super.render();
@@ -382,5 +396,39 @@ public class MyGame extends Game {
 		if (sound) {
 			manager.get("sound/ting.mp3", Sound.class).play();
 		}
+	}
+
+	private final Drawable createBackgroundDrawable() {
+
+		// Texture containing color swatch to tint background pattern with
+		final Texture backgroundColorTexture = new Texture(Gdx.files.internal("background_color.png"));
+
+		// Background pattern to repeat over screen
+		final Texture backgroundPatternTexture = new Texture(Gdx.files.internal("background_pattern.png"));
+		final TextureRegion backgroundPatternTextureRegion = new TextureRegion(backgroundPatternTexture);
+
+		// Drawable to render the background
+		final Drawable background = new TiledDrawable(backgroundPatternTextureRegion) {
+			@Override
+			public void draw(final SpriteBatch batch, final float x, final float y, final float width,
+					final float height) {
+				// Draw color swatch
+				batch.draw(backgroundColorTexture, x, y, width, height);
+
+				// Save blending state, enable blending
+				final boolean enabled = batch.isBlendingEnabled();
+				batch.enableBlending();
+
+				// Call superclass to draw tiled background graphic
+				super.draw(batch, x, y, width, height);
+
+				// Restore blending state
+				if (!enabled) {
+					batch.disableBlending();
+				}
+			}
+		};
+
+		return background;
 	}
 }
