@@ -57,7 +57,7 @@ public class HelpScreen implements Screen {
 		// stage.addActor(table);
 
 		// How to play
-		scrollingTable.add(new SpinningLabel(game, "How to Play:", "archristy64", Color.RED));
+		scrollingTable.add(new SpinningLabel(game, "How to Play:", "arcena64", Color.RED));
 		scrollingTable.row();
 
 		final String[] howToPlayText = {
@@ -68,18 +68,18 @@ public class HelpScreen implements Screen {
 						+ "players." };
 
 		for (final String line : howToPlayText) {
-			scrollingTable.add(new SpinningLabel(game, line, "archristy32", Color.WHITE)).fillX();
+			scrollingTable.add(new SpinningLabel(game, line, "arcena32", Color.WHITE)).fillX();
 			scrollingTable.row();
 		}
 
 		// Credits
-		scrollingTable.add(new SpinningLabel(game, "Credits:", "archristy64", Color.RED));
+		scrollingTable.add(new SpinningLabel(game, "Credits:", "arcena64", Color.RED));
 		scrollingTable.row();
 
 		final String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n"
 				+ "Developed in libGDX";
 
-		scrollingTable.add(new SpinningLabel(game, creditsText, "archristy32", Color.WHITE));
+		scrollingTable.add(new SpinningLabel(game, creditsText, "arcena32", Color.WHITE));
 		scrollingTable.row();
 
 		// scrollingTable.debug();

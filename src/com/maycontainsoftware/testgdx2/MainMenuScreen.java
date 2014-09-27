@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -49,9 +50,6 @@ public class MainMenuScreen implements Screen {
 		// Use global camera
 		stage.setCamera(game.camera);
 
-		// Redirect all input events to the Stage
-		Gdx.input.setInputProcessor(stage);
-
 		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table table = new Table();
 		table.setFillParent(true);
@@ -60,8 +58,10 @@ public class MainMenuScreen implements Screen {
 		stage.addActor(table);
 		
 		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
-		table.addAction(Actions.fadeIn(0.5f));
-		
+		//table.addAction(Actions.fadeIn(0.25f));
+		// Fade in, then redirect all input events to the Stage
+		table.addAction(Actions.sequence(Actions.fadeIn(0.25f), new SetInputProcessorAction(stage)));
+		//Gdx.input.setInputProcessor(stage);
 		
 
 		// Set tiled background for Table, thus for Screen
@@ -103,12 +103,12 @@ public class MainMenuScreen implements Screen {
 		*/
 
 		// Title
-		table.add(new SpinningLabel(game, "Pelmanism!", "archristy64", Color.RED)).colspan(3);
+		table.add(new SpinningLabel(game, "Pelmanism!", "arcena64", Color.RED)).colspan(3);
 		table.row();
 
 		// Players section
 		// Label
-		table.add(new SpinningLabel(game, "Players:", "archristy48", Color.WHITE)).colspan(3);
+		table.add(new SpinningLabel(game, "Players:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
@@ -116,7 +116,7 @@ public class MainMenuScreen implements Screen {
 
 		// Difficulty section
 		// Label
-		table.add(new SpinningLabel(game, "Difficulty:", "archristy48", Color.WHITE)).colspan(3);
+		table.add(new SpinningLabel(game, "Difficulty:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] difficultyImagePrefixes = { "difficulty_1", "difficulty_2", "difficulty_3" };
@@ -124,7 +124,7 @@ public class MainMenuScreen implements Screen {
 
 		// Card set section
 		// Label
-		table.add(new SpinningLabel(game, "Card set:", "archristy48", Color.WHITE)).colspan(3);
+		table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] cardSetImagePrefixes = { "cards_simple", "cards_signs", "cards_hard" };
@@ -138,8 +138,14 @@ public class MainMenuScreen implements Screen {
 		helpButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
-				MainMenuScreen.this.dispose();
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.25f), new Action() {
+					@Override
+					public boolean act(float delta) {
+						MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
+						MainMenuScreen.this.dispose();
+						return true;
+					}
+				}));
 			}
 		});
 		table.add(helpButton).padTop(50.0f);

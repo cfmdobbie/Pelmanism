@@ -243,6 +243,8 @@ public class MyGame extends Game {
 
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
+		
+		Gdx.app.log(TAG, "screen density = " + Gdx.graphics.getDensity());
 	}
 
 	@Override
@@ -296,7 +298,7 @@ public class MyGame extends Game {
 
 		// Reset SpriteBatch color to white
 		// TODO: This doesn't appear to be necessary - check this!
-		// batch.setColor(Color.WHITE);
+		batch.setColor(Color.WHITE);
 
 		// XXX: Render background
 		batch.begin();

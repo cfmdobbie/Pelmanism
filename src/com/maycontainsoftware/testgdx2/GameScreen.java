@@ -598,14 +598,14 @@ public class GameScreen implements Screen {
 			this.highlightDrawable = highlightDrawable;
 
 			// Left edge, the player name
-			final Label playerNameLabel = new Label(playerName, skin, "archristy48", playerColor);
+			final Label playerNameLabel = new Label(playerName, skin, "arcena48", playerColor);
 			add(playerNameLabel).padLeft(10.0f);
 
 			// Middle, an empty cell that takes up all remaining space
 			add().expandX();
 
 			// Right edge, the player score
-			scoreLabel = new Label("", skin, "archristy48", playerColor);
+			scoreLabel = new Label("", skin, "arcena48", playerColor);
 			add(scoreLabel).padRight(10.0f);
 
 			// Start off not highlighted
