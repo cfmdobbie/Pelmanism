@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -48,41 +48,47 @@ public class HelpScreen implements Screen {
 		// Use global camera
 		stage.setCamera(game.camera);
 
-		// Redirect all input events to the Stage
-		//Gdx.input.setInputProcessor(stage);
+		// All help/credit text exists within a Table
+		// The table exists in a ScrollPane
+		// The ScrollPane is added to the root Table
+		// The root Table is added to the Stage
 
-		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table scrollingTable = new Table();
-		// table.setFillParent(true);
-		// table.setTransform(true);
 		scrollingTable.defaults().pad(10.0f);
-		// stage.addActor(table);
 
 		// How to play
-		scrollingTable.add(new SpinningLabel(game, "How to Play:", "arcena64", Color.RED));
 		scrollingTable.row();
+		scrollingTable.add(new Label("How to Play:", game.skin, "arcena64", Color.RED));
 
+		// TODO: Improve help/credits text
 		final String[] howToPlayText = {
-				"Players take it in turns to pick two cards.\n" + "Find a pair and you win a point!\n"
-						+ "Get the highest score you can.",
-				"Play solo, against a friend or against the\n" + "computer.",
-				"Higher difficulties offer larger boards,\n" + "faster play and more challenging computer\n"
-						+ "players." };
+				"Players take it in turns to pick two cards.\n" +
+				"Find a pair and you win a point and get to pick\n" +
+				"again!  Get the highest score to win the game.",
+				
+				"Play solo, against a friend or against the\n" +
+				"computer.",
+				
+				"Higher difficulties offer larger boards,\n" +
+				"faster play and more challenging computer\n" +
+				"players." };
 
 		for (final String line : howToPlayText) {
-			scrollingTable.add(new SpinningLabel(game, line, "arcena32", Color.WHITE)).fillX();
 			scrollingTable.row();
+			scrollingTable.add(new Label(line, game.skin, "arcena32", Color.WHITE)).fillX();
 		}
-
+		
 		// Credits
-		scrollingTable.add(new SpinningLabel(game, "Credits:", "arcena64", Color.RED));
 		scrollingTable.row();
+		scrollingTable.add(new Label("Credits:", game.skin, "arcena64", Color.RED));
 
-		final String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n"
-				+ "Developed in libGDX";
+		final String creditsText =
+				"Game created by Charlie Dobbie\n" +
+				"for MayContainSoftware.com.\n" +
+				"Developed in libGDX.";
 
-		scrollingTable.add(new SpinningLabel(game, creditsText, "arcena32", Color.WHITE));
 		scrollingTable.row();
+		scrollingTable.add(new Label(creditsText, game.skin, "arcena32", Color.WHITE)).fillX();
 
 		// scrollingTable.debug();
 
@@ -100,8 +106,10 @@ public class HelpScreen implements Screen {
 		rootTable.add(scroll).fill().expand();
 
 		// TODO: A better scroll indication line? Improve the scrollbar?
-		rootTable.row().height(15.0f);
-		rootTable.add(new Image(game.uiAtlas.findRegion("scroll_indication_line2"))).padTop(5.0f);
+		//rootTable.row().height(15.0f);
+		//rootTable.add(new Image(game.uiAtlas.findRegion("scroll_indication_line2"))).padTop(5.0f);
+		
+		// TODO: If scrolling table is not required, rip all this out
 
 		// Back button
 		rootTable.row();
@@ -111,25 +119,22 @@ public class HelpScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				rootTable.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
-					@Override
-					public boolean act(float delta) {
-						HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
-						HelpScreen.this.dispose();
-						return true;
-					}
-				}));
+				rootTable.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new Action() {
+							@Override
+							public boolean act(float delta) {
+								HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
+								HelpScreen.this.dispose();
+								return true;
+							}
+						}));
 			}
 		});
 		rootTable.add(backButton).padTop(5.0f);
 
-		// Set tiled background for the root table, thus for the whold Screen
-		//final TextureRegion background = game.uiAtlas.findRegion("background");
-		//rootTable.setBackground(new TiledDrawable(background));
-
 		// Add the root table to the stage
 		stage.addActor(rootTable);
-		
+
 		// Fade in, then redirect all input events to the Stage
 		rootTable.setColor(1.0f, 1.0f, 1.0f, 0.0f);
 		rootTable.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
@@ -142,7 +147,7 @@ public class HelpScreen implements Screen {
 		stage.act();
 		stage.draw();
 
-		Table.drawDebug(stage);
+		// Table.drawDebug(stage);
 	}
 
 	@Override
