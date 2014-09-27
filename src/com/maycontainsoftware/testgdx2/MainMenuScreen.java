@@ -92,7 +92,7 @@ public class MainMenuScreen implements Screen {
 
 		// Card set section
 		// Label
-		table.add(new Label("Card set:", game.skin, "arcena48", Color.WHITE)).colspan(3);
+		table.add(new Label("Cards:", game.skin, "arcena48", Color.WHITE)).colspan(3);
 		//table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
