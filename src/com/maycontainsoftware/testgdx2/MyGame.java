@@ -133,44 +133,47 @@ public class MyGame extends Game {
 	 */
 	public static enum Difficulty {
 		// Easy difficulty
-		Easy(8),
+		Easy(4, 4),
 		// Medium difficulty
-		Medium(18),
+		Medium(6, 6),
 		// Hard difficulty
-		Hard(32);
+		Hard(8, 8);
 
-		/** The number of pairs on the board. */
-		private final int numberOfPairs;
+		/** The number of columns on the board. */
+		private final int numberOfColumns;
+
+		/** The number of rows on the board. */
+		private final int numberOfRows;
 
 		/**
 		 * Construct a new difficulty setting.
 		 * 
-		 * @param numberOfPairs
+		 * @param numberOfColumns
+		 * @param numberOfRows
 		 */
-		private Difficulty(final int numberOfPairs) {
-			this.numberOfPairs = numberOfPairs;
+		private Difficulty(final int numberOfColumns, final int numberOfRows) {
+			this.numberOfColumns = numberOfColumns;
+			this.numberOfRows = numberOfRows;
 		}
 
 		/** The number of pairs on the board in this difficulty mode. */
 		public final int getNumberOfPairs() {
-			return numberOfPairs;
+			return getTotalCards() / 2;
 		}
 
 		/** The total number of cards on the board in this difficulty mode. */
 		public final int getTotalCards() {
-			return numberOfPairs * 2;
+			return numberOfColumns * numberOfRows;
 		}
 
 		/** The number of rows of cards on the board in this difficulty mode. */
 		public final int getBoardRows() {
-			// TODO: Calculations for non-square boards
-			return (int) Math.sqrt(getTotalCards());
+			return numberOfRows;
 		}
 
 		/** The number of columns of cards on the board in this difficulty mode. */
 		public final int getBoardColumns() {
-			// TODO: Calculations for non-square boards
-			return (int) Math.sqrt(getTotalCards());
+			return numberOfColumns;
 		}
 	};
 
@@ -243,7 +246,7 @@ public class MyGame extends Game {
 
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
-		
+
 		Gdx.app.log(TAG, "screen density = " + Gdx.graphics.getDensity());
 	}
 
