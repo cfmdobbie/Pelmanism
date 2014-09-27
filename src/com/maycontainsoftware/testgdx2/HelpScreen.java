@@ -4,8 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -47,7 +49,7 @@ public class HelpScreen implements Screen {
 		stage.setCamera(game.camera);
 
 		// Redirect all input events to the Stage
-		Gdx.input.setInputProcessor(stage);
+		//Gdx.input.setInputProcessor(stage);
 
 		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table scrollingTable = new Table();
@@ -109,8 +111,14 @@ public class HelpScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
-				HelpScreen.this.dispose();
+				rootTable.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
+					@Override
+					public boolean act(float delta) {
+						HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
+						HelpScreen.this.dispose();
+						return true;
+					}
+				}));
 			}
 		});
 		rootTable.add(backButton).padTop(5.0f);
@@ -121,6 +129,10 @@ public class HelpScreen implements Screen {
 
 		// Add the root table to the stage
 		stage.addActor(rootTable);
+		
+		// Fade in, then redirect all input events to the Stage
+		rootTable.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		rootTable.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 	}
 
 	@Override

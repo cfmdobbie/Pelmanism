@@ -57,51 +57,10 @@ public class MainMenuScreen implements Screen {
 		table.defaults().pad(10.0f);
 		stage.addActor(table);
 		
-		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
-		//table.addAction(Actions.fadeIn(0.25f));
 		// Fade in, then redirect all input events to the Stage
-		table.addAction(Actions.sequence(Actions.fadeIn(0.25f), new SetInputProcessorAction(stage)));
-		//Gdx.input.setInputProcessor(stage);
+		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 		
-
-		// Set tiled background for Table, thus for Screen
-		//final TextureRegion background = game.uiAtlas.findRegion("background");
-		//final TextureRegion colorSquare = game.uiAtlas.findRegion("color_square2");
-		//final TextureRegion bgPattern1 = game.uiAtlas.findRegion("bgPattern7");
-		
-		/*
-		table.setBackground(new BaseDrawable() {
-			@Override
-			public void draw(SpriteBatch batch, float x, float y, float width, float height) {
-				
-				//batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-				
-				batch.draw(colorSquare, x, y, width, height);
-				boolean enabled = batch.isBlendingEnabled();
-				batch.enableBlending();
-				batch.draw(bgPattern1, x, y, width, height);
-				if(!enabled) {
-					batch.disableBlending();
-				}
-			}
-		});
-		table.setBackground(new TiledDrawable(bgPattern1) {
-			@Override
-			public void draw(SpriteBatch batch, float x, float y, float width, float height) {
-				//batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-				//System.out.println(x+","+y+","+width+","+height);
-				
-				batch.draw(colorSquare, x, y, width, height);
-				boolean enabled = batch.isBlendingEnabled();
-				batch.enableBlending();
-				super.draw(batch, x, y, width, height);
-				if(!enabled) {
-					batch.disableBlending();
-				}
-			}
-		});
-		*/
-
 		// Title
 		table.add(new SpinningLabel(game, "Pelmanism!", "arcena64", Color.RED)).colspan(3);
 		table.row();
@@ -138,7 +97,7 @@ public class MainMenuScreen implements Screen {
 		helpButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.25f), new Action() {
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
 					@Override
 					public boolean act(float delta) {
 						MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
@@ -156,8 +115,14 @@ public class MainMenuScreen implements Screen {
 		startButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				MainMenuScreen.this.game.setScreen(new GameScreen(MainMenuScreen.this.game));
-				MainMenuScreen.this.dispose();
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
+					@Override
+					public boolean act(float delta) {
+						MainMenuScreen.this.game.setScreen(new GameScreen(MainMenuScreen.this.game));
+						MainMenuScreen.this.dispose();
+						return true;
+					}
+				}));
 			}
 		});
 		table.add(startButton).colspan(2).padTop(50.0f);
