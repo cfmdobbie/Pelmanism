@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -53,7 +55,6 @@ public class MainMenuScreen implements Screen {
 		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table table = new Table();
 		table.setFillParent(true);
-		// table.setTransform(true);
 		table.defaults().pad(10.0f);
 		stage.addActor(table);
 		
@@ -62,32 +63,44 @@ public class MainMenuScreen implements Screen {
 		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 		
 		// Title
-		table.add(new SpinningLabel(game, "Pelmanism!", "arcena64", Color.RED)).colspan(3);
+		table.add(new Image(game.uiAtlas.findRegion("pelmanism_title"))).colspan(3);
 		table.row();
 
 		// Players section
 		// Label
-		table.add(new SpinningLabel(game, "Players:", "arcena48", Color.WHITE)).colspan(3);
+		table.add(new Label("Players:", game.skin, "arcena48", Color.WHITE)).colspan(3);
+		//table.add(new SpinningLabel(game, "Players:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
-		makeButtonSet(table, playerImagePrefixes, MyGame.PREF_PLAYER_CONFIGURATION, PlayerConfiguration.values());
+		for(Button b : makeButtonSet(playerImagePrefixes, MyGame.PREF_PLAYER_CONFIGURATION, PlayerConfiguration.values())) {
+			table.add(b);
+		}
+		table.row();
 
 		// Difficulty section
 		// Label
-		table.add(new SpinningLabel(game, "Difficulty:", "arcena48", Color.WHITE)).colspan(3);
+		table.add(new Label("Difficulty:", game.skin, "arcena48", Color.WHITE)).colspan(3);
+		//table.add(new SpinningLabel(game, "Difficulty:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] difficultyImagePrefixes = { "difficulty_1", "difficulty_2", "difficulty_3" };
-		makeButtonSet(table, difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, Difficulty.values());
+		for(Button b : makeButtonSet(difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, Difficulty.values())) {
+			table.add(b);
+		}
+		table.row();
 
 		// Card set section
 		// Label
-		table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
+		table.add(new Label("Card set:", game.skin, "arcena48", Color.WHITE)).colspan(3);
+		//table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] cardSetImagePrefixes = { "cards_simple", "cards_signs", "cards_hard" };
-		makeButtonSet(table, cardSetImagePrefixes, MyGame.PREF_CARD_SET, CardSet.values());
+		for(Button b : makeButtonSet(cardSetImagePrefixes, MyGame.PREF_CARD_SET, CardSet.values())) {
+			table.add(b);
+		}
+		table.row();
 
 		// Buttons
 		// Help Button
@@ -173,16 +186,15 @@ public class MainMenuScreen implements Screen {
 	/**
 	 * Make a set of buttons whose state is displayed via textures and that alter a preference entry when selected.
 	 * 
-	 * @param table
-	 *            The Table this row of Buttons is to be added to.
 	 * @param imagePrefixes
 	 *            An array of String prefixes for the Button state graphics.
 	 * @param prefsName
 	 *            The preference entry that will be changed when a button is selected.
 	 * @param values
 	 *            The preference values associated with the buttons, in the same order as the imagePrefixes.
+	 * @return The array of buttons
 	 */
-	private void makeButtonSet(final Table table, final String[] imagePrefixes, final String prefsName,
+	private Button[] makeButtonSet(final String[] imagePrefixes, final String prefsName,
 			final Enum<?>[] values) {
 		// METHOD
 		final int n = imagePrefixes.length;
@@ -208,10 +220,6 @@ public class MainMenuScreen implements Screen {
 		if (group.getAllChecked().size == 0) {
 			buttons[0].setChecked(true);
 		}
-		// Update table
-		for (Button b : buttons) {
-			table.add(b);
-		}
-		table.row();
+		return buttons;
 	}
 }
