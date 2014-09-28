@@ -523,6 +523,16 @@ public class GameScreen implements Screen {
 		final float game_area_height = (card_height + (2 * 5.0f)) * difficulty.getBoardRows();
 
 		table.add(gameArea).width(game_area_width).height(game_area_height).expandX().expandY().colspan(2);
+		
+		
+		// XXX: Need to support non-square boards, so all this needs to change.
+		// Theory: can work out known available space from rest of assets on screen.
+		// From difficulty can work out aspect ratio of tiles.
+		// Known fixed padding between cards.
+		
+		
+		
+		
 
 		// Primary score display
 
