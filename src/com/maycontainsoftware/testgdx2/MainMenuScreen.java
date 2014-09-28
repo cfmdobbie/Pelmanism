@@ -16,9 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.maycontainsoftware.testgdx2.MyGame.CardSet;
-import com.maycontainsoftware.testgdx2.MyGame.Difficulty;
-import com.maycontainsoftware.testgdx2.MyGame.PlayerConfiguration;
 
 /**
  * The main menu screen. This screen is the first interactive screen the user sees, and allows them to set up a new

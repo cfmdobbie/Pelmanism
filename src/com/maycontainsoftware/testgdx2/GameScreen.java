@@ -25,9 +25,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
-import com.maycontainsoftware.testgdx2.MyGame.CardSet;
-import com.maycontainsoftware.testgdx2.MyGame.Difficulty;
-import com.maycontainsoftware.testgdx2.MyGame.PlayerConfiguration;
 
 /**
  * The screen that holds the actual game.

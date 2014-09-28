@@ -79,138 +79,13 @@ public class MyGame extends Game {
 	/** The name of the preference entry that holds the player configuration. */
 	public static final String PREF_PLAYER_CONFIGURATION = "player_configuration";
 
-	/**
-	 * Enumeration of play configurations defined by the app.
-	 * 
-	 * @author Charlie
-	 */
-	public static enum PlayerConfiguration {
-		// One player, solitaire play
-		One(1, null, null),
-		// Two player, hot seat
-		Two(2, "Player Two", Color.BLUE),
-		// One human player versus computer-controlled player
-		One_Vs_Cpu(2, "Computer", Color.GRAY);
-
-		/** The number of players in this mode. */
-		final int numberOfPlayers;
-
-		/** The name of the second player, if appropriate. */
-		final String secondPlayerName;
-
-		/** The color used to represent the second player, if appropriate. */
-		final Color secondPlayerColor;
-
-		/**
-		 * Construct a new player configuration.
-		 * 
-		 * @param numberOfPlayers
-		 * @param secondPlayerName
-		 * @param secondPlayerColor
-		 */
-		private PlayerConfiguration(final int numberOfPlayers, final String secondPlayerName,
-				final Color secondPlayerColor) {
-			this.numberOfPlayers = numberOfPlayers;
-			this.secondPlayerName = secondPlayerName;
-			this.secondPlayerColor = secondPlayerColor;
-		}
-
-		/** Whether a second player (human or computer) exists. */
-		final boolean secondPlayerExists() {
-			return numberOfPlayers != 1;
-		}
-	};
-
 	// Difficulty
 	/** The name of the preference entry that holds the difficulty setting. */
 	public static final String PREF_DIFFICULTY = "difficulty";
 
-	/**
-	 * Enumeration of the various difficulties implemented in the app. The difficulty affects board size, speed of
-	 * gameplay and skill of computer player (if applicable.)
-	 * 
-	 * @author Charlie
-	 */
-	public static enum Difficulty {
-		// Easy difficulty
-		Easy(4, 4),
-		// Medium difficulty
-		Medium(6, 6),
-		// Hard difficulty
-		Hard(8, 8);
-
-		/** The number of columns on the board. */
-		private final int numberOfColumns;
-
-		/** The number of rows on the board. */
-		private final int numberOfRows;
-
-		/**
-		 * Construct a new difficulty setting.
-		 * 
-		 * @param numberOfColumns
-		 * @param numberOfRows
-		 */
-		private Difficulty(final int numberOfColumns, final int numberOfRows) {
-			this.numberOfColumns = numberOfColumns;
-			this.numberOfRows = numberOfRows;
-		}
-
-		/** The number of pairs on the board in this difficulty mode. */
-		public final int getNumberOfPairs() {
-			return getTotalCards() / 2;
-		}
-
-		/** The total number of cards on the board in this difficulty mode. */
-		public final int getTotalCards() {
-			return numberOfColumns * numberOfRows;
-		}
-
-		/** The number of rows of cards on the board in this difficulty mode. */
-		public final int getBoardRows() {
-			return numberOfRows;
-		}
-
-		/** The number of columns of cards on the board in this difficulty mode. */
-		public final int getBoardColumns() {
-			return numberOfColumns;
-		}
-	};
-
 	// Card sets
 	/** The name of the preference entry that holds the card set setting. */
 	public static final String PREF_CARD_SET = "card_set";
-
-	/**
-	 * Enumeration of the different card sets available in this app.
-	 * 
-	 * @author Charlie
-	 */
-	public static enum CardSet {
-		// Simple, colorful and easy to recognise symbols
-		Simple("simple.atlas"),
-		// UK road signs
-		Signs("signs.atlas"),
-		// Abstract black-and-white dot-and-line designs
-		Hard("hard.atlas");
-
-		/** The name of the atlas containing the card set. */
-		final String atlasName;
-
-		/** The name of the region in the atlas that contains the "card back" graphic. */
-		// Note: card back region is currently consistently-named in all atlases, but this may not be the case in future
-		// versions.
-		final String backRegionName = "back";
-
-		/**
-		 * Construct a new card set configuration.
-		 * 
-		 * @param atlasName
-		 */
-		private CardSet(final String atlasName) {
-			this.atlasName = atlasName;
-		}
-	};
 
 	// Audio settings
 	/** The name of the preference entry that holds the sound setting. */
