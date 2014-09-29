@@ -8,11 +8,11 @@ package com.maycontainsoftware.testgdx2;
  */
 public enum Difficulty {
 	// Easy difficulty
-	Easy(4, 4),
+	Easy(3, 4),
 	// Medium difficulty
-	Medium(6, 6),
+	Medium(4, 5),
 	// Hard difficulty
-	Hard(8, 8);
+	Hard(5, 6);
 
 	/** The number of columns on the board. */
 	private final int numberOfColumns;

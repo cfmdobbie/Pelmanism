@@ -136,11 +136,11 @@ public class GameScreen implements Screen {
 					public boolean act(float delta) {
 
 						// Player changed, change highlight
-						if(model.getNumberOfPlayers() > 1) {
+						if (model.getNumberOfPlayers() > 1) {
 							screen.playerOne.setHighlight(model.getCurrentPlayerId() == 0);
 							screen.playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
 						}
-						
+
 						// Update game state
 						screen.gameState = GameState.PendingFirstPick;
 
@@ -160,11 +160,11 @@ public class GameScreen implements Screen {
 						public boolean act(float delta) {
 
 							// Player not changed
-							
+
 							// Score changed, update label
 							final int playerId = result.turn.getPlayerId();
 							screen.updateScore(playerId, model.getPlayerScore(playerId));
-							
+
 							// Update game state
 							screen.gameState = GameState.PendingFirstPick;
 
@@ -174,7 +174,7 @@ public class GameScreen implements Screen {
 
 					// Play sound effect
 					screen.game.playCardMatchSound();
-					
+
 				} else {
 
 					// A match, and game is over
@@ -186,18 +186,18 @@ public class GameScreen implements Screen {
 								public boolean act(float delta) {
 
 									// Player not changed
-									
+
 									// Score changed, update label
 									final int playerId = result.turn.getPlayerId();
 									screen.updateScore(playerId, model.getPlayerScore(playerId));
-									
+
 									// Update game state
 									screen.gameState = GameState.GameOver;
 
 									return true;
 								}
 							}));
-					
+
 					// TODO: What do we do when the game is over?!?
 				}
 			}
@@ -469,8 +469,8 @@ public class GameScreen implements Screen {
 		stage.addActor(table);
 
 		// Set tiled background for Table, thus for Screen.
-		//final TextureRegion background = game.uiAtlas.findRegion("background");
-		//table.setBackground(new TiledDrawable(background));
+		// final TextureRegion background = game.uiAtlas.findRegion("background");
+		// table.setBackground(new TiledDrawable(background));
 
 		// Drawable used for highlighting the player scores
 		final Drawable highlightDrawable = new TiledDrawable(game.uiAtlas.findRegion("yellow"));
@@ -511,28 +511,40 @@ public class GameScreen implements Screen {
 			gameArea.row().expandY();
 		}
 
-		// Game area is fixed in size, but must take up all remaining space in table.
-		// Game area should be square to avoid rendering cards out-of-aspect.
-		// With a known width of 645px and assumed >1 aspect ratio of board, fixed height can be calculated
+		/*
+		 * Known fixed amount of space is available for the board. We are laying out the cards using a Table. Note that
+		 * card layout is (or may be) non-square. The whole space must be consumed so that the rest of the screen lays
+		 * out correctly, so need to "expand" cell that table is in. But to avoid card images being stretched, table
+		 * size should be calculated given the available space and the final layout of the cards, and fixed within that
+		 * cell.
+		 */
 
-		// Fixed width
-		final float game_area_width = 645.0f;
-		// Note: Card cells have 5px padding all around
-		final float card_width = (game_area_width / difficulty.getBoardColumns()) - (2 * 5.0f);
-		final float card_height = card_width;
-		final float game_area_height = (card_height + (2 * 5.0f)) * difficulty.getBoardRows();
+		// Available space metrics
+		final float availableSpaceWidth = 645.0f;
+		final float availableSpaceHeight = 660.0f;
+		final float availableSpaceAspect = availableSpaceWidth / availableSpaceHeight;
 
-		table.add(gameArea).width(game_area_width).height(game_area_height).expandX().expandY().colspan(2);
-		
-		
-		// XXX: Need to support non-square boards, so all this needs to change.
-		// Theory: can work out known available space from rest of assets on screen.
-		// From difficulty can work out aspect ratio of tiles.
-		// Known fixed padding between cards.
-		
-		
-		
-		
+		// Board metrics
+		final int boardColumns = difficulty.getBoardColumns();
+		final int boardRows = difficulty.getBoardRows();
+		final float boardAspect = boardColumns / (float) boardRows;
+
+		// Relative aspect ratios of available space versus the layout
+		final boolean heightConstrained = availableSpaceAspect > boardAspect;
+
+		// Final size of board
+		final float boardWidth;
+		final float boardHeight;
+		if (heightConstrained) {
+			boardHeight = availableSpaceHeight;
+			boardWidth = boardHeight * boardAspect;
+		} else {
+			boardWidth = availableSpaceWidth;
+			boardHeight = availableSpaceWidth / boardAspect;
+		}
+
+		// Add game area, fix size and expand to consume all extra space in outer table.
+		table.add(gameArea).width(boardWidth).height(boardHeight).expandX().expandY().colspan(2);
 
 		// Primary score display
 
