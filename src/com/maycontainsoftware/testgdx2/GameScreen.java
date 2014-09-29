@@ -193,11 +193,11 @@ public class GameScreen implements Screen {
 
 									// Update game state
 									screen.gameState = GameState.GameOver;
-
+									
 									return true;
 								}
-							}));
-
+							}, new ScreenChangeAction(screen.game, screen, new GameOverScreen(screen.game))));
+					
 					// TODO: What do we do when the game is over?!?
 				}
 			}
@@ -377,11 +377,11 @@ public class GameScreen implements Screen {
 		// Use global camera
 		stage.setCamera(game.camera);
 		// Redirect all input events to the Stage
-		Gdx.input.setInputProcessor(stage);
+		//Gdx.input.setInputProcessor(stage);
 
 		// Create UI elements
 		createUi();
-
+		
 		// Play shuffle sound
 		game.playCardDealSound();
 	}
@@ -564,8 +564,16 @@ public class GameScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				GameScreen.this.game.setScreen(new MainMenuScreen(GameScreen.this.game));
-				GameScreen.this.dispose();
+				
+				table.addAction(
+					Actions.sequence(						
+							Actions.fadeOut(0.25f),
+							new ScreenChangeAction(game, GameScreen.this, new MainMenuScreen(game))
+					)
+				);
+				
+				//GameScreen.this.game.setScreen(new MainMenuScreen(GameScreen.this.game));
+				//GameScreen.this.dispose();
 			}
 		});
 		table.add(backButton).left();
@@ -586,6 +594,10 @@ public class GameScreen implements Screen {
 		});
 
 		table.add(soundButton).right();
+		
+		// Fade in, then redirect all input events to the Stage
+		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 	}
 
 	/** Update the score for the specified player. */
