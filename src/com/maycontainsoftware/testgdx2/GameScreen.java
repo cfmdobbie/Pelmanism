@@ -121,12 +121,10 @@ public class GameScreen implements Screen {
 		/** Given two card picks, process the turn in the game model and update the interface as required. */
 		private void processTurn() {
 
-			// The turn to be submitted
-			final Turn turn = new Turn(firstPick.card, secondPick.card);
 			// The results of submitting the turn
-			final TurnResult result = model.turn(turn);
+			final Turn turn = model.turn(firstPick.card, secondPick.card);
 
-			if (!result.isMatch()) {
+			if (!turn.isMatch()) {
 
 				// Not a match
 
@@ -149,7 +147,7 @@ public class GameScreen implements Screen {
 				}));
 
 			} else {
-				if (!result.isGameOver()) {
+				if (!turn.isGameOver()) {
 
 					// A match, and game is not over yet
 
@@ -162,7 +160,7 @@ public class GameScreen implements Screen {
 							// Player not changed
 
 							// Score changed, update label
-							final int playerId = result.turn.getPlayerId();
+							final int playerId = turn.getPlayerId();
 							screen.updateScore(playerId, model.getPlayerScore(playerId));
 
 							// Update game state
@@ -188,7 +186,7 @@ public class GameScreen implements Screen {
 									// Player not changed
 
 									// Score changed, update label
-									final int playerId = result.turn.getPlayerId();
+									final int playerId = turn.getPlayerId();
 									screen.updateScore(playerId, model.getPlayerScore(playerId));
 
 									// Update game state

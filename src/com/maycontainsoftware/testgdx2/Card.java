@@ -5,7 +5,7 @@ package com.maycontainsoftware.testgdx2;
  * 
  * @author Charlie
  */
-class Card {
+public class Card {
 
 	/** Unique id for this card. */
 	private final int id;

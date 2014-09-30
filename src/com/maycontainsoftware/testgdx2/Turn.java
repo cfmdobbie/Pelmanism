@@ -1,76 +1,129 @@
 package com.maycontainsoftware.testgdx2;
 
 /**
- * Representation of a turn that is played.
+ * Representation of a turn that has been played.
  * 
  * @author Charlie
  */
-class Turn {
+public class Turn {
 
-	// Turn data
-	/** The id of the player that played this turn. This is supplied by the game model when the turn is submitted. */
-	private Integer playerId;
+	/** The id of this turn. */
+	private int id;
 
-	/** The id of the turn. This is supplied by the game model when the turn is submitted. */
-	private Integer turnId;
+	/** The id of the player who played this turn. */
+	private int playerId;
 
-	// Cards
-	/** The first picked card. */
+	/** The first-picked Card. */
 	private Card firstPick;
 
-	/** The second picked card. */
+	/** The second-picked Card. */
 	private Card secondPick;
 
-	/** Construct a new turn object. */
-	public Turn(final Card firstPick, final Card secondPick) {
-		if (firstPick == null || secondPick == null) {
-			throw new IllegalArgumentException("Cards cannot be null!");
-		}
-		if (firstPick.isMatched() || secondPick.isMatched()) {
-			throw new IllegalArgumentException("Cards cannot be already matched!");
-		}
+	/** Whether the turn resulted in a match. */
+	private boolean match;
 
-		this.firstPick = firstPick;
-		this.secondPick = secondPick;
+	/** Whether the turn resulted in the game finishing. */
+	private boolean gameOver;
+
+	/**
+	 * @return The turn id
+	 */
+	public int getId() {
+		return id;
 	}
 
-	/** Set accessor for the player id. This is called by the game model. */
-	public void setPlayerId(final int playerId) {
-		this.playerId = playerId;
+	/**
+	 * Set the turn id
+	 * 
+	 * @param id
+	 *            The id to set.
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	/** Get accessor. */
+	/**
+	 * Get the player id
+	 * 
+	 * @return The player id
+	 */
 	public int getPlayerId() {
 		return playerId;
 	}
 
-	/** Set accessor for the turn id. This is called by the game model. */
-	public void setTurnId(final int turnId) {
-		this.turnId = turnId;
+	/**
+	 * Set the player id
+	 * 
+	 * @param playerId
+	 *            The player id to set
+	 */
+	public void setPlayerId(int playerId) {
+		this.playerId = playerId;
 	}
 
-	/** Get accessor. */
-	public int getTurnId() {
-		return turnId;
-	}
-
-	/** Get accessor. */
+	/**
+	 * @return The first card picked in this turn
+	 */
 	public Card getFirstPick() {
 		return firstPick;
 	}
 
-	/** Get aet accessor. */
+	/**
+	 * @param firstPick
+	 *            The first card picked in this turn
+	 */
+	public void setFirstPick(Card firstPick) {
+		this.firstPick = firstPick;
+	}
+
+	/**
+	 * @return The second card picked in this turn
+	 */
 	public Card getSecondPick() {
 		return secondPick;
+	}
+
+	/**
+	 * @param secondPick
+	 *            The second card picked in this turn
+	 */
+	public void setSecondPick(Card secondPick) {
+		this.secondPick = secondPick;
+	}
+
+	/** Report whether the turn resulted in a match. */
+	public final boolean isMatch() {
+		return match;
+	}
+
+	/**
+	 * Set whether the two card picks resulted in a match.
+	 * 
+	 * @param match
+	 *            True if the cards were a match, false otherwise.
+	 */
+	public void setMatch(boolean match) {
+		this.match = match;
+	}
+
+	/** Report whether the turn resulted in the game finishing. */
+	public final boolean isGameOver() {
+		return gameOver;
+	}
+
+	/**
+	 * Set whether or not the game is over
+	 * 
+	 * @param gameOver
+	 *            True if the game is over, false otherwise.
+	 */
+	public void setGameOver(boolean gameOver) {
+		this.gameOver = gameOver;
 	}
 
 	/** Convenience method for testing purposes. */
 	@Override
 	public String toString() {
-		if (playerId == null || turnId == null) {
-			return "Turn[" + firstPick + ", " + secondPick + "]";
-		} else {
-			return "Turn[" + playerId + ", " + turnId + ", " + firstPick + ", " + secondPick + "]";
-		}
+		return "TurnResult[" + "" + ", " + match + ", " + gameOver + "]";
 	}
 }

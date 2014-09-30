@@ -9,7 +9,7 @@ import java.util.List;
  * 
  * @author Charlie
  */
-class Pelmanism {
+public class Pelmanism {
 
 	// Players
 
@@ -38,10 +38,13 @@ class Pelmanism {
 	/** The cards on the board. */
 	private final Card[] cards;
 
-	// Game state
+	// Other game state
 
-	/** The last turn id to be completed. */
-	private int lastTurnId;
+	/** The current turn id. */
+	private int currentTurnId;
+
+	/** The turns made in this game */
+	private final List<Turn> turns = new ArrayList<Turn>(20);
 
 	/** Whether or not the game is over. */
 	private boolean gameOver;
@@ -141,51 +144,59 @@ class Pelmanism {
 	}
 
 	/** Submit a new turn. */
-	public final TurnResult turn(final Turn turn) {
+	public final Turn turn(final Card firstPick, final Card secondPick) {
 
-		// TODO: Sanity check turn data
+		// Sanity check data
+		if (firstPick == null || secondPick == null) {
+			throw new IllegalArgumentException("Cards cannot be null!");
+		}
+		if (firstPick == secondPick) {
+			throw new IllegalArgumentException("Cannot pick the same card twice!");
+		}
+		if (firstPick.isMatched() || secondPick.isMatched()) {
+			throw new IllegalArgumentException("Neither card can be already matched!");
+		}
 
-		// Increment turn counter
-		lastTurnId++;
+		// The turn being played
+		final Turn turn = new Turn();
 
-		// Update turn information
-		turn.setTurnId(lastTurnId);
+		// Update basic information
+		turn.setId(currentTurnId);
 		turn.setPlayerId(currentPlayerId);
 
-		// The result of this turn being played
-		final TurnResult result;
+		// Update card information
+		turn.setFirstPick(firstPick);
+		turn.setSecondPick(secondPick);
 
-		if (!Card.isMatch(turn.getFirstPick(), turn.getSecondPick())) {
-			// No match!
+		// Determine whether or not there was a match
+		turn.setMatch(Card.isMatch(firstPick, secondPick));
 
-			result = new TurnResult(turn, false, false);
-
-			// Control passes to next player
-			nextPlayer();
-		} else {
-			// Match!
-
+		if (turn.isMatch()) {
 			// Mark cards as matched
-			turn.getFirstPick().setMatched(true);
-			turn.getSecondPick().setMatched(true);
+			firstPick.setMatched(true);
+			secondPick.setMatched(true);
 
 			// Update pairs found
 			pairsFound++;
+
 			// Update player score
 			playerScores[currentPlayerId]++;
-
-			if (pairsFound < numberOfPairs) {
-				// Game continues!
-				result = new TurnResult(turn, true, false);
-			} else {
-				// Game over!
-				result = new TurnResult(turn, true, true);
-				this.gameOver = true;
-			}
-
+		} else {
+			// Control passes to next player
+			nextPlayer();
 		}
 
-		return result;
+		// Update whether or not the game is over
+		this.gameOver = (pairsFound >= numberOfPairs);
+		turn.setGameOver(this.gameOver);
+		
+		// Add the new turn to the turn history
+		turns.add(turn);
+
+		// Increment the turn counter
+		currentTurnId++;
+		
+		return turn;
 	}
 
 	/** Reset game state in preparation for next game. */
@@ -193,8 +204,11 @@ class Pelmanism {
 
 		// Initialise variables
 
-		// Before first turn, so last turn is -1
-		this.lastTurnId = -1;
+		// The current turn id
+		this.currentTurnId = 0;
+		
+		// The log of taken turns
+		this.turns.clear();
 
 		// Always start with player one
 		this.currentPlayerId = 0;
