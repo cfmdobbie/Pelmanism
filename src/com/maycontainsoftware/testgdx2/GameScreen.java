@@ -363,7 +363,7 @@ public class GameScreen implements Screen {
 		cardSet = game.getCardSetFromPrefs();
 
 		// Create game model
-		model = new Pelmanism(playerConfiguration.numberOfPlayers, difficulty.getNumberOfPairs());
+		model = new Pelmanism(playerConfiguration.getNumberOfPlayers(), difficulty.getNumberOfPairs());
 
 		// Load graphic assets
 		atlas = game.manager.get(cardSet.atlasName, TextureAtlas.class);
@@ -477,13 +477,13 @@ public class GameScreen implements Screen {
 
 		// Secondary score display
 
-		if (playerConfiguration.secondPlayerExists()) {
+		if (playerConfiguration.getNumberOfPlayers() > 1) {
 			// Will need a second score display
 
 			table.row().padTop(20.0f);
 
-			playerTwo = new PlayerScoreActor(playerConfiguration.secondPlayerName,
-					playerConfiguration.secondPlayerColor, game.skin, highlightDrawable);
+			playerTwo = new PlayerScoreActor(playerConfiguration.getPlayerName(1),
+					playerConfiguration.getPlayerColor(1), game.skin, highlightDrawable);
 			table.add(playerTwo).colspan(2).fillX();
 		}
 
@@ -551,7 +551,7 @@ public class GameScreen implements Screen {
 		// Player one info
 		table.row().padTop(30.0f);
 
-		playerOne = new PlayerScoreActor("Player One", Color.RED, game.skin, highlightDrawable);
+		playerOne = new PlayerScoreActor(playerConfiguration.getPlayerName(0), playerConfiguration.getPlayerColor(0), game.skin, highlightDrawable);
 		table.add(playerOne).colspan(2).fillX();
 
 		// Player one starts the game
