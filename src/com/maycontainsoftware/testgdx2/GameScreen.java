@@ -76,7 +76,7 @@ public class GameScreen implements Screen {
 
 	/** Player two's score display. */
 	private PlayerScoreActor playerTwo;
-
+	
 	/**
 	 * Object representing the actual card on the screen.
 	 * 
