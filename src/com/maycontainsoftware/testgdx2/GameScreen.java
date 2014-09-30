@@ -77,46 +77,43 @@ public class GameScreen implements Screen {
 	/** Player two's score display. */
 	private PlayerScoreActor playerTwo;
 	
+	// XXX
+	
+	
+	/** Enumeration representing game state. */
+	static enum GameState {
+		PendingFirstPick,
+		PendingSecondPick,
+		Animating,
+		GameOver,
+	}
+
+	/** The game state. */
+	private GameState gameState = GameState.PendingFirstPick;
+
+	/** The actor representing the first card to be picked. */
+	private CardActor firstPick = null;
+
+	/** The actor representing the second card to be picked. */
+	private CardActor secondPick = null;
+
 	/**
 	 * Object representing the actual card on the screen.
 	 * 
 	 * @author Charlie
 	 */
-	static class CardActor extends Image {
+	class CardActor extends Image {
 
 		// Game state
 
-		/** Enumeration representing game state. */
-		static enum GameState {
-			PendingFirstPick,
-			PendingSecondPick,
-			Animating,
-			GameOver,
-		}
-
-		/** The game state. */
-		private static GameState gameState = GameState.PendingFirstPick;
-
 		/** The card represented by this actor. */
 		private final Card card;
-
-		/** A reference to the Screen. */
-		private final GameScreen screen;
-
-		/** A reference to the game model. */
-		private final Pelmanism model;
 
 		/** This card's front texture. */
 		private final TextureRegion cardTexture;
 
 		/** This card's back texture. */
 		private final TextureRegion cardBackTexture;
-
-		/** The actor representing the first card to be picked. */
-		private static CardActor firstPick = null;
-
-		/** The actor representing the second card to be picked. */
-		private static CardActor secondPick = null;
 
 		/** Given two card picks, process the turn in the game model and update the interface as required. */
 		private void processTurn() {
@@ -135,8 +132,8 @@ public class GameScreen implements Screen {
 
 						// Player changed, change highlight
 						if (model.getNumberOfPlayers() > 1) {
-							screen.playerOne.setHighlight(model.getCurrentPlayerId() == 0);
-							screen.playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
+							playerOne.setHighlight(model.getCurrentPlayerId() == 0);
+							playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
 						}
 
 						// Update game state
@@ -161,7 +158,7 @@ public class GameScreen implements Screen {
 
 							// Score changed, update label
 							final int playerId = turn.getPlayerId();
-							screen.updateScore(playerId, model.getPlayerScore(playerId));
+							updateScore(playerId, model.getPlayerScore(playerId));
 
 							// Update game state
 							gameState = GameState.PendingFirstPick;
@@ -171,7 +168,7 @@ public class GameScreen implements Screen {
 					}));
 
 					// Play sound effect
-					screen.game.playCardMatchSound();
+					game.playCardMatchSound();
 
 				} else {
 
@@ -187,15 +184,14 @@ public class GameScreen implements Screen {
 
 									// Score changed, update label
 									final int playerId = turn.getPlayerId();
-									screen.updateScore(playerId, model.getPlayerScore(playerId));
+									updateScore(playerId, model.getPlayerScore(playerId));
 
 									// Update game state
 									gameState = GameState.GameOver;
 									
 									return true;
 								}
-							}, new ScreenChangeAction(screen.game, screen, new GameOverScreen(screen.game))));
-					
+							}, new ScreenChangeAction(game, GameScreen.this, new GameOverScreen(game))));
 					// TODO: What do we do when the game is over?!?
 				}
 			}
@@ -210,15 +206,13 @@ public class GameScreen implements Screen {
 		 * @param cardTexture
 		 * @param cardBackTexture
 		 */
-		public CardActor(final Card card, final GameScreen screen, final TextureRegion cardTexture,
+		public CardActor(final Card card, final TextureRegion cardTexture,
 				final TextureRegion cardBackTexture) {
 
 			// Pass default/initial texture to superclass' constructor
 			super(cardBackTexture);
 
 			this.card = card;
-			this.screen = screen;
-			this.model = screen.model;
 			this.cardTexture = cardTexture;
 			this.cardBackTexture = cardBackTexture;
 
@@ -236,7 +230,7 @@ public class GameScreen implements Screen {
 							// Flip the card over
 							CardActor.this.addAction(actionWinkToFront());
 							// Play sound effect
-							screen.game.playCardTurnSound();
+							game.playCardTurnSound();
 							// Update state
 							gameState = GameState.PendingSecondPick;
 						}
@@ -256,7 +250,7 @@ public class GameScreen implements Screen {
 								}
 							}));
 							// Play sound effect
-							screen.game.playCardTurnSound();
+							game.playCardTurnSound();
 							// Update state
 							gameState = GameState.Animating;
 						}
@@ -503,7 +497,7 @@ public class GameScreen implements Screen {
 				final int cardIndex = c + r * columns;
 				final Card card = model.getCard(cardIndex);
 				final TextureRegion cardRegion = cardRegions[card.getPairId()];
-				final CardActor cardActor = new CardActor(card, this, cardRegion, cardBackRegion);
+				final CardActor cardActor = new CardActor(card, cardRegion, cardBackRegion);
 				gameArea.add(cardActor).expand().pad(5.0f);
 			}
 			gameArea.row().expandY();

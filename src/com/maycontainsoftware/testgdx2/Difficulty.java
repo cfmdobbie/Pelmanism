@@ -10,7 +10,8 @@ public enum Difficulty {
 	// Easy difficulty
 	Easy(3, 4),
 	// Medium difficulty
-	Medium(4, 5),
+	// TODO: Temporary change for testing purposes - change medium difficulty to (4,5) when possible
+	Medium(2, 2),
 	// Hard difficulty
 	Hard(5, 6);
 
