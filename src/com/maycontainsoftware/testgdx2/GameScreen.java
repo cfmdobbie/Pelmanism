@@ -77,25 +77,25 @@ public class GameScreen implements Screen {
 	/** Player two's score display. */
 	private PlayerScoreActor playerTwo;
 
-	// Game state
-
-	/** Enumeration representing game state. */
-	static enum GameState {
-		PendingFirstPick,
-		PendingSecondPick,
-		Animating,
-		GameOver,
-	}
-
-	/** The game state. */
-	private GameState gameState = GameState.PendingFirstPick;
-
 	/**
 	 * Object representing the actual card on the screen.
 	 * 
 	 * @author Charlie
 	 */
 	static class CardActor extends Image {
+
+		// Game state
+
+		/** Enumeration representing game state. */
+		static enum GameState {
+			PendingFirstPick,
+			PendingSecondPick,
+			Animating,
+			GameOver,
+		}
+
+		/** The game state. */
+		private static GameState gameState = GameState.PendingFirstPick;
 
 		/** The card represented by this actor. */
 		private final Card card;
@@ -142,7 +142,7 @@ public class GameScreen implements Screen {
 						}
 
 						// Update game state
-						screen.gameState = GameState.PendingFirstPick;
+						gameState = GameState.PendingFirstPick;
 
 						return true;
 					}
@@ -166,7 +166,7 @@ public class GameScreen implements Screen {
 							screen.updateScore(playerId, model.getPlayerScore(playerId));
 
 							// Update game state
-							screen.gameState = GameState.PendingFirstPick;
+							gameState = GameState.PendingFirstPick;
 
 							return true;
 						}
@@ -192,7 +192,7 @@ public class GameScreen implements Screen {
 									screen.updateScore(playerId, model.getPlayerScore(playerId));
 
 									// Update game state
-									screen.gameState = GameState.GameOver;
+									gameState = GameState.GameOver;
 									
 									return true;
 								}
@@ -229,7 +229,7 @@ public class GameScreen implements Screen {
 				@Override
 				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-					switch (screen.gameState) {
+					switch (gameState) {
 					case PendingFirstPick:
 
 						if (!CardActor.this.card.isMatched()) {
@@ -240,7 +240,7 @@ public class GameScreen implements Screen {
 							// Play sound effect
 							screen.game.playCardTurnSound();
 							// Update state
-							screen.gameState = GameState.PendingSecondPick;
+							gameState = GameState.PendingSecondPick;
 						}
 
 						break;
@@ -260,7 +260,7 @@ public class GameScreen implements Screen {
 							// Play sound effect
 							screen.game.playCardTurnSound();
 							// Update state
-							screen.gameState = GameState.Animating;
+							gameState = GameState.Animating;
 						}
 
 						break;
@@ -615,9 +615,6 @@ public class GameScreen implements Screen {
 		/** The label that holds the score; kept for future access. */
 		private final Label scoreLabel;
 
-		/** A null drawable, used for clearing actor background. */
-		private static final Drawable nullDrawable = null;
-
 		/** A drawable used as a background to highlight the actor. */
 		private final Drawable highlightDrawable;
 
@@ -650,7 +647,7 @@ public class GameScreen implements Screen {
 			if (highlight) {
 				setBackground(highlightDrawable);
 			} else {
-				setBackground(nullDrawable);
+				setBackground((Drawable)null);
 			}
 		}
 
