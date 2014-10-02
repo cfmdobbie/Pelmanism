@@ -130,8 +130,8 @@ public class GameScreen implements Screen {
 		 * cardActor.card.getPairId(); cardsSeen.add(card); }
 		 */
 
-		public void pickCards() {
-
+		/** Update information we know about the cards on the table. */
+		private void updateCards() {
 			// Remove any cards that have been matched
 			Iterator<Card> i = allCards.iterator();
 			while (i.hasNext()) {
@@ -140,21 +140,19 @@ public class GameScreen implements Screen {
 					i.remove();
 				}
 			}
-
-			// Select any two cards from the list
-			
-			// Moronic AI - Pick two random cards
-			firstCard = allCards.get(random.nextInt(allCards.size()));
-			do {
-				secondCard = allCards.get(random.nextInt(allCards.size()));
-			} while(firstCard == secondCard);
 		}
 
-		public Card getFirstCard() {
+		public Card pickFirstCard() {
+			// Moronic AI - pick a random card
+			firstCard = allCards.get(random.nextInt(allCards.size()));
 			return firstCard;
 		}
 
-		public Card getSecondCard() {
+		public Card pickSecondCard() {
+			// Moronic AI - pick a random card
+			do {
+				secondCard = allCards.get(random.nextInt(allCards.size()));
+			} while(firstCard == secondCard);
 			return secondCard;
 		}
 	}
@@ -195,7 +193,7 @@ public class GameScreen implements Screen {
 			stage.addAction(Actions.sequence(Actions.delay(0.25f), new Action() {
 				@Override
 				public boolean act(float delta) {
-					handleSecondPick(cardToCardActor.get(ai.getSecondCard()));
+					handleSecondPick(cardToCardActor.get(ai.pickSecondCard()));
 					return true;
 				}
 			}));
@@ -288,8 +286,8 @@ public class GameScreen implements Screen {
 			stage.addAction(Actions.sequence(Actions.delay(0.5f), new Action() {
 				@Override
 				public boolean act(float delta) {
-					ai.pickCards();
-					handleFirstPick(cardToCardActor.get(ai.getFirstCard()));
+					ai.updateCards();
+					handleFirstPick(cardToCardActor.get(ai.pickFirstCard()));
 					return true;
 				}
 			}));
