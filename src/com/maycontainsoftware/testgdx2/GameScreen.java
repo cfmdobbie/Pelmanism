@@ -2,7 +2,10 @@ package com.maycontainsoftware.testgdx2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -76,15 +79,44 @@ public class GameScreen implements Screen {
 
 	/** Player two's score display. */
 	private PlayerScoreActor playerTwo;
-	
+
 	// XXX
-	
-	
+
+	static class AI {
+		// Needs to have a memory of previous picks
+		// Needs to have an *imperfect* memory at times
+		// Needs to vary based on difficulty level
+		
+		private final Set<CardActor> cardsSeen = new HashSet<CardActor>(64);
+		private final Random random = new Random();
+		private final Difficulty difficulty;
+		private final Pelmanism model;
+
+		public AI(final Difficulty difficulty, final Pelmanism model) {
+			this.model = model;
+			this.difficulty = difficulty;
+		}
+
+		public void cardSeen(CardActor cardActor) {
+			Gdx.app.log(TAG, "cardSeen: " + cardActor.toString());
+			// cardActor.card.getPairId();
+			cardsSeen.add(cardActor);
+		}
+
+		public CardActor pickCard() {
+			
+			
+			
+			
+			return null;
+		}
+	}
+
 	/** Enumeration representing game state. */
 	static enum GameState {
 		PendingFirstPick,
 		PendingSecondPick,
-		Animating,
+		CardsPicked,
 		GameOver,
 	}
 
@@ -96,6 +128,110 @@ public class GameScreen implements Screen {
 
 	/** The actor representing the second card to be picked. */
 	private CardActor secondPick = null;
+
+	private boolean isComputerTurn() {
+		return !playerConfiguration.isPlayerUserControlled(model.getCurrentPlayerId());
+	}
+
+	private final void handleFirstPick(final CardActor firstPick) {
+		// Remember that this is the first chosen card
+		this.firstPick = firstPick;
+		// Flip the card over
+		firstPick.addAction(firstPick.actionWinkToFront());
+		// Play sound effect
+		game.playCardTurnSound();
+		// Update state
+		gameState = GameState.PendingSecondPick;
+	}
+
+	private final void handleSecondPick(final CardActor secondPick) {
+		// Remember that this is the second chosen card
+		this.secondPick = secondPick;
+		// Flip the card over
+		secondPick.addAction(Actions.sequence(secondPick.actionWinkToFront(), new Action() {
+			@Override
+			public boolean act(float delta) {
+				processTurn();
+				return true;
+			}
+		}));
+		// Play sound effect
+		game.playCardTurnSound();
+		// Update state
+		gameState = GameState.CardsPicked;
+	}
+
+	/** Given two card picks, process the turn in the game model and update the interface as required. */
+	private void processTurn() {
+
+		// The results of submitting the turn
+		final Turn turn = model.turn(firstPick.card, secondPick.card);
+
+		if (turn.isMatch()) {
+
+			// Play sound effect
+			game.playCardMatchSound();
+
+			// Score changed, update label
+			final int playerId = turn.getPlayerId();
+			updateScore(playerId, model.getPlayerScore(playerId));
+
+			firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
+			secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
+				@Override
+				public boolean act(float delta) {
+					postTurn(turn);
+					return true;
+				}
+			}));
+
+		} else {
+
+			firstPick.addAction(firstPick.actionDelayedWinkToBack());
+			secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
+				@Override
+				public boolean act(float delta) {
+					postTurn(turn);
+					return true;
+				}
+			}));
+
+		}
+	}
+
+	private void postTurn(final Turn turn) {
+
+		// TODO: Need to move timing-related float primitives to constant fields
+
+		// Update highlights as required
+		if (model.getNumberOfPlayers() > 1) {
+			playerOne.setHighlight(model.getCurrentPlayerId() == 0);
+			playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
+		}
+
+		if (!turn.isMatch()) {
+			// Update game state
+			gameState = GameState.PendingFirstPick;
+		} else if (turn.isGameOver()) {
+			// A match, and game is over
+
+			// TODO: Game over stuff to go here
+			gameOverFlash.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+			gameOverFlash.setVisible(true);
+			gameOverFlash.addAction(Actions.sequence(Actions.fadeIn(0.5f), Actions.delay(1.0f), new ScreenChangeAction(
+					game, GameScreen.this, new GameOverScreen(game))));
+			gameState = GameState.GameOver;
+		} else {
+			gameState = GameState.PendingFirstPick;
+		}
+
+		if (gameState == GameState.PendingFirstPick && isComputerTurn()) {
+			// Computer's turn!
+			// Delay 0.5f?
+			// ai.pickCards();
+			// handleFirstPick(ai.getFirstPick());
+		}
+	}
 
 	/**
 	 * Object representing the actual card on the screen.
@@ -115,89 +251,6 @@ public class GameScreen implements Screen {
 		/** This card's back texture. */
 		private final TextureRegion cardBackTexture;
 
-		/** Given two card picks, process the turn in the game model and update the interface as required. */
-		private void processTurn() {
-
-			// The results of submitting the turn
-			final Turn turn = model.turn(firstPick.card, secondPick.card);
-
-			if (!turn.isMatch()) {
-
-				// Not a match
-
-				firstPick.addAction(firstPick.actionDelayedWinkToBack());
-				secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
-					@Override
-					public boolean act(float delta) {
-
-						// Player changed, change highlight
-						if (model.getNumberOfPlayers() > 1) {
-							playerOne.setHighlight(model.getCurrentPlayerId() == 0);
-							playerTwo.setHighlight(model.getCurrentPlayerId() == 1);
-						}
-
-						// Update game state
-						gameState = GameState.PendingFirstPick;
-
-						return true;
-					}
-				}));
-
-			} else {
-				if (!turn.isGameOver()) {
-
-					// A match, and game is not over yet
-
-					// TODO: Need to move all these float primitives to constant fields
-					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
-					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
-						@Override
-						public boolean act(float delta) {
-
-							// Player not changed
-
-							// Score changed, update label
-							final int playerId = turn.getPlayerId();
-							updateScore(playerId, model.getPlayerScore(playerId));
-
-							// Update game state
-							gameState = GameState.PendingFirstPick;
-
-							return true;
-						}
-					}));
-
-					// Play sound effect
-					game.playCardMatchSound();
-
-				} else {
-
-					// A match, and game is over
-
-					firstPick.addAction(Actions.sequence(Actions.delay(0.5f), firstPick.actionWinkOut()));
-					secondPick.addAction(Actions.sequence(Actions.delay(0.5f), secondPick.actionWinkOut(),
-							new Action() {
-								@Override
-								public boolean act(float delta) {
-
-									// Player not changed
-
-									// Score changed, update label
-									final int playerId = turn.getPlayerId();
-									updateScore(playerId, model.getPlayerScore(playerId));
-
-									// Update game state
-									gameState = GameState.GameOver;
-									
-									return true;
-								}
-							}, new ScreenChangeAction(game, GameScreen.this, new GameOverScreen(game))));
-					// TODO: What do we do when the game is over?!?
-				}
-			}
-
-		}
-
 		/**
 		 * Construct a new CardActor object.
 		 * 
@@ -206,8 +259,7 @@ public class GameScreen implements Screen {
 		 * @param cardTexture
 		 * @param cardBackTexture
 		 */
-		public CardActor(final Card card, final TextureRegion cardTexture,
-				final TextureRegion cardBackTexture) {
+		public CardActor(final Card card, final TextureRegion cardTexture, final TextureRegion cardBackTexture) {
 
 			// Pass default/initial texture to superclass' constructor
 			super(cardBackTexture);
@@ -221,53 +273,32 @@ public class GameScreen implements Screen {
 				@Override
 				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
+					if (!playerConfiguration.isPlayerUserControlled(model.getCurrentPlayerId())) {
+						// Current player is the computer - ignore input
+						return false;
+					}
+
 					switch (gameState) {
 					case PendingFirstPick:
-
 						if (!CardActor.this.card.isMatched()) {
-							// Remember that this is the first chosen card
-							firstPick = CardActor.this;
-							// Flip the card over
-							CardActor.this.addAction(actionWinkToFront());
-							// Play sound effect
-							game.playCardTurnSound();
-							// Update state
-							gameState = GameState.PendingSecondPick;
+							handleFirstPick(CardActor.this);
 						}
-
 						break;
 					case PendingSecondPick:
-
 						if (CardActor.this != firstPick && !CardActor.this.card.isMatched()) {
-							// Remember that this is the second chosen card
-							secondPick = CardActor.this;
-							// Flip the card over
-							CardActor.this.addAction(Actions.sequence(actionWinkToFront(), new Action() {
-								@Override
-								public boolean act(float delta) {
-									CardActor.this.processTurn();
-									return true;
-								}
-							}));
-							// Play sound effect
-							game.playCardTurnSound();
-							// Update state
-							gameState = GameState.Animating;
+							handleSecondPick(CardActor.this);
 						}
-
 						break;
-					case Animating:
+					case CardsPicked:
 						// Cards are animating - ignore all input
-
-						// XXX: This means you can't pick a new card while it is animating to back. This causes a
-						// significant lag in the usability.
-
+						// TODO: This means you can't pick a new card while it is animating to back. Is this a problem?
 						break;
 					case GameOver:
-						// TODO
+						// Game is over - ignore all input. It will shortly change screen
 						break;
 					default:
-						// TODO
+						// Cannot reach this
+						Gdx.app.log(TAG, "CardActor::touchDown::default - ERROR - Unreachable state");
 						break;
 					}
 
@@ -277,17 +308,18 @@ public class GameScreen implements Screen {
 		}
 
 		/** Switch the current texture region for a different region. */
-		private final void switchTexture(final TextureRegion region) {
-			final TextureRegionDrawable drawable = (TextureRegionDrawable) (this.getDrawable());
-			drawable.setRegion(region);
-		}
+		/*
+		 * private final void switchTexture(final TextureRegion region) { final TextureRegionDrawable drawable =
+		 * (TextureRegionDrawable) (this.getDrawable()); drawable.setRegion(region); }
+		 */
 
 		/** Return an Action that immediately switches the card texture region. */
 		private final Action actionSpecifiedTexture(final TextureRegion region) {
 			return new Action() {
 				@Override
 				public boolean act(float delta) {
-					switchTexture(region);
+					final TextureRegionDrawable drawable = (TextureRegionDrawable) (CardActor.this.getDrawable());
+					drawable.setRegion(region);
 					return true;
 				}
 			};
@@ -331,13 +363,14 @@ public class GameScreen implements Screen {
 		}
 
 		/** Return an action that winks in and out, switching to the card back texture. */
-		private final Action actionWinkToBack() {
-			return Actions.sequence(actionWinkOut(), actionBackTexture(), actionWinkIn());
-		}
+		/*
+		 * private final Action actionWinkToBack() { return Actions.sequence(actionWinkOut(), actionBackTexture(),
+		 * actionWinkIn()); }
+		 */
 
 		/** Return an action that pauses then flips card to the back. */
 		private final Action actionDelayedWinkToBack() {
-			return Actions.sequence(Actions.delay(1.0f), actionWinkToBack());
+			return Actions.sequence(Actions.delay(1.0f), actionWinkOut(), actionBackTexture(), actionWinkIn());
 		}
 	}
 
@@ -369,11 +402,11 @@ public class GameScreen implements Screen {
 		// Use global camera
 		stage.setCamera(game.camera);
 		// Redirect all input events to the Stage
-		//Gdx.input.setInputProcessor(stage);
+		// Gdx.input.setInputProcessor(stage);
 
 		// Create UI elements
 		createUi();
-		
+
 		// Play shuffle sound
 		game.playCardDealSound();
 	}
@@ -543,7 +576,8 @@ public class GameScreen implements Screen {
 		// Player one info
 		table.row().padTop(30.0f);
 
-		playerOne = new PlayerScoreActor(playerConfiguration.getPlayerName(0), playerConfiguration.getPlayerColor(0), game.skin, highlightDrawable);
+		playerOne = new PlayerScoreActor(playerConfiguration.getPlayerName(0), playerConfiguration.getPlayerColor(0),
+				game.skin, highlightDrawable);
 		table.add(playerOne).colspan(2).fillX();
 
 		// Player one starts the game
@@ -556,16 +590,12 @@ public class GameScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				
-				table.addAction(
-					Actions.sequence(						
-							Actions.fadeOut(0.25f),
-							new ScreenChangeAction(game, GameScreen.this, new MainMenuScreen(game))
-					)
-				);
-				
-				//GameScreen.this.game.setScreen(new MainMenuScreen(GameScreen.this.game));
-				//GameScreen.this.dispose();
+
+				table.addAction(Actions.sequence(Actions.fadeOut(0.25f), new ScreenChangeAction(game, GameScreen.this,
+						new MainMenuScreen(game))));
+
+				// GameScreen.this.game.setScreen(new MainMenuScreen(GameScreen.this.game));
+				// GameScreen.this.dispose();
 			}
 		});
 		table.add(backButton).left();
@@ -586,11 +616,22 @@ public class GameScreen implements Screen {
 		});
 
 		table.add(soundButton).right();
-		
+
+		// Game over flash panel
+		gameOverFlash = new Table();
+		gameOverFlash.setFillParent(true);
+		// TODO: Needs to be something more complicated than an Image
+		gameOverFlash.add(new Image(cardBackRegion)).expandX().fillX();
+		gameOverFlash.setVisible(false);
+		gameOverFlash.debug();
+		stage.addActor(gameOverFlash);
+
 		// Fade in, then redirect all input events to the Stage
 		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
 		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 	}
+
+	Table gameOverFlash;
 
 	/** Update the score for the specified player. */
 	private final void updateScore(final int player, final int score) {
@@ -639,7 +680,7 @@ public class GameScreen implements Screen {
 			if (highlight) {
 				setBackground(highlightDrawable);
 			} else {
-				setBackground((Drawable)null);
+				setBackground((Drawable) null);
 			}
 		}
 
