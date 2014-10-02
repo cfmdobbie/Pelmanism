@@ -189,13 +189,13 @@ public class Pelmanism {
 		// Update whether or not the game is over
 		this.gameOver = (pairsFound >= numberOfPairs);
 		turn.setGameOver(this.gameOver);
-		
+
 		// Add the new turn to the turn history
 		turns.add(turn);
 
 		// Increment the turn counter
 		currentTurnId++;
-		
+
 		return turn;
 	}
 
@@ -206,7 +206,7 @@ public class Pelmanism {
 
 		// The current turn id
 		this.currentTurnId = 0;
-		
+
 		// The log of taken turns
 		this.turns.clear();
 

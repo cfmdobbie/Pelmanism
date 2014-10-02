@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
@@ -207,7 +208,8 @@ public class GameScreen implements Screen {
 			gameOverFlash.setColor(1.0f, 1.0f, 1.0f, 0.0f);
 			gameOverFlash.setVisible(true);
 			gameOverFlash.addAction(Actions.sequence(Actions.fadeIn(0.5f), Actions.delay(1.0f), new ScreenChangeAction(
-					game, GameScreen.this, new GameOverScreen(game))));
+					game, GameScreen.this, new GameOverScreen(game, difficulty, playerConfiguration, model))));
+			game.playSuccessSound();
 			gameState = GameState.GameOver;
 		} else {
 			gameState = GameState.PendingFirstPick;
@@ -619,11 +621,15 @@ public class GameScreen implements Screen {
 
 		// Game over flash panel
 		gameOverFlash = new Table();
-		gameOverFlash.setFillParent(true);
+		//gameOverFlash.setFillParent(true);
+		gameOverFlash.setBackground(new NinePatchDrawable(game.uiAtlas.createPatch("game_over_bg")));
 		// TODO: Needs to be something more complicated than an Image
-		gameOverFlash.add(new Image(cardBackRegion)).expandX().fillX();
+		//gameOverFlash.add(new Image(game.uiAtlas.findRegion("yellow"))).expandX().fillX();
+		gameOverFlash.add(new Label("Game Over!", game.skin, "arcena64", Color.RED));
+		final float flashHeight = 150.0f;
+		gameOverFlash.setBounds(0, MyGame.VIRTUAL_HEIGHT / 2 - flashHeight / 2, MyGame.VIRTUAL_WIDTH, flashHeight);
 		gameOverFlash.setVisible(false);
-		gameOverFlash.debug();
+		// gameOverFlash.debug();
 		stage.addActor(gameOverFlash);
 
 		// Fade in, then redirect all input events to the Stage

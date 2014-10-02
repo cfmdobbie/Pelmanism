@@ -271,6 +271,13 @@ public class MyGame extends Game {
 		}
 	}
 
+	/** Play the "success" sound, if sounds are enabled. */
+	public void playSuccessSound() {
+		if (sound) {
+			manager.get("sound/success.mp3", Sound.class).play();
+		}
+	}
+
 	/** Play the card match sound, if sounds are enabled. */
 	public void playCardMatchSound() {
 		if (sound) {

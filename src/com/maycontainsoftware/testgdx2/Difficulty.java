@@ -13,6 +13,11 @@ public enum Difficulty {
 	Medium(4, 5, 0.5f),
 	// Hard difficulty
 	Hard(5, 6, 0.9f);
+	
+	// Difficulties used for testing purposes
+	//Easy(1, 2, 0.3f),
+	//Medium(2, 2, 0.5f),
+	//Hard(3, 2, 0.9f);
 
 	/** The number of columns on the board. */
 	private final int numberOfColumns;
