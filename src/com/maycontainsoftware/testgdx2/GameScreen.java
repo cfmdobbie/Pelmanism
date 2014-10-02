@@ -1,12 +1,15 @@
 package com.maycontainsoftware.testgdx2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -72,10 +75,10 @@ public class GameScreen implements Screen {
 
 	/** The Pelmanism game model object. */
 	private final Pelmanism model;
-	
+
 	/** The computer player. */
 	private final PelmanismAI ai;
-	
+
 	/** Map of Card to CardActor, used to relate AI's selections to Scene2D Actors. */
 	private final Map<Card, CardActor> cardToCardActor = new HashMap<Card, CardActor>();
 
@@ -101,20 +104,21 @@ public class GameScreen implements Screen {
 		private final Pelmanism model;
 
 		/** List of all cards currently in the game. Will need to be updated wrt matched cards before use. */
-		private final List<Card> allCards = new ArrayList<Card>();
-		
+		private final Set<Card> allCards = new HashSet<Card>();
+
+		/** List of all cards that have been seen. Will need to be updated wrt matched cards before use. */
+		private final Set<Card> seenCards = new HashSet<Card>();
+
 		/** After an invocation to pickCards(), the first card picked. */
 		private Card firstCard;
-		
+
 		/** After an invocation to pickCards(), the second card picked. */
 		private Card secondCard;
 
-		// private final Set<Card> cardsSeen = new HashSet<Card>(64);
-		
 		/** Random number generator. */
-		// TODO: Is this needed?
 		private final Random random = new Random();
 
+		/** Construct a new PelmanismAI object. */
 		public PelmanismAI(final Difficulty difficulty, final Pelmanism model) {
 			this.model = model;
 			this.difficulty = difficulty;
@@ -125,34 +129,73 @@ public class GameScreen implements Screen {
 			}
 		}
 
-		/*
-		 * public void cardSeen(Card card) { Gdx.app.log(TAG, "cardSeen: " + card.toString()); //
-		 * cardActor.card.getPairId(); cardsSeen.add(card); }
-		 */
+		/** Log a card as having been seen. */
+		public void cardSeen(Card card) {
+			seenCards.add(card);
+		}
 
 		/** Update information we know about the cards on the table. */
 		private void updateCards() {
+			
 			// Remove any cards that have been matched
 			Iterator<Card> i = allCards.iterator();
 			while (i.hasNext()) {
 				Card c = i.next();
 				if (c.isMatched()) {
 					i.remove();
+					// If it had been seen previously, remove it from there as well
+					if(seenCards.contains(c)) {
+						seenCards.remove(c);
+					}
 				}
 			}
+			
+			// Work out what cards are unknown
+			Set<Card> unknownCards = new HashSet<Card>();
+			for(Card c : allCards) {
+				if(!seenCards.contains(c)) {
+					unknownCards.add(c);
+				}
+			}
+			
+			// Work out whether any pairs are known
+			
+			// Arrange cards by pairId
+			Map<Integer, Set<Card>> cardsByPairId = new HashMap<Integer, Set<Card>>();
+			for(Card c : seenCards) {
+				int pairId = c.getPairId();
+				if(cardsByPairId.containsKey(pairId)) {
+					cardsByPairId.get(pairId).add(c);
+				} else {
+					cardsByPairId.put(pairId, new HashSet<Card>(Arrays.asList(c)));
+				}
+			}
+			// Check for any known pairs
+			List<Integer> knownPairs = new ArrayList<Integer>();
+			for(Integer pairId : cardsByPairId.keySet()) {
+				if(cardsByPairId.get(pairId).size() == 2) {
+					knownPairs.add(pairId);
+				}
+			}
+			if(!knownPairs.isEmpty()) {
+				// We know about at least one pair!
+			}
+			
 		}
 
 		public Card pickFirstCard() {
 			// Moronic AI - pick a random card
-			firstCard = allCards.get(random.nextInt(allCards.size()));
+			Card[] cards = allCards.toArray(new Card[]{});
+			firstCard = cards[random.nextInt(allCards.size())];
 			return firstCard;
 		}
 
 		public Card pickSecondCard() {
 			// Moronic AI - pick a random card
+			Card[] cards = allCards.toArray(new Card[]{});
 			do {
-				secondCard = allCards.get(random.nextInt(allCards.size()));
-			} while(firstCard == secondCard);
+				secondCard = cards[random.nextInt(allCards.size())];
+			} while (firstCard == secondCard);
 			return secondCard;
 		}
 	}
@@ -183,11 +226,13 @@ public class GameScreen implements Screen {
 		this.firstPick = firstPick;
 		// Flip the card over
 		firstPick.addAction(firstPick.actionWinkToFront());
+		// Notify the AI of the new card
+		ai.cardSeen(firstPick.card);
 		// Play sound effect
 		game.playCardTurnSound();
 		// Update state
 		gameState = GameState.PendingSecondPick;
-		
+
 		if (isComputerTurn()) {
 			// Computer's turn!
 			stage.addAction(Actions.sequence(Actions.delay(0.25f), new Action() {
@@ -211,6 +256,8 @@ public class GameScreen implements Screen {
 				return true;
 			}
 		}));
+		// Notify the AI of the new card
+		ai.cardSeen(secondPick.card);
 		// Play sound effect
 		game.playCardTurnSound();
 		// Update state
@@ -450,9 +497,9 @@ public class GameScreen implements Screen {
 
 		// Create game model
 		model = new Pelmanism(playerConfiguration.getNumberOfPlayers(), difficulty.getNumberOfPairs());
-		
+
 		// Create AI player
-		// TODO: Only when an AI  player exists?
+		// TODO: Only when an AI player exists?
 		ai = new PelmanismAI(difficulty, model);
 
 		// Load graphic assets
@@ -597,7 +644,7 @@ public class GameScreen implements Screen {
 				final TextureRegion frontTexture = cardRegions[card.getPairId()];
 				final CardActor cardActor = new CardActor(card, frontTexture, cardBackRegion);
 				gameArea.add(cardActor).expand().pad(5.0f);
-				
+
 				// Add the new Card,CardActor pair to the map
 				cardToCardActor.put(card, cardActor);
 			}
