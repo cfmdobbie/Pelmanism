@@ -2,10 +2,11 @@ package com.maycontainsoftware.testgdx2;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -71,6 +72,12 @@ public class GameScreen implements Screen {
 
 	/** The Pelmanism game model object. */
 	private final Pelmanism model;
+	
+	/** The computer player. */
+	private final PelmanismAI ai;
+	
+	/** Map of Card to CardActor, used to relate AI's selections to Scene2D Actors. */
+	private final Map<Card, CardActor> cardToCardActor = new HashMap<Card, CardActor>();
 
 	// Graphical elements needed for future access
 
@@ -82,33 +89,73 @@ public class GameScreen implements Screen {
 
 	// XXX
 
-	static class AI {
+	static class PelmanismAI {
 		// Needs to have a memory of previous picks
 		// Needs to have an *imperfect* memory at times
 		// Needs to vary based on difficulty level
-		
-		private final Set<CardActor> cardsSeen = new HashSet<CardActor>(64);
-		private final Random random = new Random();
+
+		/** Difficulty level of the AI. */
 		private final Difficulty difficulty;
+
+		/** The Pelmanism game model. */
 		private final Pelmanism model;
 
-		public AI(final Difficulty difficulty, final Pelmanism model) {
+		/** List of all cards currently in the game. Will need to be updated wrt matched cards before use. */
+		private final List<Card> allCards = new ArrayList<Card>();
+		
+		/** After an invocation to pickCards(), the first card picked. */
+		private Card firstCard;
+		
+		/** After an invocation to pickCards(), the second card picked. */
+		private Card secondCard;
+
+		// private final Set<Card> cardsSeen = new HashSet<Card>(64);
+		
+		/** Random number generator. */
+		// TODO: Is this needed?
+		private final Random random = new Random();
+
+		public PelmanismAI(final Difficulty difficulty, final Pelmanism model) {
 			this.model = model;
 			this.difficulty = difficulty;
+
+			// Generate a list of all cards, but DON'T LOOK AT THEM! :-)
+			for (int i = 0; i < model.getNumberOfCards(); i++) {
+				allCards.add(model.getCard(i));
+			}
 		}
 
-		public void cardSeen(CardActor cardActor) {
-			Gdx.app.log(TAG, "cardSeen: " + cardActor.toString());
-			// cardActor.card.getPairId();
-			cardsSeen.add(cardActor);
+		/*
+		 * public void cardSeen(Card card) { Gdx.app.log(TAG, "cardSeen: " + card.toString()); //
+		 * cardActor.card.getPairId(); cardsSeen.add(card); }
+		 */
+
+		public void pickCards() {
+
+			// Remove any cards that have been matched
+			Iterator<Card> i = allCards.iterator();
+			while (i.hasNext()) {
+				Card c = i.next();
+				if (c.isMatched()) {
+					i.remove();
+				}
+			}
+
+			// Select any two cards from the list
+			
+			// Moronic AI - Pick two random cards
+			firstCard = allCards.get(random.nextInt(allCards.size()));
+			do {
+				secondCard = allCards.get(random.nextInt(allCards.size()));
+			} while(firstCard == secondCard);
 		}
 
-		public CardActor pickCard() {
-			
-			
-			
-			
-			return null;
+		public Card getFirstCard() {
+			return firstCard;
+		}
+
+		public Card getSecondCard() {
+			return secondCard;
 		}
 	}
 
@@ -142,6 +189,17 @@ public class GameScreen implements Screen {
 		game.playCardTurnSound();
 		// Update state
 		gameState = GameState.PendingSecondPick;
+		
+		if (isComputerTurn()) {
+			// Computer's turn!
+			stage.addAction(Actions.sequence(Actions.delay(0.25f), new Action() {
+				@Override
+				public boolean act(float delta) {
+					handleSecondPick(cardToCardActor.get(ai.getSecondCard()));
+					return true;
+				}
+			}));
+		}
 	}
 
 	private final void handleSecondPick(final CardActor secondPick) {
@@ -227,9 +285,14 @@ public class GameScreen implements Screen {
 
 		if (gameState == GameState.PendingFirstPick && isComputerTurn()) {
 			// Computer's turn!
-			// Delay 0.5f?
-			// ai.pickCards();
-			// handleFirstPick(ai.getFirstPick());
+			stage.addAction(Actions.sequence(Actions.delay(0.5f), new Action() {
+				@Override
+				public boolean act(float delta) {
+					ai.pickCards();
+					handleFirstPick(cardToCardActor.get(ai.getFirstCard()));
+					return true;
+				}
+			}));
 		}
 	}
 
@@ -273,7 +336,7 @@ public class GameScreen implements Screen {
 				@Override
 				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-					if (!playerConfiguration.isPlayerUserControlled(model.getCurrentPlayerId())) {
+					if (isComputerTurn()) {
 						// Current player is the computer - ignore input
 						return false;
 					}
@@ -389,6 +452,10 @@ public class GameScreen implements Screen {
 
 		// Create game model
 		model = new Pelmanism(playerConfiguration.getNumberOfPlayers(), difficulty.getNumberOfPairs());
+		
+		// Create AI player
+		// TODO: Only when an AI  player exists?
+		ai = new PelmanismAI(difficulty, model);
 
 		// Load graphic assets
 		atlas = game.manager.get(cardSet.atlasName, TextureAtlas.class);
@@ -529,9 +596,12 @@ public class GameScreen implements Screen {
 
 				final int cardIndex = c + r * columns;
 				final Card card = model.getCard(cardIndex);
-				final TextureRegion cardRegion = cardRegions[card.getPairId()];
-				final CardActor cardActor = new CardActor(card, cardRegion, cardBackRegion);
+				final TextureRegion frontTexture = cardRegions[card.getPairId()];
+				final CardActor cardActor = new CardActor(card, frontTexture, cardBackRegion);
 				gameArea.add(cardActor).expand().pad(5.0f);
+				
+				// Add the new Card,CardActor pair to the map
+				cardToCardActor.put(card, cardActor);
 			}
 			gameArea.row().expandY();
 		}
