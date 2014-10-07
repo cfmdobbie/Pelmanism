@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    id="svg2"
+    sodipodi:docname="papapishu_window.svg"
+    inkscape:export-filename="C:\joanna\Gfx\drawings_vector\nature_plants\fruits\papapishu_home.png"
+    viewBox="0 0 128 128"
+    sodipodi:version="0.32"
+    inkscape:export-xdpi="90"
+    version="1.0"
+    inkscape:output_extension="org.inkscape.output.svg.inkscape"
+    inkscape:export-ydpi="90"
+    inkscape:version="0.46"
+    sodipodi:docbase="D:\Documents and Settings\Joanna\My Documents\My Pictures\graph_vector\fruits"
+  >
+  <sodipodi:namedview
+      id="base"
+      inkscape:zoom="4.2109375"
+      borderopacity="1.0"
+      inkscape:current-layer="layer1"
+      inkscape:cx="64"
+      inkscape:cy="73.888856"
+      borderlayer="true"
+      showgrid="true"
+      inkscape:guide-bbox="true"
+      inkscape:snap-global="false"
+      showguides="true"
+      bordercolor="#666666"
+      inkscape:window-x="-4"
+      guidetolerance="10"
+      objecttolerance="10000"
+      inkscape:window-y="-4"
+      inkscape:window-width="1280"
+      inkscape:pageopacity="0.0"
+      inkscape:pageshadow="2"
+      pagecolor="#ffffff"
+      gridtolerance="10"
+      inkscape:document-units="px"
+      inkscape:window-height="744"
+    >
+    <inkscape:grid
+        id="grid7194"
+        spacingx="8px"
+        enabled="true"
+        spacingy="8px"
+        visible="true"
+        type="xygrid"
+    />
+  </sodipodi:namedview
+  >
+  <g
+      id="layer1"
+      inkscape:label="Layer 1"
+      inkscape:groupmode="layer"
+      transform="translate(-66.38 -391.32)"
+    >
+    <path
+        id="path7304"
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:5.2412;fill:#01afaf"
+        d="m95.556 434.65h69.704v55.45h-69.704v-55.45z"
+    />
+    <path
+        id="path7300"
+        sodipodi:nodetypes="cccc"
+        style="fill-rule:evenodd;stroke:#000000;stroke-width:3;fill:#06c706"
+        d="m98.38 463.8c27.68 3.04 41.16 12.11 48 24h-48v-24z"
+    />
+    <path
+        id="path7302"
+        sodipodi:nodetypes="cccc"
+        style="fill-rule:evenodd;stroke:#000000;stroke-width:3;fill:#06c706"
+        d="m165.47 465.22c-27.68 3.05-41.16 12.12-48 24h48v-24z"
+    />
+    <path
+        id="rect7265"
+        style="stroke-linejoin:round;stroke:#000000;stroke-linecap:round;stroke-width:5.2412;fill:none"
+        d="m96.506 434.65h69.704v55.45h-69.704v-55.45z"
+    />
+    <path
+        id="path7270"
+        sodipodi:nodetypes="ccccc"
+        style="stroke-linejoin:round;fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:5.2412;fill:#80ffff"
+        d="m95.533 434.36l-20.965-13.98v76.87l20.965-6.99v-55.9z"
+    />
+    <path
+        id="path7272"
+        sodipodi:nodetypes="cc"
+        style="fill-rule:evenodd;stroke:#000000;stroke-width:5.2412;fill:#00ffff"
+        d="m74.568 455.32l20.965 6.99"
+    />
+    <g
+        id="g7278"
+        style="fill:#80ffff"
+        transform="matrix(-.87354 0 0 .87354 244.37 64.571)"
+      >
+      <path
+          id="path7280"
+          style="stroke-linejoin:round;fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:6;fill:#80ffff"
+          transform="translate(66.38 391.32)"
+          d="m24 32l-24-16v88l24-8v-64z"
+      />
+      <path
+          id="path7282"
+          sodipodi:nodetypes="cc"
+          style="fill-rule:evenodd;stroke:#000000;stroke-width:6;fill:#80ffff"
+          transform="translate(66.38 391.32)"
+          d="m0 56l24 8"
+      />
+    </g
+    >
+  </g
+  >
+  <metadata
+    >
+    <rdf:RDF
+      >
+      <cc:Work
+        >
+        <dc:format
+          >image/svg+xml</dc:format
+        >
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        />
+        <cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        />
+        <dc:publisher
+          >
+          <cc:Agent
+              rdf:about="http://openclipart.org/"
+            >
+            <dc:title
+              >Openclipart</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:publisher
+        >
+      </cc:Work
+      >
+      <cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        >
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        />
+      </cc:License
+      >
+    </rdf:RDF
+    >
+  </metadata
+  >
+</svg
+>
