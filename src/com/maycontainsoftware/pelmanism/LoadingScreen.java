@@ -36,8 +36,8 @@ public class LoadingScreen implements Screen {
 	private Stage stage;
 
 	/** Names of the card-turn sound effects. */
-	private final String[] cardTurnSoundNames = { "sound/cardPlace1.mp3", "sound/cardSlide4.mp3",
-			"sound/cardSlide5.mp3", "sound/cardSlide6.mp3", "sound/cardSlide7.mp3", "sound/cardSlide8.mp3", };
+	private final String[] cardTurnSoundNames = { "cardPlace1.mp3", "cardSlide4.mp3", "cardSlide5.mp3",
+			"cardSlide6.mp3", "cardSlide7.mp3", "cardSlide8.mp3", };
 
 	/**
 	 * Construct a new LoadingScreen object.
@@ -66,12 +66,12 @@ public class LoadingScreen implements Screen {
 		game.manager.load("signs.atlas", TextureAtlas.class);
 		game.manager.load("hard.atlas", TextureAtlas.class);
 		// Sound effects
-		game.manager.load("sound/cardFan1.mp3", Sound.class);
+		game.manager.load("cardFan1.mp3", Sound.class);
 		for (final String name : cardTurnSoundNames) {
 			game.manager.load(name, Sound.class);
 		}
-		game.manager.load("sound/ting.mp3", Sound.class);
-		game.manager.load("sound/success.mp3", Sound.class);
+		game.manager.load("ting.mp3", Sound.class);
+		game.manager.load("success.mp3", Sound.class);
 		// TODO: More sound effects? UI feedback, game over
 		// UI skin
 		game.manager.load("uiskin.json", Skin.class);

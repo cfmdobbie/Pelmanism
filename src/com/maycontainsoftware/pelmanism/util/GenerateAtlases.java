@@ -1,7 +1,7 @@
 package com.maycontainsoftware.pelmanism.util;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
 
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2;
@@ -12,16 +12,16 @@ import com.badlogic.gdx.tools.imagepacker.TexturePacker2.Settings;
  * 
  * @author Charlie
  */
-public class PackTextures {
+public class GenerateAtlases {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
-		// Hard-coded input directory
-		final String inputDirStr = ".\\DevelopmentAssets";
+		// Input directory
+		final String inputDirStr = "./assets/graphics/atlases";
 		final File inputDir = new File(inputDirStr);
 
-		// Hard-coded output directory
-		final String outputDirStr = "..\\TestGdx2-android\\assets";
+		// Output directory
+		final String outputDirStr = "../Pelmanism-android/assets";
 
 		final Settings settings = new Settings();
 
@@ -53,19 +53,11 @@ public class PackTextures {
 		// TiledDrawable exhibits odd lines between tiles, unless duplicatePadding is turned on
 		settings.duplicatePadding = true;
 
-		// Subdirectories to process
-		final File[] dirList = inputDir.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		});
-
 		// Process all subdirectories
-		for (File f : dirList) {
-			final String subdirStr = f.getAbsolutePath();
+		for (final File atlasDirectory : inputDir.listFiles()) {
+			final String subdirStr = atlasDirectory.getCanonicalPath();
 			// Name of atlas is the directory name
-			final String subdirName = f.getName();
+			final String subdirName = atlasDirectory.getName();
 			TexturePacker2.process(settings, subdirStr, outputDirStr, subdirName);
 		}
 	}

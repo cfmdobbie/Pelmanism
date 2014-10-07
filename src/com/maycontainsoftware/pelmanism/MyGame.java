@@ -267,21 +267,21 @@ public class MyGame extends Game {
 	/** Play the card dealing sound, if sounds are enabled. */
 	public void playCardDealSound() {
 		if (sound) {
-			manager.get("sound/cardFan1.mp3", Sound.class).play();
+			manager.get("cardFan1.mp3", Sound.class).play();
 		}
 	}
 
 	/** Play the "success" sound, if sounds are enabled. */
 	public void playSuccessSound() {
 		if (sound) {
-			manager.get("sound/success.mp3", Sound.class).play();
+			manager.get("success.mp3", Sound.class).play();
 		}
 	}
 
 	/** Play the card match sound, if sounds are enabled. */
 	public void playCardMatchSound() {
 		if (sound) {
-			manager.get("sound/ting.mp3", Sound.class).play();
+			manager.get("ting.mp3", Sound.class).play();
 		}
 	}
 
