@@ -1,0 +1,25 @@
+font.name=AR CENA
+font.size=64
+font.bold=false
+font.italic=false
+
+pad.top=3
+pad.right=4
+pad.bottom=3
+pad.left=4
+pad.advance.x=-6
+pad.advance.y=-14
+
+glyph.native.rendering=false
+glyph.page.width=512
+glyph.page.height=512
+glyph.text=ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n1234567890\n"!`?'.,;:()[]{}<>|/@\^$-%+=#_&~*\nWhen you wish upon a star\nMakes no difference who you are.
+
+effect.class=com.badlogic.gdx.tools.hiero.unicodefont.effects.OutlineEffect
+effect.Color=000000
+effect.Width=6.0
+effect.Join=2
+
+effect.class=com.badlogic.gdx.tools.hiero.unicodefont.effects.ColorEffect
+effect.Color=ffffff
+
