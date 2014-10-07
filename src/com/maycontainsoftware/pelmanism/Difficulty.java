@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.pelmanism;
 
 /**
  * Enumeration of the various difficulties implemented in the app. The difficulty affects board size, speed of

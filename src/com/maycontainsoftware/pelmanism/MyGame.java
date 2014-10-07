@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.pelmanism;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;

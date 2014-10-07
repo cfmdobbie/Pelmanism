@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.pelmanism;
 
 /**
  * Representation of a turn that has been played.

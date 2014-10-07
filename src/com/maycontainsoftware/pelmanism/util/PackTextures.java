@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2.utils;
+package com.maycontainsoftware.pelmanism.util;
 
 import java.io.File;
 import java.io.FileFilter;

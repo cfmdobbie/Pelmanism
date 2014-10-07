@@ -1,4 +1,4 @@
-package com.maycontainsoftware.testgdx2;
+package com.maycontainsoftware.pelmanism;
 
 import java.util.Arrays;
 import java.util.HashMap;

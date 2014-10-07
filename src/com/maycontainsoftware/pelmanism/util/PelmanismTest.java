@@ -1,10 +1,10 @@
-package com.maycontainsoftware.testgdx2.utils;
+package com.maycontainsoftware.pelmanism.util;
 
 import java.util.Random;
 
-import com.maycontainsoftware.testgdx2.Card;
-import com.maycontainsoftware.testgdx2.Pelmanism;
-import com.maycontainsoftware.testgdx2.Turn;
+import com.maycontainsoftware.pelmanism.Card;
+import com.maycontainsoftware.pelmanism.Pelmanism;
+import com.maycontainsoftware.pelmanism.Turn;
 
 /**
  * Test application for the Pelmanism game model.
