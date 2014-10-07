@@ -1,8 +1,9 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: { default-font: { file: default.fnt } },
-com.badlogic.gdx.graphics.g2d.BitmapFont: { archristy64: { file: archristy64.fnt } },
-com.badlogic.gdx.graphics.g2d.BitmapFont: { archristy48: { file: archristy48.fnt } },
-com.badlogic.gdx.graphics.g2d.BitmapFont: { archristy32: { file: archristy32.fnt } },
+com.badlogic.gdx.graphics.g2d.BitmapFont: { arcena32: { file: arcena32.fnt } },
+com.badlogic.gdx.graphics.g2d.BitmapFont: { arcena48: { file: arcena48.fnt } },
+com.badlogic.gdx.graphics.g2d.BitmapFont: { arcena64: { file: arcena64.fnt } },
+
 com.badlogic.gdx.graphics.Color: {
 	green: { a: 1, b: 0, g: 1, r: 0 },
 	white: { a: 1, b: 1, g: 1, r: 1 },
@@ -22,10 +23,8 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 },
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
-		background: default-rect,
 		hScroll: default-scroll,
 		hScrollKnob: default-round-large,
-		vScroll: default-scroll,
 		vScrollKnob: default-round-large
 	}
 },
