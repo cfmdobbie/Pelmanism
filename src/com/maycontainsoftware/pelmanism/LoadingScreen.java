@@ -72,7 +72,8 @@ public class LoadingScreen implements Screen {
 		}
 		game.manager.load("ting.mp3", Sound.class);
 		game.manager.load("success.mp3", Sound.class);
-		// TODO: More sound effects? UI feedback, game over
+		game.manager.load("win.mp3", Sound.class);
+		game.manager.load("lose.mp3", Sound.class);
 		// UI skin
 		game.manager.load("uiskin.json", Skin.class);
 	}

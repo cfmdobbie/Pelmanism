@@ -2,6 +2,7 @@ package com.maycontainsoftware.pelmanism;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Action;
@@ -145,12 +146,14 @@ public class GameOverScreen implements Screen {
 		table.row();
 		final String winnerMessage;
 		final Color winnerColor;
+		final boolean win;
 
 		switch (playerConfiguration) {
 		case One:
 			// Single player
 			winnerMessage = "Congratulations!";
 			winnerColor = playerConfiguration.getPlayerColor(0);
+			win = true;
 			break;
 		case One_Vs_Cpu:
 			// Player versus computer
@@ -158,14 +161,17 @@ public class GameOverScreen implements Screen {
 				// Player won
 				winnerMessage = "You beat the computer!";
 				winnerColor = playerConfiguration.getPlayerColor(0);
+				win = true;
 			} else if (model.getPlayerScore(0) < model.getPlayerScore(1)) {
 				// Computer won
 				winnerMessage = "The computer wins!";
 				winnerColor = playerConfiguration.getPlayerColor(1);
+				win = false;
 			} else {
 				// Tie
 				winnerMessage = "It's a tie!";
 				winnerColor = Color.WHITE;
+				win = false;
 			}
 			break;
 		case Two:
@@ -174,14 +180,17 @@ public class GameOverScreen implements Screen {
 				// Player 1 won
 				winnerMessage = playerConfiguration.getPlayerName(0) + " is the winner!";
 				winnerColor = playerConfiguration.getPlayerColor(0);
+				win = true;
 			} else if (model.getPlayerScore(0) < model.getPlayerScore(1)) {
 				// Player 2 won
 				winnerMessage = playerConfiguration.getPlayerName(1) + " is the winner!";
 				winnerColor = playerConfiguration.getPlayerColor(1);
+				win = true;
 			} else {
 				// Tie
 				winnerMessage = "It's a tie!";
 				winnerColor = Color.WHITE;
+				win = false;
 			}
 			break;
 		default:
@@ -194,7 +203,7 @@ public class GameOverScreen implements Screen {
 			@Override
 			public boolean act(float delta) {
 				winnerLabel.setColor(Color.WHITE);
-				// TODO: Sound
+				game.manager.get(win ? "win.mp3" : "lose.mp3", Sound.class).play();
 				return true;
 			}
 		}));
