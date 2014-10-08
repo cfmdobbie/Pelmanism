@@ -178,7 +178,7 @@ public class MyGame extends Game {
 		// TODO: This doesn't appear to be necessary - check this!
 		batch.setColor(Color.WHITE);
 
-		// XXX: Render background
+		// Render background
 		batch.begin();
 		background.draw(batch, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 		batch.end();
