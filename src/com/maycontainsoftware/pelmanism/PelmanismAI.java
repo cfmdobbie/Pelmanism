@@ -56,11 +56,30 @@ public class PelmanismAI {
 		for (int i = 0; i < model.getNumberOfCards(); i++) {
 			allCards.add(model.getCard(i));
 		}
+		
+		// Update our current understanding of the cards
+		updateCards();
 	}
 
 	/** Log a card as having been seen. */
-	public void cardSeen(Card card) {
+	public void cardSeen(final Card card) {
+		// Make sure it's been seen
 		seenCards.add(card);
+		// Make sure it's no longer unseen
+		if (unknownCards.contains(card)) {
+			unknownCards.remove(card);
+		}
+		// Update the record of pairs
+		final int pairId = card.getPairId();
+		if (cardsByPairId.containsKey(pairId)) {
+			cardsByPairId.get(pairId).add(card);
+		} else {
+			cardsByPairId.put(pairId, new HashSet<Card>(Arrays.asList(card)));
+		}
+		// Update the log of known pairs
+		if (cardsByPairId.get(pairId).size() == 2) {
+			knownPairs.add(pairId);
+		}
 	}
 
 	/** Update information we know about the cards on the table. */
@@ -91,6 +110,7 @@ public class PelmanismAI {
 			}
 		}
 
+		// Work out current approach to picking a card
 		// Generate a random number between 0 and 1.  If the AI intelligence is set higher, go for a pair.
 		intention = (difficulty.getAiIntelligence() > random.nextFloat()) ? Intention.PAIR : Intention.RANDOM;
 
@@ -148,14 +168,24 @@ public class PelmanismAI {
 				// Want a pair, but didn't originally know any
 				// Might have found one now?
 				final int pairId = firstCard.getPairId();
-				if (cardsByPairId.containsKey(pairId)) {
-					Set<Card> set = cardsByPairId.get(pairId);
-					secondCard = set.toArray(new Card[] {})[0];
+				if(knownPairs.contains(pairId)) {
+					// Have just found a pair!
+					// Need to find the other half of it...
+					Card[] pair = cardsByPairId.get(pairId).toArray(new Card[]{});
+					secondCard = (firstCard == pair[1]) ? pair[0] : pair[1];
 				} else {
-					do {
-						secondCard = randomElement(seenCards);
-						// This can fail, but only if computer player goes first - which it doesn't!
-					} while (firstCard == secondCard);
+					// Still don't know any pairs.
+					// Be a little clever - try and pick an already-known card so we don't give anything away
+					if(seenCards.size() > 1) {
+						do {
+							secondCard = randomElement(seenCards);
+						} while (firstCard == secondCard);
+					} else {
+						// Don't know any other cards; just pick a random one
+						do {
+							secondCard = randomElement(allCards);
+						} while (firstCard == secondCard);
+					}
 				}
 				break;
 			case RANDOM:
