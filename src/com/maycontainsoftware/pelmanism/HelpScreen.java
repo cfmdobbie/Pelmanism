@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -12,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
  * The help screen. This screen is accessible from the main menu and gives some basic instructions for play, and
@@ -90,24 +87,15 @@ public class HelpScreen implements Screen {
 
 		// Back button
 		table.row();
-		final Drawable backButtonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_on"));
-		final Drawable backButtonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("back_button_off"));
-		final Button backButton = new Button(backButtonOff, backButtonOn);
+		final Button backButton = game.makeTexturedButton("menu_button", false);
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
-						new Action() {
-							@Override
-							public boolean act(float delta) {
-								HelpScreen.this.game.setScreen(new MainMenuScreen(HelpScreen.this.game));
-								HelpScreen.this.dispose();
-								return true;
-							}
-						}));
+						new ScreenChangeAction(game, HelpScreen.this, new MainMenuScreen(game))));
 			}
 		});
-		table.add(backButton).padTop(40.0f).padBottom(20.0f);
+		table.add(backButton).padTop(40.0f);
 
 		// Add the root table to the stage
 		stage.addActor(table);
