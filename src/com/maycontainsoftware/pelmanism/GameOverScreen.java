@@ -14,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
  * @author Charlie
@@ -47,6 +45,9 @@ public class GameOverScreen implements Screen {
 		// Use global camera
 		stage.setCamera(game.camera);
 
+		// Cumulative UI delay, for timing Actor appearances
+		float cumulativeDelay = 0.0f;
+
 		// Root of the Stage is a Table, used to lay out all other widgets
 		final Table table = new Table();
 		table.setFillParent(true);
@@ -65,7 +66,7 @@ public class GameOverScreen implements Screen {
 		table.add(new Label("Difficulty:", game.skin, "arcena32", Color.WHITE));
 		table.row().padTop(0.0f);
 		// Work out type and number of stars
-		final String starRegion; 
+		final String starRegion;
 		final int starCount;
 		switch (difficulty) {
 		case Easy:
@@ -86,11 +87,12 @@ public class GameOverScreen implements Screen {
 		// Display stars, with sound and animation
 		HorizontalGroup stars = new HorizontalGroup();
 		table.add(stars);
-		for(int i = 0 ; i < starCount ; i++) {
+		for (int i = 0; i < starCount; i++) {
 			final Image star = new Image(game.uiAtlas.findRegion(starRegion));
 			star.setOrigin(star.getWidth() / 2, star.getHeight() / 2);
-			star.setColor(1.0f, 1.0f, 1.0f, 0.0f);
-			star.addAction(Actions.sequence(Actions.delay(0.3f * i), new Action() {
+			star.setColor(Color.CLEAR);
+			cumulativeDelay += 0.3f;
+			star.addAction(Actions.sequence(Actions.delay(cumulativeDelay), new Action() {
 				@Override
 				public boolean act(float delta) {
 					game.playCardMatchSound();
@@ -100,68 +102,136 @@ public class GameOverScreen implements Screen {
 			}, Actions.rotateTo(360.0f, 0.75f)));
 			stars.addActor(star);
 		}
+		// Add extra cumulative delay
+		cumulativeDelay += 0.75f;
 
 		// Score display
 		table.row();
 		table.add(new Label("Scores:", game.skin, "arcena32", Color.WHITE));
+		table.row();
+		// Scores embedded in a separate table
+		final Table scoreTable = new Table();
+		scoreTable.defaults().pad(5.0f);
+		// scoreTable.debug();
+		table.add(scoreTable);
+
 		for (int i = 0; i < model.getNumberOfPlayers(); i++) {
-			table.row().padTop(0.0f);
-			final int score = model.getPlayerScore(i);
-			final String line = playerConfiguration.getPlayerName(i) + ": " + score + " point" + (score != 1 ? "s" : "");
-			table.add(new Label(line, game.skin, "arcena48", playerConfiguration.getPlayerColor(i)));
+			scoreTable.row();
+			// Player name
+			final String playerName = playerConfiguration.getPlayerName(i);
+			scoreTable.add(new Label(playerName + ":", game.skin, "arcena48", playerConfiguration.getPlayerColor(i)));
+			// Player score
+			final int playerScore = model.getPlayerScore(i);
+			final String playerScoreMessage = playerScore + (playerScore == 1 ? " point" : " points");
+			final Label scoreLabel = new Label(playerScoreMessage, game.skin, "arcena48",
+					playerConfiguration.getPlayerColor(i));
+			scoreLabel.setColor(Color.CLEAR);
+			cumulativeDelay += 0.3f;
+			scoreLabel.addAction(Actions.sequence(Actions.delay(cumulativeDelay), new Action() {
+				@Override
+				public boolean act(float delta) {
+					game.playCardMatchSound();
+					scoreLabel.setColor(Color.WHITE);
+					return true;
+				}
+			}));
+			scoreTable.add(scoreLabel);
 		}
-		
+
+		// Extra cumulative delay
+		cumulativeDelay += 0.75f;
+
 		// Winner display
 		table.row();
-		// TODO: What about a tie?
-		final String winnerText;
+		final String winnerMessage;
 		final Color winnerColor;
-		if(model.getNumberOfPlayers() == 1) {
-			winnerText = "Congratulations!";
-			winnerColor = playerConfiguration.getPlayerColor(0);
-		} else if(model.getPlayerScore(0) == model.getPlayerScore(1)) {
-			winnerText = "It's a tie!";
-			winnerColor = Color.WHITE;
-		} else if(model.getPlayerScore(0) > model.getPlayerScore(1)) {
-			winnerText = playerConfiguration.getPlayerName(0) + " is the winner!";
-			winnerColor = playerConfiguration.getPlayerColor(0);
-		} else {
-			winnerText = playerConfiguration.getPlayerName(1) + " is the winner!";
-			winnerColor = playerConfiguration.getPlayerColor(1);
-		}
-		table.add(new Label(winnerText, game.skin, "arcena64", winnerColor));
 
+		switch (playerConfiguration) {
+		case One:
+			// Single player
+			winnerMessage = "Congratulations!";
+			winnerColor = playerConfiguration.getPlayerColor(0);
+			break;
+		case One_Vs_Cpu:
+			// Player versus computer
+			if (model.getPlayerScore(0) > model.getPlayerScore(1)) {
+				// Player won
+				winnerMessage = "You beat the computer!";
+				winnerColor = playerConfiguration.getPlayerColor(0);
+			} else if (model.getPlayerScore(0) < model.getPlayerScore(1)) {
+				// Computer won
+				winnerMessage = "The computer wins!";
+				winnerColor = playerConfiguration.getPlayerColor(1);
+			} else {
+				// Tie
+				winnerMessage = "It's a tie!";
+				winnerColor = Color.WHITE;
+			}
+			break;
+		case Two:
+			// Two players
+			if (model.getPlayerScore(0) > model.getPlayerScore(1)) {
+				// Player 1 won
+				winnerMessage = playerConfiguration.getPlayerName(0) + " is the winner!";
+				winnerColor = playerConfiguration.getPlayerColor(0);
+			} else if (model.getPlayerScore(0) < model.getPlayerScore(1)) {
+				// Player 2 won
+				winnerMessage = playerConfiguration.getPlayerName(1) + " is the winner!";
+				winnerColor = playerConfiguration.getPlayerColor(1);
+			} else {
+				// Tie
+				winnerMessage = "It's a tie!";
+				winnerColor = Color.WHITE;
+			}
+			break;
+		default:
+			throw new IllegalStateException();
+		}
+
+		final Label winnerLabel = new Label(winnerMessage, game.skin, "arcena64", winnerColor);
+		winnerLabel.setColor(Color.CLEAR);
+		winnerLabel.addAction(Actions.sequence(Actions.delay(cumulativeDelay), new Action() {
+			@Override
+			public boolean act(float delta) {
+				winnerLabel.setColor(Color.WHITE);
+				// TODO: Sound
+				return true;
+			}
+		}));
+		table.add(winnerLabel);
+		
 		// Buttons
-		table.row();
-		table.add(new Label("[Play Again]", game.skin, "arcena32", Color.WHITE));
-		table.row();
-		table.add(new Label("[Quit to Menu]", game.skin, "arcena32", Color.WHITE));
-		
-		
-		// Temp Buttons
+		final HorizontalGroup buttons = new HorizontalGroup();
 		table.row().padTop(50.0f);
-		// Help Button
-		final Drawable buttonOn = new TextureRegionDrawable(game.uiAtlas.findRegion("quit_game_button_on"));
-		final Drawable buttonOff = new TextureRegionDrawable(game.uiAtlas.findRegion("quit_game_button_off"));
-		final Button button = new Button(buttonOff, buttonOn);
-		button.addListener(new ChangeListener() {
+		table.add(buttons);
+
+		// Menu Button
+		final Button menuButton = game.makeTexturedButton("menu_button", false);
+		menuButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
-						new Action() {
-							@Override
-							public boolean act(float delta) {
-								GameOverScreen.this.game.setScreen(new MainMenuScreen(GameOverScreen.this.game));
-								GameOverScreen.this.dispose();
-								return true;
-							}
-						}));
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new ScreenChangeAction(game, GameOverScreen.this, new MainMenuScreen(game))));
 			}
 		});
-		table.add(button);
+		buttons.addActor(menuButton);
+		
+		// Padding
+		Actor buttonPadding = new Actor();
+		buttonPadding.setWidth(20.0f);
+		buttons.addActor(buttonPadding);
+		
+		// Restart Button
+		final Button restartButton = game.makeTexturedButton("restart_button", false);
+		restartButton.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new ScreenChangeAction(game, GameOverScreen.this, new GameScreen(game))));
+			}
+		});
+		buttons.addActor(restartButton);
 
 		// Fade in, then redirect all input events to the Stage
-		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		table.setColor(Color.CLEAR);
 		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 
 		// table.debug();
