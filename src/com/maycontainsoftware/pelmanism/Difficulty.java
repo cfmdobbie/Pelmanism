@@ -1,8 +1,8 @@
 package com.maycontainsoftware.pelmanism;
 
 /**
- * Enumeration of the various difficulties implemented in the app. The difficulty affects board size, speed of
- * gameplay and skill of computer player (if applicable.)
+ * Enumeration of the various difficulties implemented in the app. The difficulty affects board size, speed of gameplay
+ * and skill of computer player (if applicable.)
  * 
  * @author Charlie
  */
@@ -13,11 +13,11 @@ public enum Difficulty {
 	Medium(4, 5, 0.5f),
 	// Hard difficulty
 	Hard(5, 6, 0.9f);
-	
+
 	// Difficulties used for testing purposes
-	//Easy(1, 2, 0.3f),
-	//Medium(2, 2, 0.5f),
-	//Hard(3, 2, 0.9f);
+	// Easy(1, 2, 0.3f),
+	// Medium(2, 2, 0.5f),
+	// Hard(3, 2, 0.9f);
 
 	/** The number of columns on the board. */
 	private final int numberOfColumns;
@@ -59,8 +59,8 @@ public enum Difficulty {
 	public final int getBoardColumns() {
 		return numberOfColumns;
 	}
-	
-	/** Get the AI's intelligence rating at this difficulty.  0.0f is moronic, 1.0f is Godly. */
+
+	/** Get the AI's intelligence rating at this difficulty. 0.0f is moronic, 1.0f is Godly. */
 	public float getAiIntelligence() {
 		return aiIntelligence;
 	}
