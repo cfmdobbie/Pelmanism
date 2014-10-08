@@ -291,6 +291,20 @@ public class MyGame extends Game {
 		}
 	}
 
+	/** Play the game won sound, if sounds are enabled. */
+	public void playGameWonSound() {
+		if (sound) {
+			manager.get("win.mp3", Sound.class).play();
+		}
+	}
+
+	/** Play the game lost sound, if sounds are enabled. */
+	public void playGameLostSound() {
+		if (sound) {
+			manager.get("lose.mp3", Sound.class).play();
+		}
+	}
+
 	private final Drawable createBackgroundDrawable() {
 
 		// Texture containing color swatch to tint background pattern with

@@ -2,7 +2,6 @@ package com.maycontainsoftware.pelmanism;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Action;
@@ -203,7 +202,11 @@ public class GameOverScreen implements Screen {
 			@Override
 			public boolean act(float delta) {
 				winnerLabel.setColor(Color.WHITE);
-				game.manager.get(win ? "win.mp3" : "lose.mp3", Sound.class).play();
+				if(win) {
+					game.playGameWonSound();
+				} else {
+					game.playGameLostSound();
+				}
 				return true;
 			}
 		}));
