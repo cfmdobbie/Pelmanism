@@ -204,7 +204,6 @@ public class GameScreen implements Screen {
 		} else if (turn.isGameOver()) {
 			// A match, and game is over
 
-			// TODO: Game over stuff to go here
 			gameOverFlash.setColor(1.0f, 1.0f, 1.0f, 0.0f);
 			gameOverFlash.setVisible(true);
 			gameOverFlash.addAction(Actions.sequence(Actions.fadeIn(0.5f), Actions.delay(1.0f), new ScreenChangeAction(
@@ -221,7 +220,9 @@ public class GameScreen implements Screen {
 				@Override
 				public boolean act(float delta) {
 					ai.updateCards();
-					handleFirstPick(cardToCardActor.get(ai.pickFirstCard()));
+					final Card firstPick = ai.pickFirstCard();
+					final CardActor firstPickActor = cardToCardActor.get(firstPick);
+					handleFirstPick(firstPickActor);
 					return true;
 				}
 			}));
@@ -386,14 +387,13 @@ public class GameScreen implements Screen {
 		model = new Pelmanism(playerConfiguration.getNumberOfPlayers(), difficulty.getNumberOfPairs());
 
 		// Create AI player
-		// TODO: Only when an AI player exists?
+		// For simplicity, we create an AI even when no AI player exists
 		ai = new PelmanismAI(difficulty, model);
 
 		// Load graphic assets
 		atlas = game.manager.get(cardSet.atlasName, TextureAtlas.class);
 		cardBackRegion = atlas.findRegion(cardSet.backRegionName);
 		// Given numberOfPairs, return that number of unique random TextureRegions from appropriate TextureAtlas.
-		// TODO: Want to select a new subset of regions for each game; need to rearrange this
 		cardRegions = selectCardTextures(difficulty.getNumberOfPairs());
 
 		// Create Stage
@@ -587,20 +587,18 @@ public class GameScreen implements Screen {
 
 		// Buttons
 		table.row().padTop(30.0f).padBottom(20.0f);
+
 		// Back button
-		final Button backButton = game.makeTexturedButton("quit_game_button", false);
+		final Button backButton = game.makeTexturedButton("menu_button", false);
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-
-				table.addAction(Actions.sequence(Actions.fadeOut(0.25f), new ScreenChangeAction(game, GameScreen.this,
-						new MainMenuScreen(game))));
-
-				// GameScreen.this.game.setScreen(new MainMenuScreen(GameScreen.this.game));
-				// GameScreen.this.dispose();
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new ScreenChangeAction(game, GameScreen.this, new MainMenuScreen(game))));
 			}
 		});
 		table.add(backButton).left();
+
 		// Sound on/off
 		final Button soundButton = game.makeTexturedButton("sound_button", true);
 		soundButton.setChecked(game.sound);
@@ -608,11 +606,7 @@ public class GameScreen implements Screen {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				game.sound = !game.sound;
-				if (game.sound) {
-					// TODO: Start music
-				} else {
-					// TODO: Stop music and any currently playing sounds
-				}
+				// If we had any background music, we'd stop/start it here
 				game.saveSoundToPrefs();
 			}
 		});
@@ -621,11 +615,9 @@ public class GameScreen implements Screen {
 
 		// Game over flash panel
 		gameOverFlash = new Table();
-		//gameOverFlash.setFillParent(true);
+		// gameOverFlash.setFillParent(true);
 		gameOverFlash.setBackground(new NinePatchDrawable(game.uiAtlas.createPatch("game_over_bg")));
-		// TODO: Needs to be something more complicated than an Image
-		//gameOverFlash.add(new Image(game.uiAtlas.findRegion("yellow"))).expandX().fillX();
-		gameOverFlash.add(new Label("Game Over!", game.skin, "arcena64", Color.RED));
+		gameOverFlash.add(new Label("Game Over!", game.skin, "arcena64", Color.YELLOW));
 		final float flashHeight = 150.0f;
 		gameOverFlash.setBounds(0, MyGame.VIRTUAL_HEIGHT / 2 - flashHeight / 2, MyGame.VIRTUAL_WIDTH, flashHeight);
 		gameOverFlash.setVisible(false);
