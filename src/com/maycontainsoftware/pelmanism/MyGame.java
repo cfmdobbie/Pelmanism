@@ -78,7 +78,7 @@ public class MyGame extends Game {
 	// Player configuration
 	/** The name of the preference entry that holds the player configuration. */
 	public static final String PREF_PLAYER_CONFIGURATION = "player_configuration";
-	
+
 	// Difficulty
 	/** The name of the preference entry that holds the difficulty setting. */
 	public static final String PREF_DIFFICULTY = "difficulty";
@@ -191,9 +191,15 @@ public class MyGame extends Game {
 	public void dispose() {
 
 		// Dispose of stuff
-		batch.dispose();
-		manager.dispose();
-		skin.dispose();
+		if (batch != null) {
+			batch.dispose();
+		}
+		if (manager != null) {
+			manager.dispose();
+		}
+		if (skin != null) {
+			skin.dispose();
+		}
 
 		// Pass render() call to active Screen
 		super.dispose();
