@@ -27,6 +27,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
  */
 public class MyGame extends Game {
 
+	/** Whether debug output should be logged. */
+	private static final boolean DEBUG = false;
+
 	/** A tag for logging purposes. */
 	private static final String TAG = MyGame.class.getSimpleName();
 
@@ -130,13 +133,17 @@ public class MyGame extends Game {
 		// Always start with the loading screen
 		this.setScreen(new LoadingScreen(this));
 
-		Gdx.app.log(TAG, "screen density = " + Gdx.graphics.getDensity());
+		if (DEBUG) {
+			Gdx.app.log(TAG, "screen density = " + Gdx.graphics.getDensity());
+		}
 	}
 
 	@Override
 	public void resize(final int width, final int height) {
 
-		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		if (DEBUG) {
+			Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		}
 
 		// Calculate display aspect ratio
 		final float displayAspectRatio = (float) width / (float) height;

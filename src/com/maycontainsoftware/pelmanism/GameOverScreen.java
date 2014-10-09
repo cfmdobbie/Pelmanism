@@ -20,6 +20,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
  */
 public class GameOverScreen implements Screen {
 
+	/** Whether debug output should be logged. */
+	private static final boolean DEBUG = false;
+
 	/** Tag, for logging purposes. */
 	private static final String TAG = GameOverScreen.class.getSimpleName();
 
@@ -263,7 +266,9 @@ public class GameOverScreen implements Screen {
 
 	@Override
 	public void resize(final int width, final int height) {
-		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		if (DEBUG) {
+			Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		}
 		// Update Stage's viewport calculations
 		final Rectangle v = game.viewport;
 		stage.setViewport(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, false, v.x, v.y, v.width, v.height);

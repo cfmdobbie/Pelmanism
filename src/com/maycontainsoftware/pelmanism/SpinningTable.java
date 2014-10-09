@@ -13,6 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
  */
 public class SpinningTable extends Table {
 
+	/** Whether debug output should be logged. */
+	private static final boolean DEBUG = false;
+
 	/** Tag for logging purposes. */
 	private static final String TAG = SpinningTable.class.getSimpleName();
 
@@ -27,7 +30,9 @@ public class SpinningTable extends Table {
 			public boolean touchDown(final InputEvent event, final float x, final float y, final int pointer,
 					final int button) {
 
-				Gdx.app.log(TAG, "SpinningTable touchDown");
+				if (DEBUG) {
+					Gdx.app.log(TAG, "SpinningTable touchDown");
+				}
 
 				// If not already processing an action
 				if (SpinningTable.this.getActions().size == 0) {

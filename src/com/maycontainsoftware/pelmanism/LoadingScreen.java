@@ -20,6 +20,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
  */
 public class LoadingScreen implements Screen {
 
+	/** Whether debug output should be logged. */
+	private static final boolean DEBUG = false;
+
 	/** Tag, for logging purposes. */
 	private static final String TAG = LoadingScreen.class.getSimpleName();
 
@@ -88,7 +91,9 @@ public class LoadingScreen implements Screen {
 		// Continue to load assets
 		if (game.manager.update()) {
 			// Assets have been loaded!
-			Gdx.app.log(TAG, "game.manager.update() = true");
+			if (DEBUG) {
+				Gdx.app.log(TAG, "game.manager.update() = true");
+			}
 
 			// Perform any post-load tasks
 			// Get reference to UI assets
@@ -111,7 +116,9 @@ public class LoadingScreen implements Screen {
 	@Override
 	public void resize(final int width, final int height) {
 		// Update Stage's viewport calculations
-		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		if (DEBUG) {
+			Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
+		}
 		stage.setViewport(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, false, game.viewport.x, game.viewport.y,
 				game.viewport.width, game.viewport.height);
 	}
