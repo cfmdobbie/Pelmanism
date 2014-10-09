@@ -53,7 +53,9 @@ public class LoadingScreen implements Screen {
 
 	@Override
 	public void show() {
-		System.out.println("LoadingScreen.show()");
+		if(DEBUG) {
+			Gdx.app.log(TAG, "show()");
+		}
 
 		// Manually load any assets required for the loading screen
 		loadingTexture = new Texture(Gdx.files.internal("loading.png"));
