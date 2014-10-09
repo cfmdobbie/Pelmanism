@@ -54,31 +54,26 @@ public class HelpScreen implements Screen {
 		table.row();
 		table.add(new Label("How to Play:", game.skin, "arcena64", Color.RED));
 
-		// TODO: Improve help/credits text
+		// FUTURE: Better help text? Or is it better to be this concise?
 		final String[] howToPlayText = {
-				"Players take it in turns to pick two cards.\n" +
-				"Find a pair: win a point, and you get to pick\n" +
-				"again!  Highest score wins the game.",
-				
-				"Play solo, against a friend or against the\n" +
-				"computer.",
-				
-				"Higher difficulties offer larger boards\n" +
-				"and more challenging computer players." };
+				"Players take it in turns to pick two cards.\n" + "Find a pair: win a point, and you get to pick\n"
+						+ "again!  Highest score wins the game.",
+
+				"Play solo, against a friend or against the\n" + "computer.",
+
+				"Higher difficulties offer larger boards\n" + "and more challenging computer players." };
 
 		for (final String line : howToPlayText) {
 			table.row();
 			table.add(new Label(line, game.skin, "arcena32", Color.WHITE)).fillX();
 		}
-		
+
 		// Credits
 		table.row();
 		table.add(new Label("Credits:", game.skin, "arcena64", Color.RED));
 
-		final String creditsText =
-				"Game created by Charlie Dobbie\n" +
-				"for MayContainSoftware.com.\n" +
-				"Developed in libGDX.";
+		final String creditsText = "Game created by Charlie Dobbie\n" + "for MayContainSoftware.com.\n"
+				+ "Developed in libGDX.";
 
 		table.row();
 		table.add(new Label(creditsText, game.skin, "arcena32", Color.WHITE)).fillX();
@@ -101,12 +96,12 @@ public class HelpScreen implements Screen {
 		stage.addActor(table);
 
 		// Fade in, then redirect all input events to the Stage
-		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		table.setColor(Color.CLEAR);
 		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(final float delta) {
 
 		// Update and render Stage
 		stage.act();
@@ -116,7 +111,7 @@ public class HelpScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		// Update Stage's viewport calculations
 		final Rectangle v = game.viewport;

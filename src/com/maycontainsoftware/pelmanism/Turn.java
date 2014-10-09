@@ -28,7 +28,7 @@ public class Turn {
 	/**
 	 * @return The turn id
 	 */
-	public int getId() {
+	public final int getId() {
 		return id;
 	}
 
@@ -38,7 +38,7 @@ public class Turn {
 	 * @param id
 	 *            The id to set.
 	 */
-	public void setId(int id) {
+	public final void setId(final int id) {
 		this.id = id;
 	}
 
@@ -47,7 +47,7 @@ public class Turn {
 	 * 
 	 * @return The player id
 	 */
-	public int getPlayerId() {
+	public final int getPlayerId() {
 		return playerId;
 	}
 
@@ -57,14 +57,14 @@ public class Turn {
 	 * @param playerId
 	 *            The player id to set
 	 */
-	public void setPlayerId(int playerId) {
+	public final void setPlayerId(final int playerId) {
 		this.playerId = playerId;
 	}
 
 	/**
 	 * @return The first card picked in this turn
 	 */
-	public Card getFirstPick() {
+	public final Card getFirstPick() {
 		return firstPick;
 	}
 
@@ -72,14 +72,14 @@ public class Turn {
 	 * @param firstPick
 	 *            The first card picked in this turn
 	 */
-	public void setFirstPick(Card firstPick) {
+	public final void setFirstPick(final Card firstPick) {
 		this.firstPick = firstPick;
 	}
 
 	/**
 	 * @return The second card picked in this turn
 	 */
-	public Card getSecondPick() {
+	public final Card getSecondPick() {
 		return secondPick;
 	}
 
@@ -87,7 +87,7 @@ public class Turn {
 	 * @param secondPick
 	 *            The second card picked in this turn
 	 */
-	public void setSecondPick(Card secondPick) {
+	public final void setSecondPick(final Card secondPick) {
 		this.secondPick = secondPick;
 	}
 
@@ -102,7 +102,7 @@ public class Turn {
 	 * @param match
 	 *            True if the cards were a match, false otherwise.
 	 */
-	public void setMatch(boolean match) {
+	public final void setMatch(final boolean match) {
 		this.match = match;
 	}
 
@@ -117,7 +117,7 @@ public class Turn {
 	 * @param gameOver
 	 *            True if the game is over, false otherwise.
 	 */
-	public void setGameOver(boolean gameOver) {
+	public final void setGameOver(final boolean gameOver) {
 		this.gameOver = gameOver;
 	}
 

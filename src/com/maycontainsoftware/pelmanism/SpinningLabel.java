@@ -19,7 +19,7 @@ public class SpinningLabel extends Table {
 	private static final String TAG = SpinningLabel.class.getSimpleName();
 
 	/** Constructor. */
-	public SpinningLabel(MyGame game, String text, String font, Color color) {
+	public SpinningLabel(final MyGame game, final String text, final String font, final Color color) {
 
 		// Need to allow transformations on the surrounding table
 		this.setTransform(true);
@@ -29,7 +29,8 @@ public class SpinningLabel extends Table {
 		// Add the on-click handler to the Label
 		label.addListener(new InputListener() {
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+			public boolean touchDown(final InputEvent event, final float x, final float y, final int pointer,
+					final int button) {
 
 				Gdx.app.log(TAG, "SpinningLabel touchDown");
 

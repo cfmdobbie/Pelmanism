@@ -6,15 +6,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+/**
+ * Utility to copy all static graphics and sound to the assets directory in the Android application directory.
+ * 
+ * @author Charlie
+ */
 public class CopyStaticAssets {
 
 	public static void main(String[] args) throws IOException {
 
+		// Target directory - note assumed project name!
 		final File outputDirectory = new File("../Pelmanism-android/assets/");
 
+		// Fixed assets in the local assets directory
 		final File[] inputDirectories = new File[] { new File("./assets/graphics/static/"),
 				new File("./assets/sound/"), };
 
+		// Copy all files in the input directories to the output directory
 		for (final File inputDirectory : inputDirectories) {
 			for (final File inputFile : inputDirectory.listFiles()) {
 				final String filename = inputFile.getName();
@@ -25,7 +33,16 @@ public class CopyStaticAssets {
 		}
 	}
 
-	public static void copyFile(File sourceFile, File destFile) throws IOException {
+	/**
+	 * Efficiently copy contents of one file to another.
+	 * 
+	 * @param sourceFile
+	 *            The file to copy from
+	 * @param destFile
+	 *            The file to copy to
+	 * @throws IOException
+	 */
+	private static void copyFile(final File sourceFile, final File destFile) throws IOException {
 		if (!destFile.exists()) {
 			destFile.createNewFile();
 		}

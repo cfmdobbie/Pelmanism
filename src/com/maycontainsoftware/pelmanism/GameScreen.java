@@ -103,15 +103,21 @@ public class GameScreen implements Screen {
 	/** The actor representing the second card to be picked. */
 	private CardActor secondPick = null;
 
+	/** Whether or not it is the computer's turn. */
 	private boolean isComputerTurn() {
 		return !playerConfiguration.isPlayerUserControlled(model.getCurrentPlayerId());
 	}
 
+	/**
+	 * Given a CardActor, process it as the first pick.
+	 * 
+	 * @param firstPick
+	 */
 	private final void handleFirstPick(final CardActor firstPick) {
 		// Remember that this is the first chosen card
 		this.firstPick = firstPick;
 		// Flip the card over
-		firstPick.addAction(firstPick.actionWinkToFront());
+		firstPick.addAction(firstPick.actionFlipToFront());
 		// Notify the AI of the new card
 		ai.cardSeen(firstPick.card);
 		// Play sound effect
@@ -131,11 +137,16 @@ public class GameScreen implements Screen {
 		}
 	}
 
+	/**
+	 * Given a CardActor, process it as the second pick.
+	 * 
+	 * @param secondPick
+	 */
 	private final void handleSecondPick(final CardActor secondPick) {
 		// Remember that this is the second chosen card
 		this.secondPick = secondPick;
 		// Flip the card over
-		secondPick.addAction(Actions.sequence(secondPick.actionWinkToFront(), new Action() {
+		secondPick.addAction(Actions.sequence(secondPick.actionFlipToFront(), new Action() {
 			@Override
 			public boolean act(float delta) {
 				processTurn();
@@ -150,7 +161,7 @@ public class GameScreen implements Screen {
 		gameState = GameState.CardsPicked;
 	}
 
-	/** Given two card picks, process the turn in the game model and update the interface as required. */
+	/** Given the two previously-chosen cards, process the turn in the game model and update the interface as required. */
 	private void processTurn() {
 
 		// The results of submitting the turn
@@ -168,7 +179,7 @@ public class GameScreen implements Screen {
 			firstPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f)));
 			secondPick.addAction(Actions.sequence(Actions.delay(0.5f), Actions.fadeOut(0.25f), new Action() {
 				@Override
-				public boolean act(float delta) {
+				public boolean act(final float delta) {
 					postTurn(turn);
 					return true;
 				}
@@ -176,10 +187,10 @@ public class GameScreen implements Screen {
 
 		} else {
 
-			firstPick.addAction(firstPick.actionDelayedWinkToBack());
-			secondPick.addAction(Actions.sequence(secondPick.actionDelayedWinkToBack(), new Action() {
+			firstPick.addAction(firstPick.actionDelayedFlipToBack());
+			secondPick.addAction(Actions.sequence(secondPick.actionDelayedFlipToBack(), new Action() {
 				@Override
-				public boolean act(float delta) {
+				public boolean act(final float delta) {
 					postTurn(turn);
 					return true;
 				}
@@ -188,6 +199,11 @@ public class GameScreen implements Screen {
 		}
 	}
 
+	/**
+	 * Turn has been completed - process
+	 * 
+	 * @param turn
+	 */
 	private void postTurn(final Turn turn) {
 
 		// TODO: Need to move timing-related float primitives to constant fields
@@ -267,7 +283,8 @@ public class GameScreen implements Screen {
 			// Touch events on the card are intercepted by an InputListener.
 			this.addListener(new InputListener() {
 				@Override
-				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				public boolean touchDown(final InputEvent event, final float x, final float y, final int pointer,
+						final int button) {
 
 					if (isComputerTurn()) {
 						// Current player is the computer - ignore input
@@ -331,8 +348,8 @@ public class GameScreen implements Screen {
 			return actionSpecifiedTexture(cardBackTexture);
 		}
 
-		/** Create an Action that implements the "wink out" animation. */
-		private final Action actionWinkOut() {
+		/** Create an Action that implements the "flip out" animation. */
+		private final Action actionFlipOut() {
 			final float cardWidth = this.getWidth();
 			final float duration = 0.125f;
 
@@ -342,8 +359,8 @@ public class GameScreen implements Screen {
 			return Actions.parallel(shiftRight, scaleToZeroWidth);
 		}
 
-		/** Create an Action that implements the "wink in" animation. */
-		private final Action actionWinkIn() {
+		/** Create an Action that implements the "flip in" animation. */
+		private final Action actionFlipIn() {
 			final float cardWidth = this.getWidth();
 			final float duration = 0.125f;
 
@@ -353,20 +370,14 @@ public class GameScreen implements Screen {
 			return Actions.parallel(shiftLeft, scaleToFullWidth);
 		}
 
-		/** Return an action that winks in and out, switching to the card front texture. */
-		private final Action actionWinkToFront() {
-			return Actions.sequence(actionWinkOut(), actionFrontTexture(), actionWinkIn());
+		/** Return an action that flips the card over, revealing the card front texture. */
+		private final Action actionFlipToFront() {
+			return Actions.sequence(actionFlipOut(), actionFrontTexture(), actionFlipIn());
 		}
 
-		/** Return an action that winks in and out, switching to the card back texture. */
-		/*
-		 * private final Action actionWinkToBack() { return Actions.sequence(actionWinkOut(), actionBackTexture(),
-		 * actionWinkIn()); }
-		 */
-
-		/** Return an action that pauses then flips card to the back. */
-		private final Action actionDelayedWinkToBack() {
-			return Actions.sequence(Actions.delay(1.0f), actionWinkOut(), actionBackTexture(), actionWinkIn());
+		/** Return an action that pauses then flips the card over to the back texture. */
+		private final Action actionDelayedFlipToBack() {
+			return Actions.sequence(Actions.delay(1.0f), actionFlipOut(), actionBackTexture(), actionFlipIn());
 		}
 	}
 
@@ -411,7 +422,7 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(final float delta) {
 
 		// Update and render Stage
 		stage.act();
@@ -421,7 +432,7 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		// Update Stage's viewport calculations
 		final Rectangle v = game.viewport;
@@ -592,7 +603,7 @@ public class GameScreen implements Screen {
 		final Button backButton = game.makeTexturedButton("menu_button", false);
 		backButton.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {
+			public void changed(final ChangeEvent event, final Actor actor) {
 				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
 						new ScreenChangeAction(game, GameScreen.this, new MainMenuScreen(game))));
 			}
@@ -604,7 +615,7 @@ public class GameScreen implements Screen {
 		soundButton.setChecked(game.sound);
 		soundButton.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {
+			public void changed(final ChangeEvent event, final Actor actor) {
 				game.sound = !game.sound;
 				// If we had any background music, we'd stop/start it here
 				game.saveSoundToPrefs();

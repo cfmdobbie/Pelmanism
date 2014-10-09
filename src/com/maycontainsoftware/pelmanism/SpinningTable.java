@@ -24,7 +24,8 @@ public class SpinningTable extends Table {
 		// Add the on-click handler to the table
 		addListener(new InputListener() {
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+			public boolean touchDown(final InputEvent event, final float x, final float y, final int pointer,
+					final int button) {
 
 				Gdx.app.log(TAG, "SpinningTable touchDown");
 

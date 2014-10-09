@@ -31,16 +31,15 @@ public class MyGame extends Game {
 	private static final String TAG = MyGame.class.getSimpleName();
 
 	// Virtual screen metrics
+
 	/** The width of the virtual render area. */
 	public static final int VIRTUAL_WIDTH = 720;
+
 	/** The height of the virtual render area. */
 	public static final int VIRTUAL_HEIGHT = 1000;
+
 	/** The aspect ratio of the virtual render area. */
 	private static final float VIRTUAL_ASPECT_RATIO = (float) VIRTUAL_WIDTH / (float) VIRTUAL_HEIGHT;
-
-	// Background colour
-	/** The app's background color, the default color the virtual render area is cleared to. */
-	// private static final Color BACKGROUND_COLOR = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
 
 	/**
 	 * The app-global SpriteBatch. For performance reasons, a single SpriteBatch exists and is accessed from all Screens
@@ -69,25 +68,34 @@ public class MyGame extends Game {
 	/** The Scene2D UI skin instance. */
 	Skin skin;
 
+	/** Drawable object that manages the background. */
 	private Drawable background;
+
+	// Preferences
 
 	/** Name of preferences file for state persistence. */
 	private static final String PREFERENCES_NAME = "com.maycontainsoftware.pelmanism";
+
+	/** Preferences file. */
 	Preferences mPrefs;
 
 	// Player configuration
+
 	/** The name of the preference entry that holds the player configuration. */
 	public static final String PREF_PLAYER_CONFIGURATION = "player_configuration";
 
 	// Difficulty
+
 	/** The name of the preference entry that holds the difficulty setting. */
 	public static final String PREF_DIFFICULTY = "difficulty";
 
 	// Card sets
+
 	/** The name of the preference entry that holds the card set setting. */
 	public static final String PREF_CARD_SET = "card_set";
 
 	// Audio settings
+
 	/** The name of the preference entry that holds the sound setting. */
 	private static final String PREF_SOUND = "sound";
 
@@ -126,7 +134,7 @@ public class MyGame extends Game {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 
@@ -214,7 +222,7 @@ public class MyGame extends Game {
 	 *            True if Button has a checked state, false otherwise.
 	 * @return The created Button
 	 */
-	final Button makeTexturedButton(String textureRegionPrefix, boolean toggle) {
+	final Button makeTexturedButton(final String textureRegionPrefix, final boolean toggle) {
 		final Drawable off = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_off"));
 		final Drawable on = new TextureRegionDrawable(uiAtlas.findRegion(textureRegionPrefix + "_on"));
 		final Button button = toggle ? new Button(off, on, on) : new Button(off, on);
@@ -258,7 +266,7 @@ public class MyGame extends Game {
 	 * @param value
 	 *            The value to set.
 	 */
-	public final void savePreference(String name, String value) {
+	public final void savePreference(final String name, final String value) {
 		mPrefs.putString(name, value);
 		mPrefs.flush();
 	}
@@ -305,6 +313,7 @@ public class MyGame extends Game {
 		}
 	}
 
+	/** Create a Drawable to be used to draw the background. */
 	private final Drawable createBackgroundDrawable() {
 
 		// Texture containing color swatch to tint background pattern with

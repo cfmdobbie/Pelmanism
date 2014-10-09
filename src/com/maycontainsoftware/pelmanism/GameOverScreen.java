@@ -85,7 +85,7 @@ public class GameOverScreen implements Screen {
 			throw new IllegalStateException();
 		}
 		// Display stars, with sound and animation
-		HorizontalGroup stars = new HorizontalGroup();
+		final HorizontalGroup stars = new HorizontalGroup();
 		table.add(stars);
 		for (int i = 0; i < starCount; i++) {
 			final Image star = new Image(game.uiAtlas.findRegion(starRegion));
@@ -202,7 +202,7 @@ public class GameOverScreen implements Screen {
 			@Override
 			public boolean act(float delta) {
 				winnerLabel.setColor(Color.WHITE);
-				if(win) {
+				if (win) {
 					game.playGameWonSound();
 				} else {
 					game.playGameLostSound();
@@ -211,7 +211,7 @@ public class GameOverScreen implements Screen {
 			}
 		}));
 		table.add(winnerLabel);
-		
+
 		// Buttons
 		final HorizontalGroup buttons = new HorizontalGroup();
 		table.row().padTop(50.0f);
@@ -222,22 +222,24 @@ public class GameOverScreen implements Screen {
 		menuButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new ScreenChangeAction(game, GameOverScreen.this, new MainMenuScreen(game))));
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new ScreenChangeAction(game, GameOverScreen.this, new MainMenuScreen(game))));
 			}
 		});
 		buttons.addActor(menuButton);
-		
+
 		// Padding
-		Actor buttonPadding = new Actor();
+		final Actor buttonPadding = new Actor();
 		buttonPadding.setWidth(20.0f);
 		buttons.addActor(buttonPadding);
-		
+
 		// Restart Button
 		final Button restartButton = game.makeTexturedButton("restart_button", false);
 		restartButton.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new ScreenChangeAction(game, GameOverScreen.this, new GameScreen(game))));
+			public void changed(final ChangeEvent event, final Actor actor) {
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new ScreenChangeAction(game, GameOverScreen.this, new GameScreen(game))));
 			}
 		});
 		buttons.addActor(restartButton);
@@ -250,7 +252,7 @@ public class GameOverScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(final float delta) {
 
 		// Update and render Stage
 		stage.act();
@@ -260,7 +262,7 @@ public class GameOverScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		// Update Stage's viewport calculations
 		final Rectangle v = game.viewport;

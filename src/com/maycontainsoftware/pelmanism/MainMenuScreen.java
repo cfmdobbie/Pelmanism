@@ -54,11 +54,11 @@ public class MainMenuScreen implements Screen {
 		table.setFillParent(true);
 		table.defaults().pad(10.0f);
 		stage.addActor(table);
-		
+
 		// Fade in, then redirect all input events to the Stage
 		table.setColor(1.0f, 1.0f, 1.0f, 0.0f);
 		table.addAction(Actions.sequence(Actions.fadeIn(0.125f), new SetInputProcessorAction(stage)));
-		
+
 		// Title
 		table.add(new Image(game.uiAtlas.findRegion("pelmanism_title"))).colspan(3);
 		table.row();
@@ -66,11 +66,12 @@ public class MainMenuScreen implements Screen {
 		// Players section
 		// Label
 		table.add(new Label("Players:", game.skin, "arcena48", Color.WHITE)).colspan(3);
-		//table.add(new SpinningLabel(game, "Players:", "arcena48", Color.WHITE)).colspan(3);
+		// table.add(new SpinningLabel(game, "Players:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] playerImagePrefixes = { "player_1p", "player_2p", "player_1pvscpu" };
-		for(Button b : makeButtonSet(playerImagePrefixes, MyGame.PREF_PLAYER_CONFIGURATION, PlayerConfiguration.values())) {
+		for (final Button b : makeButtonSet(playerImagePrefixes, MyGame.PREF_PLAYER_CONFIGURATION,
+				PlayerConfiguration.values())) {
 			table.add(b);
 		}
 		table.row();
@@ -78,11 +79,11 @@ public class MainMenuScreen implements Screen {
 		// Difficulty section
 		// Label
 		table.add(new Label("Difficulty:", game.skin, "arcena48", Color.WHITE)).colspan(3);
-		//table.add(new SpinningLabel(game, "Difficulty:", "arcena48", Color.WHITE)).colspan(3);
+		// table.add(new SpinningLabel(game, "Difficulty:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] difficultyImagePrefixes = { "difficulty_1", "difficulty_2", "difficulty_3" };
-		for(Button b : makeButtonSet(difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, Difficulty.values())) {
+		for (final Button b : makeButtonSet(difficultyImagePrefixes, MyGame.PREF_DIFFICULTY, Difficulty.values())) {
 			table.add(b);
 		}
 		table.row();
@@ -90,11 +91,11 @@ public class MainMenuScreen implements Screen {
 		// Card set section
 		// Label
 		table.add(new Label("Cards:", game.skin, "arcena48", Color.WHITE)).colspan(3);
-		//table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
+		// table.add(new SpinningLabel(game, "Card set:", "arcena48", Color.WHITE)).colspan(3);
 		table.row();
 		// Buttons
 		final String[] cardSetImagePrefixes = { "cards_simple", "cards_signs", "cards_hard" };
-		for(Button b : makeButtonSet(cardSetImagePrefixes, MyGame.PREF_CARD_SET, CardSet.values())) {
+		for (final Button b : makeButtonSet(cardSetImagePrefixes, MyGame.PREF_CARD_SET, CardSet.values())) {
 			table.add(b);
 		}
 		table.row();
@@ -107,14 +108,15 @@ public class MainMenuScreen implements Screen {
 		helpButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
-					@Override
-					public boolean act(float delta) {
-						MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
-						MainMenuScreen.this.dispose();
-						return true;
-					}
-				}));
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new Action() {
+							@Override
+							public boolean act(float delta) {
+								MainMenuScreen.this.game.setScreen(new HelpScreen(MainMenuScreen.this.game));
+								MainMenuScreen.this.dispose();
+								return true;
+							}
+						}));
 			}
 		});
 		table.add(helpButton).padTop(50.0f);
@@ -124,15 +126,16 @@ public class MainMenuScreen implements Screen {
 		final Button startButton = new Button(startButtonOff, startButtonOn);
 		startButton.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f), new Action() {
-					@Override
-					public boolean act(float delta) {
-						MainMenuScreen.this.game.setScreen(new GameScreen(MainMenuScreen.this.game));
-						MainMenuScreen.this.dispose();
-						return true;
-					}
-				}));
+			public void changed(final ChangeEvent event, final Actor actor) {
+				table.addAction(Actions.sequence(new SetInputProcessorAction(null), Actions.fadeOut(0.125f),
+						new Action() {
+							@Override
+							public boolean act(float delta) {
+								MainMenuScreen.this.game.setScreen(new GameScreen(MainMenuScreen.this.game));
+								MainMenuScreen.this.dispose();
+								return true;
+							}
+						}));
 			}
 		});
 		table.add(startButton).colspan(2).padTop(50.0f);
@@ -142,7 +145,7 @@ public class MainMenuScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(final float delta) {
 
 		// Update and render Stage
 		stage.act();
@@ -152,7 +155,7 @@ public class MainMenuScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		// Update Stage's viewport calculations
 		final Rectangle v = game.viewport;
@@ -191,8 +194,7 @@ public class MainMenuScreen implements Screen {
 	 *            The preference values associated with the buttons, in the same order as the imagePrefixes.
 	 * @return The array of buttons
 	 */
-	private Button[] makeButtonSet(final String[] imagePrefixes, final String prefsName,
-			final Enum<?>[] values) {
+	private Button[] makeButtonSet(final String[] imagePrefixes, final String prefsName, final Enum<?>[] values) {
 		// METHOD
 		final int n = imagePrefixes.length;
 		final Button[] buttons = new Button[n];

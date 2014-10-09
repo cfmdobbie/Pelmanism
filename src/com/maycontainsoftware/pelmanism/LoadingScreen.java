@@ -44,7 +44,7 @@ public class LoadingScreen implements Screen {
 	 * 
 	 * @param game
 	 */
-	public LoadingScreen(MyGame game) {
+	public LoadingScreen(final MyGame game) {
 		this.game = game;
 	}
 
@@ -79,7 +79,7 @@ public class LoadingScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(final float delta) {
 
 		// Update and render the Stage
 		stage.act();
@@ -109,7 +109,7 @@ public class LoadingScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(final int width, final int height) {
 		// Update Stage's viewport calculations
 		Gdx.app.log(TAG, "resize(" + width + ", " + height + ")");
 		stage.setViewport(MyGame.VIRTUAL_WIDTH, MyGame.VIRTUAL_HEIGHT, false, game.viewport.x, game.viewport.y,
@@ -143,7 +143,7 @@ public class LoadingScreen implements Screen {
 		/** The Animation that is to be played. */
 		private final Animation animation;
 
-		/** The tim the animation has been playing, in seconds. */
+		/** The time the animation has been playing, in seconds. */
 		float animTime = 0.0f;
 
 		/**
@@ -163,13 +163,13 @@ public class LoadingScreen implements Screen {
 		}
 
 		@Override
-		public void act(float delta) {
+		public void act(final float delta) {
 			// Update animation time
 			animTime += delta;
 		}
 
 		@Override
-		public void draw(SpriteBatch batch, float parentAlpha) {
+		public void draw(final SpriteBatch batch, final float parentAlpha) {
 			// Get current animation frame
 			final TextureRegion currentFrame = animation.getKeyFrame(animTime, true);
 			// Display in centre of screen

@@ -8,6 +8,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Computer player, with very simple AI.
+ * 
+ * @author Charlie
+ */
 public class PelmanismAI {
 	// Needs to have a memory of previous picks
 	// Needs to have an *imperfect* memory at times
@@ -19,16 +24,19 @@ public class PelmanismAI {
 	// ** The Pelmanism game model. */
 	// private final Pelmanism model;
 
-	/** List of all cards currently in the game. Will need to be updated wrt matched cards before use. */
+	/** All cards currently in the game. */
 	private final Set<Card> allCards = new HashSet<Card>();
 
-	/** List of all cards that have been seen. Will need to be updated wrt matched cards before use. */
+	/** All cards that have been seen. */
 	private final Set<Card> seenCards = new HashSet<Card>();
 
+	/** All cards that have not been revealed yet. */
 	private final Set<Card> unknownCards = new HashSet<Card>();
 
+	/** Mapping of pairId to collection of Cards. */
 	private final Map<Integer, Set<Card>> cardsByPairId = new HashMap<Integer, Set<Card>>();
 
+	/** All known pairIds where both Cards of the pair have been seen. */
 	private final Set<Integer> knownPairs = new HashSet<Integer>();
 
 	/** After an invocation to pickCards(), the first card picked. */
@@ -40,11 +48,15 @@ public class PelmanismAI {
 	/** Random number generator. */
 	private final Random random = new Random();
 
+	/** Enumeration of the ways the AI could try to play the next turn. */
 	private static enum Intention {
+		/** Try to go for a pair, or at least be intelligent about the next turn. */
 		PAIR,
+		/** Behave randomly. */
 		RANDOM,
 	}
 
+	/** The AI's current intention. */
 	private Intention intention;
 
 	/** Construct a new PelmanismAI object. */
@@ -56,7 +68,7 @@ public class PelmanismAI {
 		for (int i = 0; i < model.getNumberOfCards(); i++) {
 			allCards.add(model.getCard(i));
 		}
-		
+
 		// Update our current understanding of the cards
 		updateCards();
 	}
@@ -90,9 +102,9 @@ public class PelmanismAI {
 		secondCard = null;
 
 		// Remove any cards that have been matched
-		Iterator<Card> i = allCards.iterator();
+		final Iterator<Card> i = allCards.iterator();
 		while (i.hasNext()) {
-			Card c = i.next();
+			final Card c = i.next();
 			if (c.isMatched()) {
 				i.remove();
 				// If it had been seen previously, remove it from there as well
@@ -104,22 +116,22 @@ public class PelmanismAI {
 
 		// Work out what cards are unknown
 		unknownCards.clear();
-		for (Card c : allCards) {
+		for (final Card c : allCards) {
 			if (!seenCards.contains(c)) {
 				unknownCards.add(c);
 			}
 		}
 
 		// Work out current approach to picking a card
-		// Generate a random number between 0 and 1.  If the AI intelligence is set higher, go for a pair.
+		// Generate a random number between 0 and 1. If the AI intelligence is set higher, go for a pair.
 		intention = (difficulty.getAiIntelligence() > random.nextFloat()) ? Intention.PAIR : Intention.RANDOM;
 
 		// Work out whether any pairs are known
 
 		// Arrange cards by pairId
 		cardsByPairId.clear();
-		for (Card c : seenCards) {
-			int pairId = c.getPairId();
+		for (final Card c : seenCards) {
+			final int pairId = c.getPairId();
 			if (cardsByPairId.containsKey(pairId)) {
 				cardsByPairId.get(pairId).add(c);
 			} else {
@@ -128,7 +140,7 @@ public class PelmanismAI {
 		}
 		// Log ids for any known pairs
 		knownPairs.clear();
-		for (Integer pairId : cardsByPairId.keySet()) {
+		for (final Integer pairId : cardsByPairId.keySet()) {
 			if (cardsByPairId.get(pairId).size() == 2) {
 				knownPairs.add(pairId);
 			}
@@ -141,7 +153,7 @@ public class PelmanismAI {
 			if (!knownPairs.isEmpty()) {
 				// We know about at least one pair! Pick a random one
 				final int pairId = randomElement(knownPairs);
-				Card[] cards = cardsByPairId.get(pairId).toArray(new Card[] {});
+				final Card[] cards = cardsByPairId.get(pairId).toArray(new Card[] {});
 				firstCard = cards[0];
 				secondCard = cards[1];
 			} else {
@@ -168,15 +180,15 @@ public class PelmanismAI {
 				// Want a pair, but didn't originally know any
 				// Might have found one now?
 				final int pairId = firstCard.getPairId();
-				if(knownPairs.contains(pairId)) {
+				if (knownPairs.contains(pairId)) {
 					// Have just found a pair!
 					// Need to find the other half of it...
-					Card[] pair = cardsByPairId.get(pairId).toArray(new Card[]{});
+					final Card[] pair = cardsByPairId.get(pairId).toArray(new Card[] {});
 					secondCard = (firstCard == pair[1]) ? pair[0] : pair[1];
 				} else {
 					// Still don't know any pairs.
 					// Be a little clever - try and pick an already-known card so we don't give anything away
-					if(seenCards.size() > 1) {
+					if (seenCards.size() > 1) {
 						do {
 							secondCard = randomElement(seenCards);
 						} while (firstCard == secondCard);
@@ -203,7 +215,7 @@ public class PelmanismAI {
 
 	@SuppressWarnings("unchecked")
 	private final <T extends Object> T randomElement(final Set<T> set) {
-		Object[] cards = set.toArray();
+		final Object[] cards = set.toArray();
 		return (T) cards[random.nextInt(cards.length)];
 	}
 }

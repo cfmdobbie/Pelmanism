@@ -13,6 +13,7 @@ public class Card {
 	/** Id of the pair represented by this card. There will be exactly two cards that represent each pair. */
 	private final int pairId;
 
+	/** Whether or not this card has been matched by a player, and thereby removed from the board. */
 	private boolean matched;
 
 	/** Construct a new card. */
