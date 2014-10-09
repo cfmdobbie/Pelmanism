@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 public enum PlayerConfiguration {
 
 	// One player, solitaire play
+	// FUTURE: Define a "Player" class to better encapsulate this data?
 	One(new String[] { "Player One" }, new Color[] { Color.RED }, new boolean[] { true }),
 	// Two player, hot seat
 	Two(new String[] { "Player One", "Player Two" }, new Color[] { Color.RED, Color.BLUE },
@@ -17,8 +18,6 @@ public enum PlayerConfiguration {
 	// One human player versus computer-controlled player
 	One_Vs_Cpu(new String[] { "Player One", "Computer" }, new Color[] { Color.RED, Color.GRAY }, new boolean[] { true,
 			false });
-
-	// TODO: Define a "Player" class to better encapsulate this data?
 
 	/** The number of players in this mode. */
 	private final int numberOfPlayers;
