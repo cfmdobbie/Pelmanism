@@ -428,7 +428,7 @@ public class GameScreen implements Screen {
 		stage.act();
 		stage.draw();
 
-		Table.drawDebug(stage);
+		// Table.drawDebug(stage);
 	}
 
 	@Override
