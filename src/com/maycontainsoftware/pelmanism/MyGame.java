@@ -171,8 +171,8 @@ public class MyGame extends Game {
 		Gdx.gl.glScissor((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 
 		// Clear virtual render area with background color
-		Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		//Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+		//Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// Reset SpriteBatch color to white
 		// TODO: This doesn't appear to be necessary - check this!
