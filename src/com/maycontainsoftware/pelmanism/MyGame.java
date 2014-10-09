@@ -40,7 +40,7 @@ public class MyGame extends Game {
 
 	// Background colour
 	/** The app's background color, the default color the virtual render area is cleared to. */
-	private static final Color BACKGROUND_COLOR = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
+	// private static final Color BACKGROUND_COLOR = new Color(154 / 256.0f, 207 / 256.0f, 250 / 256.0f, 1.0f);
 
 	/**
 	 * The app-global SpriteBatch. For performance reasons, a single SpriteBatch exists and is accessed from all Screens
@@ -171,8 +171,8 @@ public class MyGame extends Game {
 		Gdx.gl.glScissor((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 
 		// Clear virtual render area with background color
-		//Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
-		//Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		// Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+		// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// Reset SpriteBatch color to white
 		// TODO: This doesn't appear to be necessary - check this!
